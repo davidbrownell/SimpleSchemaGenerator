@@ -10,7 +10,6 @@
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/SimpleSchemaGenerator)](https://pypistats.org/packages/simpleschemagenerator)
 <!-- END: Exclude Package -->
 
-# SimpleSchemaGenerator
 Tool that generates code based on a defined schema.
 
 ### Overview
