@@ -27,3 +27,5 @@ MetadataItemDuplicated = CreateErrorType(
     key=str,
     prev_region=Region,
 )
+
+TupleExpressionEmpty = CreateErrorType("No expressions were provided.")
