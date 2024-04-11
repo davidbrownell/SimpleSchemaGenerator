@@ -39,7 +39,6 @@ app = typer.Typer(
 this_dir = PathEx.EnsureDir(Path(__file__).parent)
 src_dir = PathEx.EnsureDir(this_dir / "src")
 package_dir = PathEx.EnsureDir(src_dir / "SimpleSchemaGenerator")
-tests_dir = PathEx.EnsureDir(this_dir / "tests")
 
 
 # ----------------------------------------------------------------------
@@ -52,7 +51,7 @@ Pylint = RepoBuildTools.PylintFuncFactory(
 )
 
 Pytest = RepoBuildTools.PytestFuncFactory(
-    tests_dir,
+    this_dir,
     package_dir.name,
     app,
     default_min_coverage=90.0,

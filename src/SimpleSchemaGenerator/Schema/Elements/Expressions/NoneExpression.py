@@ -14,7 +14,6 @@
 """Contains the NoneExpression object."""
 
 from dataclasses import dataclass
-from types import NoneType
 from typing import ClassVar
 
 from .Expression import Expression
@@ -28,4 +27,4 @@ class NoneExpression(Expression):
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "None"
 
-    value: NoneType = None
+    value: None = None
