@@ -43,7 +43,8 @@ classifiers = [
 ]
 
 dependencies = [
-    # TODO
+    "antlr_denter == 1.*",
+    "dbrownell_Common",
     "typer ~= 0.9"
 ]
 
@@ -79,7 +80,18 @@ SimpleSchemaGenerator = "SimpleSchemaGenerator:EntryPoint.app"
 # |
 # ----------------------------------------------------------------------
 [tool.black]
+force-exclude="^.+/GeneratedCode/.+$"
 line-length = 100
+
+# ----------------------------------------------------------------------
+# |
+# |  coverage
+# |
+# ----------------------------------------------------------------------
+[tool.coverage.run]
+omit = [
+    "*/GeneratedCode/*",
+]
 
 # ----------------------------------------------------------------------
 # |
@@ -107,11 +119,12 @@ max-args = 10
 max-parents = 15
 
 [tool.pylint.main]
-ignore-patterns = [
+ignore-paths = [
     # Note that the pylint vscode extension has trouble with wrapping these patterns in quotes
     # (which is required to parse the file correctly). Because of this, each pattern must be
     # converted to a glob pattern and specified in the pylint vscode settings as well.
     "^.+?Tests/.*$",
+    "^.+?/GeneratedCode/.*$",
 ]
 
 [tool.pylint."messages control"]
@@ -148,6 +161,7 @@ disable = [
 exclude = [
     "**/*Tests/*",
     "**/Generated/*",
+    "**/GeneratedCode/*",
 ]
 
 reportMissingImports = true

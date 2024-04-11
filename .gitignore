@@ -9,6 +9,7 @@ Deactivate*.sh
 **/lcov.info
 **/.vscode
 
+.antlr
 build/**
 dist/**
 src/SimpleSchemaGenerator.egg-info/**
