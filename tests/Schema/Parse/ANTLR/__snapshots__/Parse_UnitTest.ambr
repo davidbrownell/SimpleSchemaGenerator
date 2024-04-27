@@ -1,0 +1,144 @@
+# serializer version: 1
+# name: TestParsing.test_Cardinality
+  '''
+  - __type__: RootStatement
+    statements:
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: Cardinality
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      children:
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: standard
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          identifiers:
+          - __type__: ParseIdentifier
+            value: String
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: zero_or_more
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 0
+          identifiers:
+          - __type__: ParseIdentifier
+            value: String
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: one_or_more
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+          identifiers:
+          - __type__: ParseIdentifier
+            value: String
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: constrained
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 3
+            max:
+              __type__: IntegerExpression
+              value: 10
+          identifiers:
+          - __type__: ParseIdentifier
+            value: String
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: fixed
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 3
+            max:
+              __type__: IntegerExpression
+              value: 3
+          identifiers:
+          - __type__: ParseIdentifier
+            value: String
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: optional
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 0
+            max:
+              __type__: IntegerExpression
+              value: 1
+          identifiers:
+          - __type__: ParseIdentifier
+            value: String
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: optional_with_default
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 0
+            max:
+              __type__: IntegerExpression
+              value: 1
+          unresolved_metadata:
+            __type__: Metadata
+            items:
+            - __type__: MetadataItem
+              name:
+                __type__: TerminalElement
+                value: default
+              expression:
+                __type__: IntegerExpression
+                value: 123
+          identifiers:
+          - __type__: ParseIdentifier
+            value: Integer
+  
+  '''
+# ---

@@ -126,9 +126,9 @@ class ExceptionError(Error):
 
                 regions.append(
                     Region(
-                        Location(line_number, 1),
-                        Location(line_number, 1),
                         Path(match.group("filename")),
+                        Location(line_number, 1),
+                        Location(line_number, 1),
                     ),
                 )
 

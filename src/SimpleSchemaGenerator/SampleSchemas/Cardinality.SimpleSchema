@@ -1,0 +1,10 @@
+Cardinality ->
+    standard: String
+
+    zero_or_more: String*
+    one_or_more: String+
+    constrained: String[3..10]
+    fixed: String[3]
+
+    optional: String?
+    optional_with_default: Integer? { default: 123 }

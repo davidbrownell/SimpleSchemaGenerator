@@ -14,17 +14,24 @@
 """Unit tests for Cardinality.py"""
 
 import re
+import sys
 
 from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
 
+from dbrownell_Common.ContextlibEx import ExitStack
+from dbrownell_Common import PathEx
+
 from SimpleSchemaGenerator.Common.Error import SimpleSchemaGeneratorException
 from SimpleSchemaGenerator.Common.Region import Region
-from SimpleSchemaGenerator.Schema.Common.Cardinality import Cardinality
+from SimpleSchemaGenerator.Schema.Elements.Common.Cardinality import Cardinality
 from SimpleSchemaGenerator.Schema.Elements.Expressions.IntegerExpression import IntegerExpression
-from SimpleSchemaGenerator.Schema.Visitors.TestHelperVisitor import TestHelperVisitor
+
+sys.path.insert(0, str(PathEx.EnsureDir(Path(__file__).parent.parent.parent)))
+with ExitStack(lambda: sys.path.pop(0)):
+    from TestHelpers import TestElementVisitor
 
 
 # ----------------------------------------------------------------------
@@ -36,7 +43,7 @@ def test_Standard():
 
     cardinality = Cardinality(region_mock, min_value, max_value)
 
-    assert cardinality.region__ is region_mock
+    assert cardinality.region is region_mock
     assert cardinality.min is min_value
     assert cardinality.max is max_value
 
@@ -48,11 +55,11 @@ def test_Single():
     c = Cardinality(region_mock, None, None)
 
     assert c.min.value == 1
-    assert c.min.region__ is region_mock
+    assert c.min.region is region_mock
 
     assert c.max is not None
     assert c.max.value == 1
-    assert c.max.region__ is region_mock
+    assert c.max.region is region_mock
 
     assert c.is_single is True
     assert c.is_optional is False
@@ -60,16 +67,14 @@ def test_Single():
 
     assert str(c) == ""
 
-    visitor = TestHelperVisitor()
+    results = TestElementVisitor(c)
 
-    c.Accept(visitor)
-
-    assert len(visitor.queue) == 5
-    assert visitor.queue[0] is c
-    assert visitor.queue[1][0] == "min"
-    assert isinstance(visitor.queue[2], IntegerExpression)
-    assert visitor.queue[3][0] == "max"
-    assert isinstance(visitor.queue[4], IntegerExpression)
+    assert len(results) == 3
+    assert results[0] is c
+    assert results[1][0] == "min"
+    assert isinstance(results[1][1], IntegerExpression)
+    assert results[2][0] == "max"
+    assert isinstance(results[2][1], IntegerExpression)
 
 
 # ----------------------------------------------------------------------
@@ -88,16 +93,10 @@ def test_Optional():
 
     assert str(c) == "?"
 
-    visitor = TestHelperVisitor()
-
-    c.Accept(visitor)
-
-    assert visitor.queue == [
+    assert TestElementVisitor(c) == [
         c,
         ("min", min),
-        min,
         ("max", max),
-        max,
     ]
 
 
@@ -116,14 +115,9 @@ def test_OptionalContainer():
 
     assert str(c) == "*"
 
-    visitor = TestHelperVisitor()
-
-    c.Accept(visitor)
-
-    assert visitor.queue == [
+    assert TestElementVisitor(c) == [
         c,
         ("min", min),
-        min,
     ]
 
 
@@ -142,14 +136,9 @@ def test_RequiredUnboundedContainer():
 
     assert str(c) == "+"
 
-    visitor = TestHelperVisitor()
-
-    c.Accept(visitor)
-
-    assert visitor.queue == [
+    assert TestElementVisitor(c) == [
         c,
         ("min", min),
-        min,
     ]
 
 
@@ -168,14 +157,9 @@ def test_RequiredBoundedContainer():
 
     assert str(c) == "[13+]"
 
-    visitor = TestHelperVisitor()
-
-    c.Accept(visitor)
-
-    assert visitor.queue == [
+    assert TestElementVisitor(c) == [
         c,
         ("min", min),
-        min,
     ]
 
 
@@ -194,16 +178,10 @@ def test_FixedContainer():
 
     assert str(c) == "[13]"
 
-    visitor = TestHelperVisitor()
-
-    c.Accept(visitor)
-
-    assert visitor.queue == [
+    assert TestElementVisitor(c) == [
         c,
         ("min", integer),
-        integer,
         ("max", integer),
-        integer,
     ]
 
 
@@ -223,16 +201,10 @@ def test_VariableContainer():
 
     assert str(c) == "[13..42]"
 
-    visitor = TestHelperVisitor()
-
-    c.Accept(visitor)
-
-    assert visitor.queue == [
+    assert TestElementVisitor(c) == [
         c,
         ("min", min),
-        min,
         ("max", max),
-        max,
     ]
 
 
@@ -244,7 +216,7 @@ def test_MaxOnly():
     c = Cardinality(region_mock, None, max)
 
     assert c.min.value == 0
-    assert c.min.region__ is region_mock
+    assert c.min.region is region_mock
     assert c.max is max
 
     assert c.is_single is False
@@ -253,17 +225,13 @@ def test_MaxOnly():
 
     assert str(c) == "[0..100]"
 
-    visitor = TestHelperVisitor()
+    results = TestElementVisitor(c)
 
-    c.Accept(visitor)
-
-    assert len(visitor.queue) == 5
-
-    assert visitor.queue[0] is c
-    assert visitor.queue[1][0] == "min"
-    assert isinstance(visitor.queue[2], IntegerExpression)
-    assert visitor.queue[3] == ("max", max)
-    assert visitor.queue[4] is max
+    assert len(results) == 3
+    assert results[0] is c
+    assert results[1][0] == "min"
+    assert isinstance(results[1][1], IntegerExpression)
+    assert results[2] == ("max", max)
 
 
 # ----------------------------------------------------------------------

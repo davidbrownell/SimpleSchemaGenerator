@@ -22,7 +22,7 @@ import pytest
 
 from dbrownell_Common.Types import override
 
-from SimpleSchemaGenerator.Schema.Common.Element import Element
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
 from SimpleSchemaGenerator.Schema.Visitors.ElementVisitor import ElementVisitor, VisitResult
 
 
@@ -32,7 +32,7 @@ def test_Basics():
 
     e = Element(region_mock)
 
-    assert e.region__ is region_mock
+    assert e.region is region_mock
 
     # Disable
     assert e.is_disabled__ is False

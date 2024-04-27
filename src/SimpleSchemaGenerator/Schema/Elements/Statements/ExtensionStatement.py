@@ -1,9 +1,9 @@
 # ----------------------------------------------------------------------
 # |
-# |  Metadata.py
+# |  ExtensionStatement.py
 # |
 # |  David Brownell <db@DavidBrownell.com>
-# |      2024-04-10 09:11:14
+# |      2024-04-20 16:57:29
 # |
 # ----------------------------------------------------------------------
 # |
@@ -11,22 +11,24 @@
 # |  Distributed under the MIT License.
 # |
 # ----------------------------------------------------------------------
-"""Contains the Metadata and MetadataItem elements"""
+"""Contains the ExtensionStatement object."""
 
 from dataclasses import dataclass, field, InitVar
+from typing import cast
 
 from dbrownell_Common.Types import override  # type: ignore[import-untyped]
 
-from .Element import Element
-from .TerminalElement import TerminalElement
-from ..Elements.Expressions.Expression import Expression
-from ... import Errors
+from .Statement import Element, Statement
+from ..Common.TerminalElement import TerminalElement
+from ..Expressions.Expression import Expression
+
+from .... import Errors
 
 
 # ----------------------------------------------------------------------
 @dataclass(frozen=True)
-class MetadataItem(Element):
-    """Individual metadata item within a collection of metadata items"""
+class ExtensionStatementKeywordArg(Element):
+    """Keyword argument associated with an extension statement."""
 
     # ----------------------------------------------------------------------
     name: TerminalElement[str]
@@ -43,39 +45,49 @@ class MetadataItem(Element):
 
 # ----------------------------------------------------------------------
 @dataclass(frozen=True)
-class Metadata(Element):
-    """Collection of metadata items"""
+class ExtensionStatement(Statement):
+    """An extension statement that is processed by plugins."""
 
     # ----------------------------------------------------------------------
-    items_param: InitVar[list[MetadataItem]]  # Can be an empty list
-    items: dict[str, MetadataItem] = field(init=False)
+    name: TerminalElement[str]
+    positional_args: list[Expression]
+
+    keyword_args_param: InitVar[list[ExtensionStatementKeywordArg]]
+    keyword_args: dict[str, ExtensionStatementKeywordArg] = field(init=False)
 
     # ----------------------------------------------------------------------
     def __post_init__(
         self,
-        items_param: list[MetadataItem],
+        keyword_args_param: list[ExtensionStatementKeywordArg],
     ) -> None:
-        items: dict[str, MetadataItem] = {}
+        keyword_args: dict[str, ExtensionStatementKeywordArg] = {}
 
-        for item in items_param:
-            key = item.name.value
+        for keyword_arg in keyword_args_param:
+            key = keyword_arg.name.value
 
-            prev_value = items.get(key, None)
+            prev_value = keyword_args.get(key)
             if prev_value is not None:
-                raise Errors.MetadataItemDuplicated.CreateAsException(
-                    item.name.region__,
+                raise Errors.ExtensionStatementDuplicateKeywordArgError.CreateAsException(
+                    keyword_arg.name.region,
                     key,
-                    prev_value.name.region__,
+                    prev_value.name.region,
                 )
 
-            items[key] = item
+            keyword_args[key] = keyword_arg
 
-        # Commit
-        object.__setattr__(self, "items", items)
+        object.__setattr__(self, "keyword_args", keyword_args)
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     @override
-    def _GetAcceptChildren(self) -> Element._GetAcceptChildrenResultType:
-        return Element._GetAcceptChildrenResult("items", list(self.items.values()))
+    def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
+        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+            "name", self.name
+        )
+        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+            "positional_args", cast(list[Element], self.positional_args)
+        )
+        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+            "keyword_args", cast(list[Element], list(self.keyword_args.values()))
+        )

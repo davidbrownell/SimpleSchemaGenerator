@@ -36,15 +36,6 @@ def test_CreateFromCode():
 
 
 # ----------------------------------------------------------------------
-def test_CreateFromLocation():
-    r = Region.CreateFromLocation(Path("bar"), Location(10, 20), Location(30, 40))
-
-    assert r.filename == Path("bar")
-    assert r.begin == Location(10, 20)
-    assert r.end == Location(30, 40)
-
-
-# ----------------------------------------------------------------------
 def test_Comparison():
     assert Region.Create(Path("foo"), 1, 2, 3, 4) == Region.Create(Path("foo"), 1, 2, 3, 4)
 
@@ -77,10 +68,6 @@ def test_Contains():
     assert Location(1, 2) in r
     assert Location(3, 4) in r
     assert Location(4, 4) not in r
-
-    # Range
-    assert Range(Location(1, 2), Location(3, 4)) in r
-    assert Range(Location(1, 2), Location(4, 1)) not in r
 
     # Region
     assert Region.Create(Path("foo"), 1, 2, 3, 4) in r

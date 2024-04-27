@@ -24,6 +24,6 @@ def test_IntegerExpression():
 
     e = IntegerExpression(region_mock, 10)
 
-    assert e.region__ is region_mock
+    assert e.region is region_mock
     assert e.NAME == "Integer"
     assert e.value == 10

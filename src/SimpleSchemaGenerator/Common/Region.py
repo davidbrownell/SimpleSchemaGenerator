@@ -21,16 +21,17 @@ from pathlib import Path
 from typing import Union
 
 from .Location import Location
-from .Range import Range
 
 
 # ----------------------------------------------------------------------
 @dataclass(frozen=True)
-class Region(Range):
-    """Range that includes source file information."""
+class Region:
+    """A region within a source file."""
 
     # ----------------------------------------------------------------------
     filename: Path
+    begin: Location
+    end: Location
 
     # ----------------------------------------------------------------------
     @classmethod
@@ -42,7 +43,7 @@ class Region(Range):
         end_line: int,
         end_column: int,
     ) -> "Region":
-        return cls.CreateFromLocation(
+        return cls(
             filename,
             Location(begin_line, begin_column),
             Location(end_line, end_column),
@@ -58,21 +59,11 @@ class Region(Range):
         frame = inspect.stack()[callstack_offset + 1][0]
         line = frame.f_lineno
 
-        return cls.CreateFromLocation(
+        return cls(
             Path(frame.f_code.co_filename),
             Location(line, line),
             Location(line, line),
         )
-
-    # ----------------------------------------------------------------------
-    @classmethod
-    def CreateFromLocation(
-        cls,
-        filename: Path,
-        begin: Location,
-        end: Location,
-    ) -> "Region":
-        return cls(begin, end, filename)
 
     # ----------------------------------------------------------------------
     def __str__(self) -> str:
@@ -87,7 +78,15 @@ class Region(Range):
         if this.filename != that.filename:
             return -1 if this.filename < that.filename else 1
 
-        return Range.Compare(this, that)
+        result = Location.Compare(this.begin, that.begin)
+        if result != 0:
+            return result
+
+        result = Location.Compare(this.end, that.end)
+        if result != 0:
+            return result
+
+        return 0
 
     # ----------------------------------------------------------------------
     def __eq__(self, other) -> bool:
@@ -111,19 +110,22 @@ class Region(Range):
     # ----------------------------------------------------------------------
     def __contains__(
         self,
-        location_range_or_region: Union[Location, Range, "Region"],
+        location_or_region: Union[Location, "Region"],
     ) -> bool:
-        if (
-            isinstance(location_range_or_region, Region)
-            and self.filename != location_range_or_region.filename
-        ):
-            return False
+        if isinstance(location_or_region, Region):
+            if self.filename != location_or_region.filename:
+                return False
 
-        return super(Region, self).__contains__(location_range_or_region)
+            return self.begin <= location_or_region.begin and location_or_region.end <= self.end
+
+        if isinstance(location_or_region, Location):
+            return self.begin <= location_or_region <= self.end
+
+        assert False, location_or_region  # pragma: no cover
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     @cached_property
     def _string(self) -> str:
-        return "{}, {}".format(self.filename.as_posix(), super(Region, self)._string)
+        return "{}, {} -> {}".format(self.filename.as_posix(), self.begin, self.end)

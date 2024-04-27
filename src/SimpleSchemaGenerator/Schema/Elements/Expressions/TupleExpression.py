@@ -19,7 +19,7 @@ from typing import ClassVar
 from dbrownell_Common.Types import override  # type: ignore[import-untyped]
 
 from .Expression import Expression
-from ...Common.Element import Element
+from ..Common.Element import Element
 from .... import Errors
 
 
@@ -36,7 +36,7 @@ class TupleExpression(Expression):
     # ----------------------------------------------------------------------
     def __post_init__(self):
         if not self.value:
-            raise Errors.TupleExpressionEmpty.CreateAsException(self.region__)
+            raise Errors.TupleExpressionEmpty.CreateAsException(self.region)
 
         super(TupleExpression, self).__post_init__()
 

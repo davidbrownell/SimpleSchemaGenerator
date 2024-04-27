@@ -36,7 +36,7 @@ def test_MyExpression():
 
     e = MyExpression(region_mock, "foo")
 
-    assert e.region__ is region_mock
+    assert e.region is region_mock
     assert e.NAME == "MyExpression"
     assert e.value == "foo"
 
