@@ -21,7 +21,7 @@ from typing import Iterable, Iterator, TYPE_CHECKING, Union
 from dbrownell_Common.Types import override  # type: ignore[import-untyped]
 
 if TYPE_CHECKING:
-    from SimpleSchemaGenerator.Schema.Common.Element import Element  # pragma: no cover
+    from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element  # pragma: no cover
 
 
 # ----------------------------------------------------------------------

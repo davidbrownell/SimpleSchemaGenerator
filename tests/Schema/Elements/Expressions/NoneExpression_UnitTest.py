@@ -24,6 +24,6 @@ def test_NoneExpression():
 
     e = NoneExpression(region_mock)
 
-    assert e.region__ is region_mock
+    assert e.region is region_mock
     assert e.NAME == "None"
     assert e.value is None

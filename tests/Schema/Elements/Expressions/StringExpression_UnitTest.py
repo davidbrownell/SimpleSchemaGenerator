@@ -24,6 +24,6 @@ def test_StringExpression():
 
     e = StringExpression(region_mock, "Hello")
 
-    assert e.region__ is region_mock
+    assert e.region is region_mock
     assert e.NAME == "String"
     assert e.value == "Hello"

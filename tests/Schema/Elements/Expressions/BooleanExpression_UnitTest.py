@@ -24,6 +24,6 @@ def test_BooleanExpression():
 
     e = BooleanExpression(region_mock, True)
 
-    assert e.region__ is region_mock
+    assert e.region is region_mock
     assert e.NAME == "Boolean"
     assert e.value is True

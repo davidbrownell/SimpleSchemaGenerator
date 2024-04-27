@@ -16,6 +16,7 @@
 from abc import ABC
 from dataclasses import dataclass, field
 from typing import Generator, Optional, Union
+from weakref import ReferenceType as WeakReferenceType
 
 from dbrownell_Common.Types import extension  # type: ignore[import-untyped]
 
@@ -33,7 +34,7 @@ class Element(ABC):
     # |  Public Data
     # |
     # ----------------------------------------------------------------------
-    region__: Region
+    region: Region
 
     _disabled: bool = field(init=False, default=False)
 
@@ -136,7 +137,12 @@ class Element(ABC):
     @dataclass(frozen=True)
     class _GenerateAcceptDetailsItem:
         name: str
-        value: Union["Element", list["Element"]]
+        value: Union[
+            "Element",
+            WeakReferenceType["Element"],
+            list["Element"],
+            list[WeakReferenceType["Element"]],
+        ]
 
     _GenerateAcceptDetailsResultType = Generator[_GenerateAcceptDetailsItem, None, None]
 
@@ -153,6 +159,7 @@ class Element(ABC):
     # |  Private Methods
     # |
     # ----------------------------------------------------------------------
+    # BugBug: Ensure all Elements invoke base classes
     @extension
     def _GenerateAcceptDetails(self) -> _GenerateAcceptDetailsResultType:
         # Nothing by default
@@ -160,6 +167,7 @@ class Element(ABC):
             yield
 
     # ----------------------------------------------------------------------
+    # BugBug: Ensure all Elements invoke base classes
     @extension
     def _GetAcceptChildren(self) -> _GetAcceptChildrenResultType:
         # Nothing by default

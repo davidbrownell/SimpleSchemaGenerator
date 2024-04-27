@@ -20,8 +20,8 @@ from typing import Optional
 from dbrownell_Common.Types import override  # type: ignore[import-untyped]
 
 from .Element import Element
-from ..Elements.Expressions.IntegerExpression import IntegerExpression
-from ... import Errors
+from ..Expressions.IntegerExpression import IntegerExpression
+from .... import Errors
 
 
 # ----------------------------------------------------------------------
@@ -42,10 +42,10 @@ class Cardinality(Element):
         max_param: Optional[IntegerExpression],
     ) -> None:
         if min_param is None and max_param is None:
-            min_param = IntegerExpression(self.region__, 1)
-            max_param = IntegerExpression(self.region__, 1)
+            min_param = IntegerExpression(self.region, 1)
+            max_param = IntegerExpression(self.region, 1)
         elif min_param is None:
-            min_param = IntegerExpression(self.region__, 0)
+            min_param = IntegerExpression(self.region, 0)
         elif max_param is None:
             # Nothing to do here, as this indicates an unbounded number of items
             pass
@@ -54,7 +54,7 @@ class Cardinality(Element):
 
         if max_param is not None and max_param.value < min_param.value:
             raise Errors.CardinalityInvalidRange.CreateAsException(
-                max_param.region__,
+                max_param.region,
                 min_param.value,
                 max_param.value,
             )

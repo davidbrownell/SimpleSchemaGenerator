@@ -82,8 +82,7 @@ HORIZONTAL_WHITESPACE:                      [ \t]+ -> channel(HIDDEN);
 
 NUMBER:                                     '-'? [0-9]* '.' [0-9]+;
 INTEGER:                                    '-'? [0-9]+;
-// TODO: We really want this to be any char that isn't defined elsewhere (not just emojis)
-IDENTIFIER:                                 [_@$&]? '_'* [a-zA-Z\p{Emoji}][a-zA-Z0-9_\p{Emoji}]*;
+IDENTIFIER:                                 [_@$&]? [a-zA-Z\p{Emoji}][a-zA-Z0-9_]*;
 
 DOUBLE_QUOTE_STRING:                        UNTERMINATED_DOUBLE_QUOTE_STRING '"';
 UNTERMINATED_DOUBLE_QUOTE_STRING:           '"' ('\\"' | '\\\\' | ~'"')*?;
@@ -171,7 +170,9 @@ tuple_expression_multi_item__:              expression__ (',' expression__)+ ','
 // |  Statements
 // |
 // ----------------------------------------------------------------------
-header_statement__:                         include_statement;
+header_statement__:                         (
+                                                include_statement
+                                            );
 
 // ----------------------------------------------------------------------
 include_statement:                          INCLUDE_FROM include_statement_from INCLUDE_IMPORT include_statement_import__ NEWLINE+;
@@ -219,7 +220,7 @@ parse_structure_statement:                  (
                                                 ) DEDENT
                                                 (
                                                     (
-                                                        (cardinality_clause NEWLINE * metadata_clause)
+                                                        (cardinality_clause NEWLINE* metadata_clause)
                                                         | metadata_clause
                                                         | cardinality_clause
                                                     )

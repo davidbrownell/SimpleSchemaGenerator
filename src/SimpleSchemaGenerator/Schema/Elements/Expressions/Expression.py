@@ -16,7 +16,7 @@
 from dataclasses import dataclass
 from typing import Any, ClassVar
 
-from ...Common.Element import Element
+from ..Common.Element import Element
 
 
 # ----------------------------------------------------------------------

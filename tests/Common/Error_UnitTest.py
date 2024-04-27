@@ -24,7 +24,7 @@ from SimpleSchemaGenerator.Common.Error import *  # type: ignore[import-untyped]
 class TestError:
     # ----------------------------------------------------------------------
     def test_SingleLineSingleRegion(self):
-        region = Region.CreateFromLocation(
+        region = Region(
             Path("foo"),
             Location(1, 2),
             Location(3, 4),
@@ -38,7 +38,7 @@ class TestError:
 
     # ----------------------------------------------------------------------
     def test_MultipleLinesSingleRegion(self):
-        region = Region.CreateFromLocation(
+        region = Region(
             Path("foo"),
             Location(1, 2),
             Location(3, 4),
@@ -59,13 +59,13 @@ class TestError:
 
     # ----------------------------------------------------------------------
     def test_SingleLineMultipleRegions(self):
-        region1 = Region.CreateFromLocation(
+        region1 = Region(
             Path("foo"),
             Location(1, 2),
             Location(3, 4),
         )
 
-        region2 = Region.CreateFromLocation(
+        region2 = Region(
             Path("bar"),
             Location(5, 6),
             Location(7, 8),
@@ -86,13 +86,13 @@ class TestError:
 
     # ----------------------------------------------------------------------
     def test_MutlipleLinesMultipleRegions(self):
-        region1 = Region.CreateFromLocation(
+        region1 = Region(
             Path("foo"),
             Location(1, 2),
             Location(3, 4),
         )
 
-        region2 = Region.CreateFromLocation(
+        region2 = Region(
             Path("bar"),
             Location(5, 6),
             Location(7, 8),
@@ -114,7 +114,7 @@ class TestError:
 
     # ----------------------------------------------------------------------
     def test_CreateAsException(self):
-        region = Region.CreateFromLocation(
+        region = Region(
             Path("foo"),
             Location(1, 2),
             Location(3, 4),

@@ -19,7 +19,7 @@ from typing import cast, ClassVar
 from dbrownell_Common.Types import override  # type: ignore[import-untyped]
 
 from .Expression import Expression
-from ...Common.Element import Element
+from ..Common.Element import Element
 
 
 # ----------------------------------------------------------------------

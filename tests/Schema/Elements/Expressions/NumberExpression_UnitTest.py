@@ -24,6 +24,6 @@ def test_NumberExpression():
 
     e = NumberExpression(region_mock, 3.14)
 
-    assert e.region__ is region_mock
+    assert e.region is region_mock
     assert e.NAME == "Number"
     assert e.value == 3.14

@@ -14,15 +14,22 @@
 """Unit tests for Metadata.py"""
 
 import re
+import sys
 
 from unittest.mock import Mock
 
 import pytest
 
+from dbrownell_Common.ContextlibEx import ExitStack
+from dbrownell_Common import PathEx
+
 from SimpleSchemaGenerator.Errors import SimpleSchemaGeneratorException
 from SimpleSchemaGenerator.Common.Region import *
-from SimpleSchemaGenerator.Schema.Common.Metadata import *
-from SimpleSchemaGenerator.Schema.Visitors.TestHelperVisitor import TestHelperVisitor
+from SimpleSchemaGenerator.Schema.Elements.Common.Metadata import *
+
+sys.path.insert(0, str(PathEx.EnsureDir(Path(__file__).parent.parent.parent)))
+with ExitStack(lambda: sys.path.pop(0)):
+    from TestHelpers import TestElementVisitor
 
 
 # ----------------------------------------------------------------------
@@ -33,16 +40,12 @@ def test_MetadataItem():
 
     e = MetadataItem(region_mock, name_mock, expression_mock)
 
-    assert e.region__ is region_mock
+    assert e.region is region_mock
     assert e.name is name_mock
     assert e.expression is expression_mock
 
     # Visitor
-    visitor = TestHelperVisitor()
-
-    e.Accept(visitor)
-
-    assert visitor.queue == [
+    assert TestElementVisitor(e) == [
         e,
         ("name", name_mock),
         ("expression", expression_mock),
@@ -53,17 +56,13 @@ def test_MetadataItem():
 def test_Metadata():
     region_mock = Mock()
 
-    foo_name = TerminalElement[str](Mock(), "foo")
-    bar_name = TerminalElement[str](Mock(), "bar")
-    baz_name = TerminalElement[str](Mock(), "baz")
-
     foo_expression = Mock()
     bar_expression = Mock()
     baz_expression = Mock()
 
-    foo_metadata_item = MetadataItem(Mock(), foo_name, foo_expression)
-    bar_metadata_item = MetadataItem(Mock(), bar_name, bar_expression)
-    baz_metadata_item = MetadataItem(Mock(), baz_name, baz_expression)
+    foo_metadata_item = MetadataItem(Mock(), TerminalElement[str](Mock(), "foo"), foo_expression)
+    bar_metadata_item = MetadataItem(Mock(), TerminalElement[str](Mock(), "bar"), bar_expression)
+    baz_metadata_item = MetadataItem(Mock(), TerminalElement[str](Mock(), "baz"), baz_expression)
 
     e = Metadata(
         region_mock,
@@ -74,33 +73,15 @@ def test_Metadata():
         ],
     )
 
-    assert e.region__ is region_mock
+    assert e.region is region_mock
     assert len(e.items) == 3
     assert e.items["foo"].expression is foo_expression
     assert e.items["bar"].expression is bar_expression
     assert e.items["baz"].expression is baz_expression
 
-    # Visitor
-    visitor = TestHelperVisitor()
-
-    e.Accept(visitor)
-
-    assert visitor.queue == [
+    assert TestElementVisitor(e) == [
         e,
-        "Push 'items'",
-        foo_metadata_item,
-        ("name", foo_name),
-        foo_name,
-        ("expression", foo_expression),
-        bar_metadata_item,
-        ("name", bar_name),
-        bar_name,
-        ("expression", bar_expression),
-        baz_metadata_item,
-        ("name", baz_name),
-        baz_name,
-        ("expression", baz_expression),
-        "Pop 'items'",
+        ("<children>: items", [foo_metadata_item, bar_metadata_item, baz_metadata_item]),
     ]
 
 

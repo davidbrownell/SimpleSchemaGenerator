@@ -20,7 +20,7 @@ from unittest.mock import Mock
 
 from dbrownell_Common.Types import override
 
-from SimpleSchemaGenerator.Schema.Common.TerminalElement import Element, TerminalElement
+from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import Element, TerminalElement
 from SimpleSchemaGenerator.Schema.Visitors.ElementVisitor import ElementVisitorHelper, VisitResult
 
 

@@ -13,11 +13,20 @@
 # ----------------------------------------------------------------------
 """Unit tests for ListExpression.py"""
 
+import sys
+
+from pathlib import Path
 from unittest.mock import Mock
+
+from dbrownell_Common.ContextlibEx import ExitStack
+from dbrownell_Common import PathEx
 
 from SimpleSchemaGenerator.Schema.Elements.Expressions.IntegerExpression import IntegerExpression
 from SimpleSchemaGenerator.Schema.Elements.Expressions.ListExpression import ListExpression
-from SimpleSchemaGenerator.Schema.Visitors.TestHelperVisitor import TestHelperVisitor
+
+sys.path.insert(0, str(PathEx.EnsureDir(Path(__file__).parent.parent.parent)))
+with ExitStack(lambda: sys.path.pop(0)):
+    from TestHelpers import TestElementVisitor
 
 
 # ----------------------------------------------------------------------
@@ -26,15 +35,14 @@ def test_ListExpressionEmpty():
 
     e = ListExpression(region_mock, [])
 
-    assert e.region__ is region_mock
+    assert e.region is region_mock
     assert e.NAME == "List"
     assert e.value == []
 
-    visitor = TestHelperVisitor()
-
-    e.Accept(visitor)
-
-    assert visitor.queue == [e, ("value", [])]
+    assert TestElementVisitor(e) == [
+        e,
+        ("value", []),
+    ]
 
 
 # ----------------------------------------------------------------------
@@ -46,17 +54,11 @@ def test_ListExpressionValues():
 
     e = ListExpression(region_mock, [value1, value2])
 
-    assert e.region__ is region_mock
+    assert e.region is region_mock
     assert e.NAME == "List"
     assert e.value == [value1, value2]
 
-    visitor = TestHelperVisitor()
-
-    e.Accept(visitor)
-
-    assert visitor.queue == [
+    assert TestElementVisitor(e) == [
         e,
         ("value", [value1, value2]),
-        value1,
-        value2,
     ]
