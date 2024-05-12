@@ -142,3 +142,329 @@
   
   '''
 # ---
+# name: TestParsing.test_Expressions
+  '''
+  - __type__: RootStatement
+    statements:
+    - __type__: ParseItemStatement
+      name:
+        __type__: ParseIdentifier
+        value: item
+      type:
+        __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        unresolved_metadata:
+          __type__: Metadata
+          items:
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: number
+            expression:
+              __type__: NumberExpression
+              value: 3.14
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: number_negative
+            expression:
+              __type__: NumberExpression
+              value: -0.12345
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: integer
+            expression:
+              __type__: IntegerExpression
+              value: 123
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: integer_negative
+            expression:
+              __type__: IntegerExpression
+              value: -4567
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: true1
+            expression:
+              __type__: BooleanExpression
+              value: true
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: true2
+            expression:
+              __type__: BooleanExpression
+              value: true
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: true3
+            expression:
+              __type__: BooleanExpression
+              value: true
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: true4
+            expression:
+              __type__: BooleanExpression
+              value: true
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: true5
+            expression:
+              __type__: BooleanExpression
+              value: true
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: true6
+            expression:
+              __type__: BooleanExpression
+              value: true
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: true7
+            expression:
+              __type__: BooleanExpression
+              value: true
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: true8
+            expression:
+              __type__: BooleanExpression
+              value: true
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: true9
+            expression:
+              __type__: BooleanExpression
+              value: true
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: true10
+            expression:
+              __type__: BooleanExpression
+              value: true
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: true11
+            expression:
+              __type__: BooleanExpression
+              value: true
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: false1
+            expression:
+              __type__: BooleanExpression
+              value: false
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: false2
+            expression:
+              __type__: BooleanExpression
+              value: false
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: false3
+            expression:
+              __type__: BooleanExpression
+              value: false
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: false4
+            expression:
+              __type__: BooleanExpression
+              value: false
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: false5
+            expression:
+              __type__: BooleanExpression
+              value: false
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: false6
+            expression:
+              __type__: BooleanExpression
+              value: false
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: false7
+            expression:
+              __type__: BooleanExpression
+              value: false
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: false8
+            expression:
+              __type__: BooleanExpression
+              value: false
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: false9
+            expression:
+              __type__: BooleanExpression
+              value: false
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: false10
+            expression:
+              __type__: BooleanExpression
+              value: false
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: false11
+            expression:
+              __type__: BooleanExpression
+              value: false
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: none
+            expression:
+              __type__: NoneExpression
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: string1
+            expression:
+              __type__: StringExpression
+              value: Quoted "string".
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: string2
+            expression:
+              __type__: StringExpression
+              value: Single quote 'string'.
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: string3
+            expression:
+              __type__: StringExpression
+              value: |-
+                Multi
+                  Line
+                String.
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: string4
+            expression:
+              __type__: StringExpression
+              value: |-
+                Another
+                  Multi
+                    Line
+                  String.
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: list_empty
+            expression:
+              __type__: ListExpression
+              value: []
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: list1
+            expression:
+              __type__: ListExpression
+              value:
+              - __type__: StringExpression
+                value: one
+              - __type__: StringExpression
+                value: two
+              - __type__: StringExpression
+                value: three
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: list2
+            expression:
+              __type__: ListExpression
+              value:
+              - __type__: StringExpression
+                value: one
+              - __type__: IntegerExpression
+                value: 2
+              - __type__: NumberExpression
+                value: 3.0
+              - __type__: ListExpression
+                value:
+                - __type__: IntegerExpression
+                  value: 4
+                - __type__: IntegerExpression
+                  value: 5
+                - __type__: IntegerExpression
+                  value: 6
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: tuple1
+            expression:
+              __type__: TupleExpression
+              value:
+              - __type__: IntegerExpression
+                value: 1
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: tuple2
+            expression:
+              __type__: TupleExpression
+              value:
+              - __type__: StringExpression
+                value: a
+              - __type__: StringExpression
+                value: b
+              - __type__: StringExpression
+                value: c
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: tuple3
+            expression:
+              __type__: TupleExpression
+              value:
+              - __type__: StringExpression
+                value: d
+              - __type__: StringExpression
+                value: e
+              - __type__: StringExpression
+                value: f
+        identifiers:
+        - __type__: ParseIdentifier
+          value: String
+  
+  '''
+# ---

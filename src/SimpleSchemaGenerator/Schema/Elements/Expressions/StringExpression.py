@@ -14,6 +14,7 @@
 """Contains the StringExpression object."""
 
 from dataclasses import dataclass
+from enum import auto, Enum
 from typing import ClassVar
 
 from .Expression import Expression
@@ -25,6 +26,16 @@ class StringExpression(Expression):
     """String value"""
 
     # ----------------------------------------------------------------------
+    class QuoteType(Enum):
+        """Type of quote used to define a string"""
+
+        Single = auto()
+        Double = auto()
+        TripleSingle = auto()
+        TripleDouble = auto()
+
+    # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "String"
 
     value: str
+    quote_type: "StringExpression.QuoteType"

@@ -528,13 +528,17 @@ class _VisitorMixin:
         else:
             content = ctx.stop.text
             lines = content.split("\n")
+            num_lines = len(lines)
 
             if ctx.stop.type == SimpleSchemaParser.NEWLINE:
                 assert content.startswith("\n"), content
-                assert len(lines) == 2, lines
+                assert num_lines == 2, lines
 
-            stop_line = ctx.stop.line + len(lines) - 1
-            stop_col = len(lines[-1]) + ctx.stop.column
+            stop_line = ctx.stop.line + num_lines - 1
+            stop_col = len(lines[-1])
+
+            if num_lines == 1:
+                stop_col += ctx.stop.column
 
         self._OnProgress(stop_line)
 
@@ -656,10 +660,10 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # |  Expressions
     # |
     # ----------------------------------------------------------------------
-    # TODO: def visitNumber_expression(self, ctx: SimpleSchemaParser.Number_expressionContext):
-    # TODO:     self._stack.append(
-    # TODO:         NumberExpression(self.CreateRegion(ctx), float(ctx.NUMBER().symbol.text))
-    # TODO:     )
+    def visitNumber_expression(self, ctx: SimpleSchemaParser.Number_expressionContext):
+        self._stack.append(
+            NumberExpression(self.CreateRegion(ctx), float(ctx.NUMBER().symbol.text))
+        )
 
     # ----------------------------------------------------------------------
     def visitInteger_expression(self, ctx: SimpleSchemaParser.Integer_expressionContext):
@@ -667,113 +671,179 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
             IntegerExpression(self.CreateRegion(ctx), int(ctx.INTEGER().symbol.text))
         )
 
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitTrue_expression(self, ctx: SimpleSchemaParser.True_expressionContext):
-    # TODO:     self._stack.append(BooleanExpression(self.CreateRegion(ctx), True))
-    # TODO:
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitFalse_expression(self, ctx: SimpleSchemaParser.False_expressionContext):
-    # TODO:     self._stack.append(BooleanExpression(self.CreateRegion(ctx), False))
-    # TODO:
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitNone_expression(self, ctx: SimpleSchemaParser.None_expressionContext):
-    # TODO:     self._stack.append(NoneExpression(self.CreateRegion(ctx)))
-    # TODO:
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitString_expression(self, ctx: SimpleSchemaParser.String_expressionContext):
-    # TODO:     context = ctx
-    # TODO:
-    # TODO:     while not isinstance(context, antlr4.TerminalNode):
-    # TODO:         assert len(context.children) == 1
-    # TODO:         context = context.children[0]
-    # TODO:
-    # TODO:     token = context.symbol  # type: ignore
-    # TODO:     value = token.text
-    # TODO:
-    # TODO:     # At the very least, we should have a beginning and ending quote
-    # TODO:     assert len(value) > 2
-    # TODO:
-    # TODO:     if value.startswith('"""') or value.startswith("'''"):
-    # TODO:         initial_whitespace = token.column
-    # TODO:
-    # TODO:         # ----------------------------------------------------------------------
-    # TODO:         def TrimPrefix(
-    # TODO:             line: str,
-    # TODO:             line_offset: int,
-    # TODO:         ) -> str:
-    # TODO:             index = 0
-    # TODO:             whitespace = 0
-    # TODO:
-    # TODO:             while index < len(line) and whitespace < initial_whitespace:
-    # TODO:                 if line[index] == " ":
-    # TODO:                     whitespace += 1
-    # TODO:                 elif line[index] == "\t":
-    # TODO:                     whitespace += 4
-    # TODO:                 else:
-    # TODO:                     raise AntlrException(
-    # TODO:                         Errors.antlr_invalid_indentation,
-    # TODO:                         self.filename,
-    # TODO:                         ctx.start.line + line_offset,
-    # TODO:                         whitespace + 1,
-    # TODO:                         None,
-    # TODO:                     )
-    # TODO:
-    # TODO:                 index += 1
-    # TODO:
-    # TODO:             return line[index:]
-    # TODO:
-    # TODO:         # ----------------------------------------------------------------------
-    # TODO:
-    # TODO:         lines = value.split("\n")
-    # TODO:
-    # TODO:         initial_line = lines[0].rstrip()
-    # TODO:         if len(initial_line) != 3:
-    # TODO:             raise AntlrException(
-    # TODO:                 Errors.antlr_invalid_opening_token,
-    # TODO:                 self.filename,
-    # TODO:                 ctx.start.line,
-    # TODO:                 ctx.start.column + 1 + 3,
-    # TODO:                 None,
-    # TODO:             )
-    # TODO:
-    # TODO:         final_line = lines[-1]
-    # TODO:         if len(TrimPrefix(final_line, len(lines))) != 3:
-    # TODO:             raise AntlrException(
-    # TODO:                 Errors.antlr_invalid_closing_token,
-    # TODO:                 self.filename,
-    # TODO:                 ctx.start.line + len(lines) - 1,
-    # TODO:                 ctx.start.column + 1,
-    # TODO:                 None,
-    # TODO:             )
-    # TODO:
-    # TODO:         lines = [TrimPrefix(line, index + 1) for index, line in enumerate(lines[1:-1])]
-    # TODO:
-    # TODO:         value = "\n".join(lines)
-    # TODO:
-    # TODO:     elif value[0] == '"' and value[-1] == '"':
-    # TODO:         value = value[1:-1].replace('\\"', '"')
-    # TODO:     elif value[0] == "'" and value[-1] == "'":
-    # TODO:         value = value[1:-1].replace("\\'", "'")
-    # TODO:     else:
-    # TODO:         assert False, value  # pragma: no cover
-    # TODO:
-    # TODO:     self._stack.append(StringExpression(self.CreateRegion(ctx), value))
-    # TODO:
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitList_expression(self, ctx: SimpleSchemaParser.List_expressionContext):
-    # TODO:     children = self._GetChildren(ctx)
-    # TODO:     assert all(isinstance(child, Expression) for child in children), children
-    # TODO:
-    # TODO:     self._stack.append(ListExpression(self.CreateRegion(ctx), cast(list[Expression], children)))
-    # TODO:
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitTuple_expression(self, ctx: SimpleSchemaParser.Tuple_expressionContext):
-    # TODO:     children = self._GetChildren(ctx)
-    # TODO:     assert all(isinstance(child, Expression) for child in children), children
-    # TODO:
-    # TODO:     self._stack.append(
-    # TODO:         TupleExpression(self.CreateRegion(ctx), cast(tuple[Expression], tuple(children)))
-    # TODO:     )
+    # ----------------------------------------------------------------------
+    def visitTrue_expression(self, ctx: SimpleSchemaParser.True_expressionContext):
+        assert len(ctx.children) == 1, ctx.children
+        child = ctx.children[0]
+
+        value = child.symbol.text
+        lower_value = value.lower()
+
+        flags: BooleanExpression.Flags = 0
+
+        if lower_value in ["y", "yes"]:
+            flags |= BooleanExpression.Flags.YesNo
+
+            if lower_value == "y":
+                flags |= BooleanExpression.Flags.SingleChar
+        elif lower_value == "true":
+            flags |= BooleanExpression.Flags.TrueFalse
+        elif lower_value == "on":
+            flags |= BooleanExpression.Flags.OnOff
+        else:
+            assert False, value  # pragma: no cover
+
+        if value.isupper():
+            flags |= BooleanExpression.Flags.UpperCase
+        elif value.islower():
+            flags |= BooleanExpression.Flags.LowerCase
+        elif value[0].isupper() and value[1:].islower():
+            flags |= BooleanExpression.Flags.PascalCase
+        else:
+            assert False, value
+
+        self._stack.append(BooleanExpression(self.CreateRegion(ctx), True, flags))
+
+    # ----------------------------------------------------------------------
+    def visitFalse_expression(self, ctx: SimpleSchemaParser.False_expressionContext):
+        assert len(ctx.children) == 1, ctx.children
+        child = ctx.children[0]
+
+        value = child.symbol.text
+        lower_value = value.lower()
+
+        flags: BooleanExpression.Flags = 0
+
+        if lower_value in ["n", "no"]:
+            flags |= BooleanExpression.Flags.YesNo
+
+            if lower_value == "n":
+                flags |= BooleanExpression.Flags.SingleChar
+        elif lower_value == "false":
+            flags |= BooleanExpression.Flags.TrueFalse
+        elif lower_value == "off":
+            flags |= BooleanExpression.Flags.OnOff
+        else:
+            assert False, value
+
+        if value.isupper():
+            flags |= BooleanExpression.Flags.UpperCase
+        elif value.islower():
+            flags |= BooleanExpression.Flags.LowerCase
+        elif value[0].isupper() and value[1:].islower():
+            flags |= BooleanExpression.Flags.PascalCase
+        else:
+            assert False, value
+
+        self._stack.append(BooleanExpression(self.CreateRegion(ctx), False, flags))
+
+    # ----------------------------------------------------------------------
+    def visitNone_expression(self, ctx: SimpleSchemaParser.None_expressionContext):
+        self._stack.append(NoneExpression(self.CreateRegion(ctx)))
+
+    # ----------------------------------------------------------------------
+    def visitString_expression(self, ctx: SimpleSchemaParser.String_expressionContext):
+        context = ctx
+
+        while not isinstance(context, antlr4.TerminalNode):
+            assert len(context.children) == 1
+            context = context.children[0]
+
+        token = context.symbol  # type: ignore
+        value = token.text
+
+        # At the very least, we should have a beginning and ending quote
+        assert len(value) > 2
+
+        if value.startswith('"""') or value.startswith("'''"):
+            quote_type = (
+                StringExpression.QuoteType.TripleDouble
+                if value.startswith('"""')
+                else StringExpression.QuoteType.TripleSingle
+            )
+
+            initial_whitespace = token.column
+
+            # ----------------------------------------------------------------------
+            def TrimPrefix(
+                line: str,
+                line_offset: int,
+            ) -> str:
+                index = 0
+                whitespace = 0
+
+                while index < len(line) and whitespace < initial_whitespace:
+                    if line[index] == " ":
+                        whitespace += 1
+                    elif line[index] == "\t":
+                        whitespace += 4
+                    else:
+                        raise AntlrException(
+                            Errors.antlr_invalid_indentation,
+                            self.filename,
+                            ctx.start.line + line_offset,
+                            whitespace + 1,
+                            None,
+                        )
+
+                    index += 1
+
+                return line[index:]
+
+            # ----------------------------------------------------------------------
+
+            lines = value.split("\n")
+
+            initial_line = lines[0].rstrip()
+            if len(initial_line) != 3:
+                raise AntlrException(
+                    Errors.antlr_invalid_opening_token,
+                    self.filename,
+                    ctx.start.line,
+                    ctx.start.column + 1 + 3,
+                    None,
+                )
+
+            final_line = lines[-1]
+            if len(TrimPrefix(final_line, len(lines))) != 3:
+                raise AntlrException(
+                    Errors.antlr_invalid_closing_token,
+                    self.filename,
+                    ctx.start.line + len(lines) - 1,
+                    ctx.start.column + 1,
+                    None,
+                )
+
+            lines = [TrimPrefix(line, index + 1) for index, line in enumerate(lines[1:-1])]
+
+            value = "\n".join(lines)
+
+        elif value[0] == '"' and value[-1] == '"':
+            value = value[1:-1].replace('\\"', '"')
+            quote_type = StringExpression.QuoteType.Double
+        elif value[0] == "'" and value[-1] == "'":
+            value = value[1:-1].replace("\\'", "'")
+            quote_type = StringExpression.QuoteType.Single
+        else:
+            assert False, value  # pragma: no cover
+
+        self._stack.append(StringExpression(self.CreateRegion(ctx), value, quote_type))
+
+    # ----------------------------------------------------------------------
+    def visitList_expression(self, ctx: SimpleSchemaParser.List_expressionContext):
+        children = self._GetChildren(ctx)
+        assert all(isinstance(child, Expression) for child in children), children
+
+        self._stack.append(ListExpression(self.CreateRegion(ctx), cast(list[Expression], children)))
+
+    # ----------------------------------------------------------------------
+    def visitTuple_expression(self, ctx: SimpleSchemaParser.Tuple_expressionContext):
+        children = self._GetChildren(ctx)
+        assert all(isinstance(child, Expression) for child in children), children
+
+        self._stack.append(
+            TupleExpression(self.CreateRegion(ctx), cast(tuple[Expression], tuple(children)))
+        )
 
     # ----------------------------------------------------------------------
     # |

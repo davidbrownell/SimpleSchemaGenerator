@@ -27,7 +27,11 @@ from dbrownell_Common.Types import extension, override
 
 from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
 from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import TerminalElement
+from SimpleSchemaGenerator.Schema.Elements.Expressions.BooleanExpression import BooleanExpression
 from SimpleSchemaGenerator.Schema.Elements.Expressions.IntegerExpression import IntegerExpression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.NoneExpression import NoneExpression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.NumberExpression import NumberExpression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.StringExpression import StringExpression
 from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Common.ParseIdentifier import (
     ParseIdentifier,
 )
@@ -127,7 +131,7 @@ class TerminalElementVisitor(ElementVisitor):
 
         assert (
             not is_terminal_element
-        ), f"Terminal element '{element.__class__.__name__}' not handled."
+        ), f"Terminal element '{element.__class__.__name__}' not handled in '{self.__class__.__name__}'."
 
         yield VisitResult.Continue
 
@@ -275,7 +279,44 @@ class YamlVisitor(TerminalElementVisitor):
     # ----------------------------------------------------------------------
     @contextmanager
     @override
+    def OnBooleanExpression(self, element: BooleanExpression) -> Iterator[VisitResult]:
+        d = self._stack[-1]
+
+        d["value"] = element.value
+
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
     def OnIntegerExpression(self, element: IntegerExpression) -> Iterator[VisitResult]:
+        d = self._stack[-1]
+
+        d["value"] = element.value
+
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnNoneExpression(self, element: NoneExpression) -> Iterator[VisitResult]:
+        # Nothing to add
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnNumberExpression(self, element: NumberExpression) -> Iterator[VisitResult]:
+        d = self._stack[-1]
+
+        d["value"] = element.value
+
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnStringExpression(self, element: StringExpression) -> Iterator[VisitResult]:
         d = self._stack[-1]
 
         d["value"] = element.value

@@ -22,8 +22,9 @@ from SimpleSchemaGenerator.Schema.Elements.Expressions.StringExpression import S
 def test_StringExpression():
     region_mock = Mock()
 
-    e = StringExpression(region_mock, "Hello")
+    e = StringExpression(region_mock, "Hello", StringExpression.QuoteType.Single)
 
     assert e.region is region_mock
     assert e.NAME == "String"
     assert e.value == "Hello"
+    assert e.quote_type == StringExpression.QuoteType.Single

@@ -22,8 +22,9 @@ from SimpleSchemaGenerator.Schema.Elements.Expressions.BooleanExpression import 
 def test_BooleanExpression():
     region_mock = Mock()
 
-    e = BooleanExpression(region_mock, True)
+    e = BooleanExpression(region_mock, True, BooleanExpression.Flags.YesNo)
 
     assert e.region is region_mock
     assert e.NAME == "Boolean"
     assert e.value is True
+    assert e.flags == BooleanExpression.Flags.YesNo
