@@ -159,7 +159,7 @@ class Element(ABC):
     # |  Private Methods
     # |
     # ----------------------------------------------------------------------
-    # BugBug: Ensure all Elements invoke base classes
+    # TODO: Ensure all Elements invoke base classes
     @extension
     def _GenerateAcceptDetails(self) -> _GenerateAcceptDetailsResultType:
         # Nothing by default
@@ -167,7 +167,7 @@ class Element(ABC):
             yield
 
     # ----------------------------------------------------------------------
-    # BugBug: Ensure all Elements invoke base classes
+    # TODO: Ensure all Elements invoke base classes
     @extension
     def _GetAcceptChildren(self) -> _GetAcceptChildrenResultType:
         # Nothing by default
