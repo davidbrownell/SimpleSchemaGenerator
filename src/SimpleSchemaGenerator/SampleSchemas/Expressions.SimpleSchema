@@ -1,0 +1,60 @@
+item: String {
+    number: 3.14
+    number_negative: -.12345
+
+    integer: 123
+    integer_negative: -4567
+
+    true1: y
+    true2: Y
+    true3: yes
+    true4: Yes
+    true5: YES
+    true6: true
+    true7: True
+    true8: TRUE
+    true9: on
+    true10: On
+    true11: ON
+
+    false1: n
+    false2: N
+    false3: no
+    false4: No
+    false5: NO
+    false6: false
+    false7: False
+    false8: FALSE
+    false9: off
+    false10: Off
+    false11: OFF
+
+    none: None
+
+    string1: "Quoted \"string\"."
+    string2: 'Single quote \'string\'.'
+    string3: """
+             Multi
+               Line
+             String.
+             """
+    string4: '''
+             Another
+               Multi
+                 Line
+               String.
+             '''
+
+    list_empty: []
+    list1: [ "one", "two", "three", ]
+    list2: [
+        "one",
+        2,
+        3.0,
+        [ 4, 5, 6 ],
+    ]
+
+    tuple1: (1, )
+    tuple2: ("a", "b", "c")
+    tuple3: ("d", "e", "f", )
+}

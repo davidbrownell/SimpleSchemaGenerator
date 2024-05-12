@@ -66,16 +66,29 @@ class TestRegions:
 
         # Remove comments
         scrubbed_content = re.sub(
-            r"\s*#.*$",
-            lambda *args: "",
+            r"\#.*\n",
+            lambda *args: "\n",
             scrubbed_content,
             flags=re.MULTILINE,
         )
 
-        for replace_char in ["->", "::", ":", ",", "(", ")", "{", "}"]:
+        for replace_char in [
+            "->",
+            "::",
+            ":",
+            ",",
+            "(",
+            ")",
+            "{",
+            "}",
+            "[",
+            "]",
+        ]:
             scrubbed_content = scrubbed_content.replace(replace_char, "".ljust(len(replace_char)))
 
-        scrubbed_content = "\n".join(line.rstrip() for line in scrubbed_content.splitlines())
+        scrubbed_content = "{}\n".format(
+            "\n".join(line.rstrip() for line in scrubbed_content.splitlines())
+        )
 
         # Compare
         assert generated_content == scrubbed_content
@@ -83,6 +96,14 @@ class TestRegions:
     # ----------------------------------------------------------------------
     def test_Cardinality(self):
         self.Execute(PathEx.EnsureFile(sample_schemas / "Cardinality.SimpleSchema"))
+
+    # ----------------------------------------------------------------------
+    def test_Expressions(self):
+        self.Execute(PathEx.EnsureFile(sample_schemas / "Expressions.SimpleSchema"))
+
+    # TODO: # ----------------------------------------------------------------------
+    # TODO: def test_Extensions(self):
+    # TODO:     self.Execute(PathEx.EnsureFile(sample_schemas / "Extensions.SimpleSchema"))
 
 
 # ----------------------------------------------------------------------
@@ -109,6 +130,10 @@ class TestParsing:
     def test_Cardinality(self, snapshot):
         self.Execute(PathEx.EnsureFile(sample_schemas / "Cardinality.SimpleSchema"), snapshot)
 
+    # ----------------------------------------------------------------------
+    def test_Expressions(self, snapshot):
+        self.Execute(PathEx.EnsureFile(sample_schemas / "Expressions.SimpleSchema"), snapshot)
+
 
 # ----------------------------------------------------------------------
 # |
@@ -124,7 +149,7 @@ class _RegionVisitor(TerminalElementVisitor):
     # ----------------------------------------------------------------------
     @property
     def content(self) -> str:
-        return "\n".join("".join(line).rstrip() for line in self._content).rstrip()
+        return "\n".join("".join(line).rstrip() for line in self._content)
 
     # ----------------------------------------------------------------------
     @contextmanager
@@ -155,54 +180,156 @@ class _RegionVisitor(TerminalElementVisitor):
     @contextmanager
     @override
     def OnCardinality(self, element: Cardinality) -> Iterator[VisitResult]:
-        value = str(element)
+        cardinality = str(element).replace("[", " ").replace("]", " ")
 
-        line_content = self._content[element.region.begin.line - 1]
-
-        for index in range(len(value)):
-            line_content[element.region.begin.column - 1 + index] = value[index]
-
+        self._PopulateLine(element, cardinality)
         yield VisitResult.SkipAll
 
     # ----------------------------------------------------------------------
     @contextmanager
     @override
     def OnTerminalElement(self, element: TerminalElement) -> Iterator[VisitResult]:
-        value = str(element.value)
-
-        line_content = self._content[element.region.begin.line - 1]
-
-        for index in range(len(value)):
-            line_content[element.region.begin.column - 1 + index] = value[index]
-
+        self._PopulateLine(element, str(element.value))
         yield VisitResult.Continue
 
     # ----------------------------------------------------------------------
     @contextmanager
     @override
     def OnParseIdentifier(self, element: ParseIdentifier) -> Iterator[VisitResult]:
-        assert element.region.begin.line == element.region.end.line
-        assert element.region.end.column - element.region.begin.column == len(element.value)
+        self._PopulateLine(element, element.value)
+        yield VisitResult.Continue
 
-        line_content = self._content[element.region.begin.line - 1]
+    # ----------------------------------------------------------------------
+    # |
+    # |  Expressions
+    # |
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnBooleanExpression(self, element: BooleanExpression) -> Iterator[VisitResult]:
+        if element.flags & BooleanExpression.Flags.YesNo:
+            if element.flags & BooleanExpression.Flags.SingleChar:
+                value = "y" if element.value else "n"
+            else:
+                value = "yes" if element.value else "no"
+        elif element.flags & BooleanExpression.Flags.TrueFalse:
+            value = "true" if element.value else "false"
+        elif element.flags & BooleanExpression.Flags.OnOff:
+            value = "on" if element.value else "off"
+        else:
+            assert False, (element.flags, element.value)
 
-        for index in range(len(element.value)):
-            line_content[element.region.begin.column - 1 + index] = element.value[index]
+        if element.flags & BooleanExpression.Flags.LowerCase:
+            pass  # Nothing to do as the value is already lowercase
+        elif element.flags & BooleanExpression.Flags.UpperCase:
+            value = value.upper()
+        elif element.flags & BooleanExpression.Flags.PascalCase:
+            value = value.capitalize()
+        else:
+            assert False, (element.flags, element.value)
 
+        self._PopulateLine(element, value)
         yield VisitResult.Continue
 
     # ----------------------------------------------------------------------
     @contextmanager
     @override
     def OnIntegerExpression(self, element: IntegerExpression) -> Iterator[VisitResult]:
+        self._PopulateLine(element, str(element.value))
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnNoneExpression(self, element: NoneExpression) -> Iterator[VisitResult]:
+        self._PopulateLine(element, "None")
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnNumberExpression(self, element: NumberExpression) -> Iterator[VisitResult]:
         value = str(element.value)
 
+        if (
+            len(value) > element.region.end.column - element.region.begin.column
+            and int(element.value) == 0
+        ):
+            value = value.replace("0.", ".")
+
+        self._PopulateLine(element, value)
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnStringExpression(self, element: StringExpression) -> Iterator[VisitResult]:
+        if element.quote_type in [
+            StringExpression.QuoteType.TripleSingle,
+            StringExpression.QuoteType.TripleDouble,
+        ]:
+            # _PopulateLine only works for tokens on a single line but these tokens span
+            # multiple lines. Handle the special processing here. Extract this functionality
+            # to an new _PopulateLine-like method if we ever have the need to support other
+            # multi-line tokens.
+            if element.quote_type == StringExpression.QuoteType.TripleSingle:
+                quote = "'''"
+            elif element.quote_type == StringExpression.QuoteType.TripleDouble:
+                quote = '"""'
+            else:
+                assert False, element.quote_type  # pragma: no cover
+
+            # The first character of the token opening will already appear in the line, as we ensure
+            # that the column starting point has the correct number of characters in OnElement.
+            # However, we need to make sure that all characters associated with the opening of the
+            # string appear on the line.
+            line_content = self._content[element.region.begin.line - 1]
+
+            line_content[-1] = quote[0]
+            line_content += list(quote[1:])
+
+            # Apply the content
+            line_offset = 1
+
+            indentation = " " * (element.region.begin.column - 1)
+
+            for line in element.value.split("\n"):
+                line_content = self._content[element.region.begin.line - 1 + line_offset]
+                assert not line_content, line_content
+
+                line_content += list(f"{indentation}{line}")
+                line_offset += 1
+
+            # Apply the string closing token
+            line_content = self._content[element.region.end.line - 1]
+
+            for index, char in enumerate(reversed(quote)):
+                line_content[-index - 2] = char
+
+        else:
+            if element.quote_type == StringExpression.QuoteType.Single:
+                value = "'{}'".format(element.value.replace("'", "\\'"))
+            elif element.quote_type == StringExpression.QuoteType.Double:
+                value = '"{}"'.format(element.value.replace('"', '\\"'))
+            else:
+                assert False, element.quote_type  # pragma: no cover
+
+            self._PopulateLine(element, value)
+
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    # ----------------------------------------------------------------------
+    # ----------------------------------------------------------------------
+    def _PopulateLine(
+        self,
+        element: Element,
+        value: str,
+    ) -> None:
         line_content = self._content[element.region.begin.line - 1]
 
         for index in range(len(value)):
             line_content[element.region.begin.column - 1 + index] = value[index]
-
-        yield VisitResult.Continue
 
 
 # ----------------------------------------------------------------------

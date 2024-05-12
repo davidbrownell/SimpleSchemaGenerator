@@ -14,6 +14,7 @@
 """Contains the BooleanExpression object."""
 
 from dataclasses import dataclass
+from enum import auto, IntFlag
 from typing import ClassVar
 
 from .Expression import Expression
@@ -25,6 +26,21 @@ class BooleanExpression(Expression):
     """Boolean value"""
 
     # ----------------------------------------------------------------------
+    class Flags(IntFlag):
+        """Flags that indicate how a boolean value was written when originally parsed."""
+
+        YesNo = auto()
+        TrueFalse = auto()
+        OnOff = auto()
+
+        SingleChar = auto()
+
+        LowerCase = auto()
+        UpperCase = auto()
+        PascalCase = auto()
+
+    # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "Boolean"
 
     value: bool
+    flags: "BooleanExpression.Flags"

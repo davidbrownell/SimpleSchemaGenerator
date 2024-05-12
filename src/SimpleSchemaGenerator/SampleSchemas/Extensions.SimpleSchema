@@ -1,0 +1,11 @@
+NoArgs()
+SinglePositionalArg(10)
+MultiplePositionalArgs(10, 20, 30)
+SingleKeywordArg(foo="bar")
+
+MultipleKeywordArgs(
+    foo="bar",
+    biz="baz",
+)
+
+KeywordAndPositional(10, foo="bar", )
