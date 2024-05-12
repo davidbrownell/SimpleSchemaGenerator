@@ -21,7 +21,7 @@ from .Common.Error import CreateErrorType, Region
 from .Common.Error import SimpleSchemaGeneratorException  # pylint: disable=unused-import
 
 
-# BugBug: Search for 'range' and replace with 'region'
+# TODO: Search for 'range' and replace with 'region'
 
 # ----------------------------------------------------------------------
 # |

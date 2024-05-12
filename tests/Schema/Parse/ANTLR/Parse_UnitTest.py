@@ -31,7 +31,7 @@ from SimpleSchemaGenerator.Schema.Visitors.ElementVisitor import VisitResult
 
 sys.path.insert(0, str(PathEx.EnsureDir(Path(__file__).parent.parent.parent)))
 with ExitStack(lambda: sys.path.pop(0)):
-    from TestHelpers import TerminalElementVisitor, TestElementVisitor, ToYamlString, YamlVisitor
+    from TestHelpers import TerminalElementVisitor, TestElementVisitor, YamlVisitor
 
 
 # ----------------------------------------------------------------------
@@ -122,9 +122,7 @@ class TestParsing:
 
         root.Accept(visitor)
 
-        d = visitor.root
-
-        assert ToYamlString(d) == snapshot
+        assert visitor.yaml_string == snapshot
 
     # ----------------------------------------------------------------------
     def test_Cardinality(self, snapshot):

@@ -19,6 +19,7 @@ import types
 import yaml
 
 from contextlib import contextmanager
+from functools import cached_property
 from typing import Any, Iterable, Iterator, Type as PythonType
 from unittest.mock import Mock
 
@@ -190,11 +191,16 @@ class YamlVisitor(TerminalElementVisitor):
         self._display_type_as_reference: bool = False
 
     # ----------------------------------------------------------------------
-    # BugBug: Change to yaml
-    @property
-    def root(self) -> list[dict[str, Any]]:
+    @cached_property
+    def yaml_string(self) -> str:
+        global _global_monkey_patched_dumper  # pylint: disable=global-statement
+
+        with _global_monkey_patched_dumper_lock:
+            if _global_monkey_patched_dumper is None:
+                _global_monkey_patched_dumper = _MonkeyPatchedDumper()
+
         assert len(self._stack) == 1, self._stack
-        return self._stack
+        return _global_monkey_patched_dumper(self._stack)
 
     # ----------------------------------------------------------------------
     @contextmanager
