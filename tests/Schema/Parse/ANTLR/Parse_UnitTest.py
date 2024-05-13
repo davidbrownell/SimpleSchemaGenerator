@@ -83,6 +83,7 @@ class TestRegions:
             "}",
             "[",
             "]",
+            "=",
         ]:
             scrubbed_content = scrubbed_content.replace(replace_char, "".ljust(len(replace_char)))
 
@@ -101,9 +102,9 @@ class TestRegions:
     def test_Expressions(self):
         self.Execute(PathEx.EnsureFile(sample_schemas / "Expressions.SimpleSchema"))
 
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def test_Extensions(self):
-    # TODO:     self.Execute(PathEx.EnsureFile(sample_schemas / "Extensions.SimpleSchema"))
+    # ----------------------------------------------------------------------
+    def test_Extensions(self):
+        self.Execute(PathEx.EnsureFile(sample_schemas / "Extensions.SimpleSchema"))
 
 
 # ----------------------------------------------------------------------
@@ -131,6 +132,10 @@ class TestParsing:
     # ----------------------------------------------------------------------
     def test_Expressions(self, snapshot):
         self.Execute(PathEx.EnsureFile(sample_schemas / "Expressions.SimpleSchema"), snapshot)
+
+    # ----------------------------------------------------------------------
+    def test_Extensions(self, snapshot):
+        self.Execute(PathEx.EnsureFile(sample_schemas / "Extensions.SimpleSchema"), snapshot)
 
 
 # ----------------------------------------------------------------------

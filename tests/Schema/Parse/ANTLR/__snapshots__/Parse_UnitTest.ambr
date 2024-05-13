@@ -468,3 +468,84 @@
   
   '''
 # ---
+# name: TestParsing.test_Extensions
+  '''
+  - __type__: RootStatement
+    statements:
+    - __type__: ExtensionStatement
+      name:
+        __type__: TerminalElement
+        value: NoArgs
+      positional_args: []
+      keyword_args: []
+    - __type__: ExtensionStatement
+      name:
+        __type__: TerminalElement
+        value: SinglePositionalArg
+      positional_args:
+      - __type__: IntegerExpression
+        value: 10
+      keyword_args: []
+    - __type__: ExtensionStatement
+      name:
+        __type__: TerminalElement
+        value: MultiplePositionalArgs
+      positional_args:
+      - __type__: IntegerExpression
+        value: 10
+      - __type__: IntegerExpression
+        value: 20
+      - __type__: IntegerExpression
+        value: 30
+      keyword_args: []
+    - __type__: ExtensionStatement
+      name:
+        __type__: TerminalElement
+        value: SingleKeywordArg
+      positional_args: []
+      keyword_args:
+      - __type__: ExtensionStatementKeywordArg
+        name:
+          __type__: TerminalElement
+          value: foo
+        expression:
+          __type__: StringExpression
+          value: bar
+    - __type__: ExtensionStatement
+      name:
+        __type__: TerminalElement
+        value: MultipleKeywordArgs
+      positional_args: []
+      keyword_args:
+      - __type__: ExtensionStatementKeywordArg
+        name:
+          __type__: TerminalElement
+          value: foo
+        expression:
+          __type__: StringExpression
+          value: bar
+      - __type__: ExtensionStatementKeywordArg
+        name:
+          __type__: TerminalElement
+          value: biz
+        expression:
+          __type__: StringExpression
+          value: baz
+    - __type__: ExtensionStatement
+      name:
+        __type__: TerminalElement
+        value: KeywordAndPositional
+      positional_args:
+      - __type__: IntegerExpression
+        value: 10
+      keyword_args:
+      - __type__: ExtensionStatementKeywordArg
+        name:
+          __type__: TerminalElement
+          value: foo
+        expression:
+          __type__: StringExpression
+          value: bar
+  
+  '''
+# ---
