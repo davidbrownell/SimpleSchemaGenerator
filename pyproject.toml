@@ -43,9 +43,9 @@ classifiers = [
 ]
 
 dependencies = [
-    "antlr_denter == 1.*",
+    "antlr_denter ~= 1.3",
     "dbrownell_Common",
-    "emoji == 2.*",
+    "emoji ~= 2.11",
     "typer ~= 0.9"
 ]
 
@@ -58,13 +58,13 @@ readme = "README.md"
 [project.optional-dependencies]
 dev = [
     "dbrownell_DevTools",
-    "syrupy == 4.*",
+    "syrupy ~= 4.6",
 ]
 
 package = [
-    "build == 1.*",
-    "cx_Freeze == 6.*",
-    "twine == 4.*",
+    "build ~= 1.2",
+    "cx_Freeze ~= 6.15",
+    "twine ~= 4.0",
 ]
 
 [project.urls]
