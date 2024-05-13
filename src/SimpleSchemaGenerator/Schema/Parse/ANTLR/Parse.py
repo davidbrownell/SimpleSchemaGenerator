@@ -869,73 +869,73 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # TODO: ):
     # TODO:     return self.visitChildren(ctx)  # TODO
 
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitExtension_statement(self, ctx: SimpleSchemaParser.Extension_statementContext):
-    # TODO:     children = self._GetChildren(ctx)
-    # TODO:
-    # TODO:     num_children = len(children)
-    # TODO:     assert 1 <= num_children <= 3, children
-    # TODO:
-    # TODO:     assert isinstance(children[0], ParseIdentifier), children
-    # TODO:     name = children[0].ToTerminalElement()
-    # TODO:
-    # TODO:     positional_args: Optional[list[Expression]] = None
-    # TODO:     keyword_args: Optional[list[ExtensionStatementKeywordArg]] = None
-    # TODO:
-    # TODO:     for child in children:
-    # TODO:         assert isinstance(child, list) and child, child
-    # TODO:
-    # TODO:         if isinstance(child[0], ExtensionStatementKeywordArg):
-    # TODO:             assert keyword_args is None, (keyword_args, child)
-    # TODO:             keyword_args = child
-    # TODO:         else:
-    # TODO:             assert positional_args is None, positional_args
-    # TODO:             positional_args = child
-    # TODO:
-    # TODO:     self._stack.append(
-    # TODO:         ExtensionStatement(
-    # TODO:             self.CreateRegion(ctx),
-    # TODO:             name,
-    # TODO:             cast(list[Expression], positional_args or []),
-    # TODO:             keyword_args or [],
-    # TODO:         ),
-    # TODO:     )
-    # TODO:
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitExtension_statement_positional_args(
-    # TODO:     self, ctx: SimpleSchemaParser.Extension_statement_positional_argsContext
-    # TODO: ):
-    # TODO:     children = self._GetChildren(ctx)
-    # TODO:     assert all(isinstance(child, Expression) for child in children), children
-    # TODO:
-    # TODO:     self._stack.append(children)
-    # TODO:
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitExtension_statement_keyword_args(
-    # TODO:     self, ctx: SimpleSchemaParser.Extension_statement_keyword_argsContext
-    # TODO: ):
-    # TODO:     children = self._GetChildren(ctx)
-    # TODO:     assert all(isinstance(child, ExtensionStatementKeywordArg) for child in children), children
-    # TODO:
-    # TODO:     self._stack.append(children)
-    # TODO:
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitExtension_statement_keyword_arg(
-    # TODO:     self, ctx: SimpleSchemaParser.Extension_statement_keyword_argContext
-    # TODO: ):
-    # TODO:     children = self._GetChildren(ctx)
-    # TODO:
-    # TODO:     assert len(children) == 2, children
-    # TODO:     assert isinstance(children[0], ParseIdentifier), children
-    # TODO:     assert isinstance(children[1], Expression), children
-    # TODO:
-    # TODO:     self._stack.append(
-    # TODO:         ExtensionStatementKeywordArg(
-    # TODO:             self.CreateRegion(ctx),
-    # TODO:             children[0].ToTerminalElement(),
-    # TODO:             children[1],
-    # TODO:         ),
-    # TODO:     )
+    # ----------------------------------------------------------------------
+    def visitExtension_statement(self, ctx: SimpleSchemaParser.Extension_statementContext):
+        children = self._GetChildren(ctx)
+
+        num_children = len(children)
+        assert 1 <= num_children <= 3, children
+
+        assert isinstance(children[0], ParseIdentifier), children
+        name = children[0].ToTerminalElement()
+
+        positional_args: Optional[list[Expression]] = None
+        keyword_args: Optional[list[ExtensionStatementKeywordArg]] = None
+
+        for child in children[1:]:
+            assert isinstance(child, list) and child, child
+
+            if isinstance(child[0], ExtensionStatementKeywordArg):
+                assert keyword_args is None, (keyword_args, child)
+                keyword_args = child
+            else:
+                assert positional_args is None, positional_args
+                positional_args = child
+
+        self._stack.append(
+            ExtensionStatement(
+                self.CreateRegion(ctx),
+                name,
+                cast(list[Expression], positional_args or []),
+                keyword_args or [],
+            ),
+        )
+
+    # ----------------------------------------------------------------------
+    def visitExtension_statement_positional_args(
+        self, ctx: SimpleSchemaParser.Extension_statement_positional_argsContext
+    ):
+        children = self._GetChildren(ctx)
+        assert all(isinstance(child, Expression) for child in children), children
+
+        self._stack.append(children)
+
+    # ----------------------------------------------------------------------
+    def visitExtension_statement_keyword_args(
+        self, ctx: SimpleSchemaParser.Extension_statement_keyword_argsContext
+    ):
+        children = self._GetChildren(ctx)
+        assert all(isinstance(child, ExtensionStatementKeywordArg) for child in children), children
+
+        self._stack.append(children)
+
+    # ----------------------------------------------------------------------
+    def visitExtension_statement_keyword_arg(
+        self, ctx: SimpleSchemaParser.Extension_statement_keyword_argContext
+    ):
+        children = self._GetChildren(ctx)
+
+        assert len(children) == 2, children
+        assert isinstance(children[0], ParseIdentifier), children
+        assert isinstance(children[1], Expression), children
+
+        self._stack.append(
+            ExtensionStatementKeywordArg(
+                self.CreateRegion(ctx),
+                children[0].ToTerminalElement(),
+                children[1],
+            ),
+        )
 
     # ----------------------------------------------------------------------
     def visitParse_item_statement(self, ctx: SimpleSchemaParser.Parse_item_statementContext):
