@@ -23,6 +23,7 @@ from typing import Any, Callable, cast, Optional, Protocol
 
 import antlr4  # type: ignore[import-untyped]
 
+from antlr4.error.ErrorListener import ConsoleErrorListener
 from dbrownell_Common.ContextlibEx import ExitStack  # type: ignore[import-untyped]
 from dbrownell_Common import ExecuteTasks  # type: ignore[import-untyped]
 from dbrownell_Common import PathEx  # type: ignore[import-untyped]
@@ -356,6 +357,8 @@ def Parse(
                         tokens.fill()
 
                         parser = SimpleSchemaParser(tokens)
+
+                        parser.removeErrorListener(ConsoleErrorListener.INSTANCE)
                         parser.addErrorListener(_ErrorListener(fullpath))
 
                         ast = parser.entry_point__()
@@ -443,7 +446,8 @@ class _ErrorListener(antlr4.DiagnosticErrorListener):
         msg: str,
         e: antlr4.RecognitionException,
     ):
-        raise AntlrException(msg, self._source, line, column + 1, e)
+        if e is not None:
+            raise AntlrException(msg, self._source, line, column + 1, e)
 
 
 # ----------------------------------------------------------------------
