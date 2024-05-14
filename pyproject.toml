@@ -75,6 +75,10 @@ Repository = "https://github.com/davidbrownell/SimpleSchemaGenerator"
 [project.scripts]
 SimpleSchemaGenerator = "SimpleSchemaGenerator:EntryPoint.app"
 
+# TODO: Ensure that other files included in package
+#   - *.SimpleSchema
+#   - *.g4
+#   - <not jar>
 
 # ----------------------------------------------------------------------
 # |
