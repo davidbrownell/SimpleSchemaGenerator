@@ -1109,3 +1109,368 @@
   
   '''
 # ---
+# name: TestParsing.test_Tuples
+  '''
+  - __type__: RootStatement
+    statements:
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: Tuples
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      children:
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: single
+        type:
+          __type__: ParseTupleType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          types:
+          - __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            identifiers:
+            - __type__: ParseIdentifier
+              value: String
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: multiple
+        type:
+          __type__: ParseTupleType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          types:
+          - __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            identifiers:
+            - __type__: ParseIdentifier
+              value: String
+          - __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            identifiers:
+            - __type__: ParseIdentifier
+              value: Integer
+          - __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            identifiers:
+            - __type__: ParseIdentifier
+              value: Number
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: container
+        type:
+          __type__: ParseTupleType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 0
+          types:
+          - __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            identifiers:
+            - __type__: ParseIdentifier
+              value: String
+          - __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            identifiers:
+            - __type__: ParseIdentifier
+              value: Integer
+          - __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            identifiers:
+            - __type__: ParseIdentifier
+              value: Number
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: with_metadata
+        type:
+          __type__: ParseTupleType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          types:
+          - __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            unresolved_metadata:
+              __type__: Metadata
+              items:
+              - __type__: MetadataItem
+                name:
+                  __type__: TerminalElement
+                  value: min_length
+                expression:
+                  __type__: IntegerExpression
+                  value: 5
+            identifiers:
+            - __type__: ParseIdentifier
+              value: String
+          - __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            unresolved_metadata:
+              __type__: Metadata
+              items:
+              - __type__: MetadataItem
+                name:
+                  __type__: TerminalElement
+                  value: min
+                expression:
+                  __type__: IntegerExpression
+                  value: 10
+            identifiers:
+            - __type__: ParseIdentifier
+              value: Integer
+          - __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            unresolved_metadata:
+              __type__: Metadata
+              items:
+              - __type__: MetadataItem
+                name:
+                  __type__: TerminalElement
+                  value: min
+                expression:
+                  __type__: NumberExpression
+                  value: 20.0
+            identifiers:
+            - __type__: ParseIdentifier
+              value: Number
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: nested
+        type:
+          __type__: ParseTupleType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          types:
+          - __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            identifiers:
+            - __type__: ParseIdentifier
+              value: String
+          - __type__: ParseTupleType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+            types:
+            - __type__: ParseIdentifierType
+              cardinality:
+                __type__: Cardinality
+                min:
+                  __type__: IntegerExpression
+                  value: 0
+              identifiers:
+              - __type__: ParseIdentifier
+                value: String
+            - __type__: ParseIdentifierType
+              cardinality:
+                __type__: Cardinality
+                min:
+                  __type__: IntegerExpression
+                  value: 1
+                max:
+                  __type__: IntegerExpression
+                  value: 1
+              identifiers:
+              - __type__: ParseIdentifier
+                value: Integer
+          - __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            identifiers:
+            - __type__: ParseIdentifier
+              value: Number
+          - __type__: ParseTupleType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            types:
+            - __type__: ParseIdentifierType
+              cardinality:
+                __type__: Cardinality
+                min:
+                  __type__: IntegerExpression
+                  value: 1
+                max:
+                  __type__: IntegerExpression
+                  value: 1
+              identifiers:
+              - __type__: ParseIdentifier
+                value: String
+            - __type__: ParseTupleType
+              cardinality:
+                __type__: Cardinality
+                min:
+                  __type__: IntegerExpression
+                  value: 1
+                max:
+                  __type__: IntegerExpression
+                  value: 1
+              types:
+              - __type__: ParseIdentifierType
+                cardinality:
+                  __type__: Cardinality
+                  min:
+                    __type__: IntegerExpression
+                    value: 1
+                  max:
+                    __type__: IntegerExpression
+                    value: 1
+                unresolved_metadata:
+                  __type__: Metadata
+                  items:
+                  - __type__: MetadataItem
+                    name:
+                      __type__: TerminalElement
+                      value: max
+                    expression:
+                      __type__: NumberExpression
+                      value: 1.23
+                identifiers:
+                - __type__: ParseIdentifier
+                  value: Number
+    - __type__: ParseItemStatement
+      name:
+        __type__: ParseIdentifier
+        value: tuples
+      type:
+        __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 0
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: Tuples
+  
+  '''
+# ---

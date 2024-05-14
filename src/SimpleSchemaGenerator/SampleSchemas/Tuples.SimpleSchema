@@ -1,0 +1,20 @@
+Tuples ->
+    single: (String, )
+    multiple: (String, Integer, Number)
+
+    container: (String, Integer, Number, )*
+
+    with_metadata: (
+        String { min_length: 5 },
+        Integer { min: 10 },
+        Number { min: 20.0 },
+    )
+
+    nested: (
+        String,
+        (String*, Integer)+,
+        Number,
+        (String, (Number { max: 1.23 }, ), ),
+    )
+
+tuples: Tuples?

@@ -111,6 +111,10 @@ class TestRegions:
     def test_Structures(self):
         self.Execute(PathEx.EnsureFile(sample_schemas / "Structures.SimpleSchema"))
 
+    # ----------------------------------------------------------------------
+    def test_Tuples(self):
+        self.Execute(PathEx.EnsureFile(sample_schemas / "Tuples.SimpleSchema"))
+
 
 # ----------------------------------------------------------------------
 class TestParsing:
@@ -145,6 +149,10 @@ class TestParsing:
     # ----------------------------------------------------------------------
     def test_Structures(self, snapshot):
         self.Execute(PathEx.EnsureFile(sample_schemas / "Structures.SimpleSchema"), snapshot)
+
+    # ----------------------------------------------------------------------
+    def test_Tuples(self, snapshot):
+        self.Execute(PathEx.EnsureFile(sample_schemas / "Tuples.SimpleSchema"), snapshot)
 
 
 # ----------------------------------------------------------------------
