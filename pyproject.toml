@@ -75,11 +75,6 @@ Repository = "https://github.com/davidbrownell/SimpleSchemaGenerator"
 [project.scripts]
 SimpleSchemaGenerator = "SimpleSchemaGenerator:EntryPoint.app"
 
-# TODO: Ensure that other files included in package
-#   - *.SimpleSchema
-#   - *.g4
-#   - <not jar>
-
 # ----------------------------------------------------------------------
 # |
 # |  black
@@ -191,3 +186,12 @@ python_files = [
 # ----------------------------------------------------------------------
 [tool.setuptools.dynamic]
 version = { attr = "SimpleSchemaGenerator.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+SimpleSchemaGenerator = [
+    "**/*.SimpleSchema",
+    "**/*.g4",
+]

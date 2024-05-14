@@ -1,4 +1,4 @@
-# Generated from C:/Code/GitHub/davidbrownell/SimpleSchemaGenerator/src/SimpleSchemaGenerator/Schema/Parse/ANTLR/Grammar/SimpleSchema.g4 by ANTLR 4.13.1
+# Generated from D:/GitHub/davidbrownell/SimpleSchemaGenerator/src/SimpleSchemaGenerator/Schema/Parse/ANTLR/Grammar/SimpleSchema.g4 by ANTLR 4.13.1
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
