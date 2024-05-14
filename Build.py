@@ -9,10 +9,13 @@
 import sys
 
 from pathlib import Path
+from typing import Annotated
 
 import typer
 
 from dbrownell_Common import PathEx
+from dbrownell_Common.Streams.DoneManager import DoneManager, Flags as DoneManagerFlags
+from dbrownell_Common import SubprocessEx
 from dbrownell_DevTools.RepoBuildTools import Python as RepoBuildTools
 from typer.core import TyperGroup
 
@@ -76,6 +79,55 @@ CreateDockerImage = RepoBuildTools.CreateDockerImageFuncFactory(
     this_dir,
     app,
 )
+
+
+# ----------------------------------------------------------------------
+@app.command("build_antlr_grammar", no_args_is_help=False)
+def BuildAntlrGrammar(
+    verbose: Annotated[
+        bool,
+        typer.Option("--verbose", help="Write verbose information to the terminal."),
+    ] = False,
+    debug: Annotated[
+        bool,
+        typer.Option("--debug", help="Write debug information to the terminal."),
+    ] = False,
+):
+    with DoneManager.CreateCommandLine(
+        flags=DoneManagerFlags.Create(verbose=verbose, debug=debug),
+    ) as dm:
+        with dm.Nested("Generating sources...") as generate_dm:
+            working_dir = PathEx.EnsureDir(
+                Path(__file__).parent
+                / "src"
+                / "SimpleSchemaGenerator"
+                / "Schema"
+                / "Parse"
+                / "ANTLR"
+                / "Grammar"
+            )
+            output_dir = (working_dir / ".." / "GeneratedCode").resolve()
+
+            # Run the jar
+            command_line = 'java -jar antlr-4.13.1-complete.jar -Dlanguage=Python3 -o "{output_dir}" -no-listener -visitor "{input_file}"'.format(
+                output_dir=output_dir,
+                input_file=PathEx.EnsureFile(working_dir / "SimpleSchema.g4"),
+            )
+
+            generate_dm.WriteVerbose(f"Command Line: {command_line}\n\n")
+
+            with generate_dm.YieldStream() as stream:
+                generate_dm.result = SubprocessEx.Stream(command_line, stream, cwd=working_dir)
+
+            if generate_dm.result != 0:
+                return
+
+            # Create the init file (if necessary)
+            init_filename = output_dir / "__init__.py"
+
+            if not init_filename.is_file():
+                with init_filename.open("w") as f:
+                    pass
 
 
 # ----------------------------------------------------------------------
