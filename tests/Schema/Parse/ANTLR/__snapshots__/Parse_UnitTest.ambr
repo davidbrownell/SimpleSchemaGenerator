@@ -549,3 +549,563 @@
   
   '''
 # ---
+# name: TestParsing.test_Structures
+  '''
+  - __type__: RootStatement
+    statements:
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: Basic
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      children:
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: value
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          identifiers:
+          - __type__: ParseIdentifier
+            value: String
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: Empty
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      children: []
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: TypeOnly
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      children:
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: StringRef
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          unresolved_metadata:
+            __type__: Metadata
+            items:
+            - __type__: MetadataItem
+              name:
+                __type__: TerminalElement
+                value: max_length
+              expression:
+                __type__: IntegerExpression
+                value: 10
+          identifiers:
+          - __type__: ParseIdentifier
+            value: String
+    - __type__: ParseItemStatement
+      name:
+        __type__: ParseIdentifier
+        value: type_only_string
+      type:
+        __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: TypeOnly
+        - __type__: ParseIdentifier
+          value: StringRef
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: Nested0
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      children:
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: value0
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          identifiers:
+          - __type__: ParseIdentifier
+            value: String
+      - __type__: ParseStructureStatement
+        name:
+          __type__: ParseIdentifier
+          value: Nested1
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        children:
+        - __type__: ParseItemStatement
+          name:
+            __type__: ParseIdentifier
+            value: value1
+          type:
+            __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            identifiers:
+            - __type__: ParseIdentifier
+              value: String
+        - __type__: ParseStructureStatement
+          name:
+            __type__: ParseIdentifier
+            value: Nested2
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          children:
+          - __type__: ParseItemStatement
+            name:
+              __type__: ParseIdentifier
+              value: value2
+            type:
+              __type__: ParseIdentifierType
+              cardinality:
+                __type__: Cardinality
+                min:
+                  __type__: IntegerExpression
+                  value: 1
+                max:
+                  __type__: IntegerExpression
+                  value: 1
+              identifiers:
+              - __type__: ParseIdentifier
+                value: String
+          - __type__: ParseStructureStatement
+            name:
+              __type__: ParseIdentifier
+              value: Nested3
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            children:
+            - __type__: ParseItemStatement
+              name:
+                __type__: ParseIdentifier
+                value: value3
+              type:
+                __type__: ParseIdentifierType
+                cardinality:
+                  __type__: Cardinality
+                  min:
+                    __type__: IntegerExpression
+                    value: 1
+                  max:
+                    __type__: IntegerExpression
+                    value: 1
+                identifiers:
+                - __type__: ParseIdentifier
+                  value: String
+          - __type__: ParseItemStatement
+            name:
+              __type__: ParseIdentifier
+              value: nested3
+            type:
+              __type__: ParseIdentifierType
+              cardinality:
+                __type__: Cardinality
+                min:
+                  __type__: IntegerExpression
+                  value: 1
+                max:
+                  __type__: IntegerExpression
+                  value: 1
+              identifiers:
+              - __type__: ParseIdentifier
+                value: Nested3
+        - __type__: ParseItemStatement
+          name:
+            __type__: ParseIdentifier
+            value: nested2
+          type:
+            __type__: ParseIdentifierType
+            cardinality:
+              __type__: Cardinality
+              min:
+                __type__: IntegerExpression
+                value: 1
+              max:
+                __type__: IntegerExpression
+                value: 1
+            identifiers:
+            - __type__: ParseIdentifier
+              value: Nested2
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: nested1
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          identifiers:
+          - __type__: ParseIdentifier
+            value: Nested1
+    - __type__: ParseItemStatement
+      name:
+        __type__: ParseIdentifier
+        value: nested0
+      type:
+        __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: Nested0
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: SingleBase
+      bases:
+      - __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        unresolved_metadata:
+          __type__: Metadata
+          items:
+          - __type__: MetadataItem
+            name:
+              __type__: TerminalElement
+              value: max_length
+            expression:
+              __type__: IntegerExpression
+              value: 10
+        identifiers:
+        - __type__: ParseIdentifier
+          value: String
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      children: []
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: SingleStructureBase
+      bases:
+      - __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: Nested0
+        - __type__: ParseIdentifier
+          value: Nested1
+        - __type__: ParseIdentifier
+          value: Nested2
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      children: []
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: MultipleStructureBase1
+      bases:
+      - __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: Nested0
+      - __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: Nested0
+        - __type__: ParseIdentifier
+          value: Nested1
+      - __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: Nested0
+        - __type__: ParseIdentifier
+          value: Nested1
+        - __type__: ParseIdentifier
+          value: Nested2
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      children: []
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: MultipleStructureBase2
+      bases:
+      - __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: Nested0
+      - __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: Nested0
+        - __type__: ParseIdentifier
+          value: Nested1
+      - __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: Nested0
+        - __type__: ParseIdentifier
+          value: Nested1
+        - __type__: ParseIdentifier
+          value: Nested2
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      children: []
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: WithCardinality
+      bases:
+      - __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: String
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 3
+        max:
+          __type__: IntegerExpression
+          value: 3
+      children: []
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: WithMetadata
+      bases:
+      - __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: String
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      unresolved_metadata:
+        __type__: Metadata
+        items:
+        - __type__: MetadataItem
+          name:
+            __type__: TerminalElement
+            value: value1
+          expression:
+            __type__: BooleanExpression
+            value: true
+      children: []
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: WithCardinalityAndMetadata
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 0
+        max:
+          __type__: IntegerExpression
+          value: 1
+      unresolved_metadata:
+        __type__: Metadata
+        items:
+        - __type__: MetadataItem
+          name:
+            __type__: TerminalElement
+            value: value1
+          expression:
+            __type__: BooleanExpression
+            value: false
+      children: []
+  
+  '''
+# ---

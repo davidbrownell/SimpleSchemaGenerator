@@ -72,7 +72,7 @@ class TestRegions:
             flags=re.MULTILINE,
         )
 
-        for replace_char in [
+        for replace_token in [
             "->",
             "::",
             ":",
@@ -84,8 +84,9 @@ class TestRegions:
             "[",
             "]",
             "=",
+            "pass",
         ]:
-            scrubbed_content = scrubbed_content.replace(replace_char, "".ljust(len(replace_char)))
+            scrubbed_content = scrubbed_content.replace(replace_token, "".ljust(len(replace_token)))
 
         scrubbed_content = "{}\n".format(
             "\n".join(line.rstrip() for line in scrubbed_content.splitlines())
@@ -105,6 +106,10 @@ class TestRegions:
     # ----------------------------------------------------------------------
     def test_Extensions(self):
         self.Execute(PathEx.EnsureFile(sample_schemas / "Extensions.SimpleSchema"))
+
+    # ----------------------------------------------------------------------
+    def test_Structures(self):
+        self.Execute(PathEx.EnsureFile(sample_schemas / "Structures.SimpleSchema"))
 
 
 # ----------------------------------------------------------------------
@@ -136,6 +141,10 @@ class TestParsing:
     # ----------------------------------------------------------------------
     def test_Extensions(self, snapshot):
         self.Execute(PathEx.EnsureFile(sample_schemas / "Extensions.SimpleSchema"), snapshot)
+
+    # ----------------------------------------------------------------------
+    def test_Structures(self, snapshot):
+        self.Execute(PathEx.EnsureFile(sample_schemas / "Structures.SimpleSchema"), snapshot)
 
 
 # ----------------------------------------------------------------------
@@ -320,6 +329,25 @@ class _RegionVisitor(TerminalElementVisitor):
             self._PopulateLine(element, value)
 
         yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    # |
+    # |  Types
+    # |
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnParseIdentifierType(self, element: ParseIdentifierType) -> Iterator[VisitResult]:
+        yield VisitResult.Continue
+
+        last_index = len(element.identifiers) - 1
+
+        if last_index != 0:
+            line_content = self._content[element.region.begin.line - 1]
+
+            for index, identifier in enumerate(element.identifiers):
+                if index != last_index:
+                    line_content[identifier.region.end.column - 1] = "."
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------

@@ -1,0 +1,73 @@
+# ----------------------------------------------------------------------
+Basic ->
+    value: String
+
+# ----------------------------------------------------------------------
+Empty ->
+    pass
+
+# ----------------------------------------------------------------------
+TypeOnly ->
+    StringRef: String { max_length: 10 }
+
+type_only_string: TypeOnly.StringRef
+
+# ----------------------------------------------------------------------
+Nested0 ->
+    value0: String
+
+    Nested1 ->
+        value1: String
+
+        Nested2 ->
+            value2: String
+
+            Nested3 ->
+                value3: String
+
+            nested3: Nested3
+
+        nested2: Nested2
+
+    nested1: Nested1
+
+nested0: Nested0
+
+# ----------------------------------------------------------------------
+SingleBase: String { max_length: 10 } ->
+    pass
+
+# ----------------------------------------------------------------------
+SingleStructureBase: Nested0.Nested1.Nested2 ->
+    pass
+
+# ----------------------------------------------------------------------
+MultipleStructureBase1: Nested0, Nested0.Nested1, Nested0.Nested1.Nested2 ->
+    pass
+
+# ----------------------------------------------------------------------
+MultipleStructureBase2: (
+    Nested0,
+    Nested0.Nested1,
+    Nested0.Nested1.Nested2,
+) ->
+    pass
+
+# ----------------------------------------------------------------------
+WithCardinality: String ->
+    pass
+[3]
+
+# ----------------------------------------------------------------------
+WithMetadata: String ->
+    pass
+{
+    value1: True
+}
+
+# ----------------------------------------------------------------------
+WithCardinalityAndMetadata ->
+    pass
+? {
+    value1: false
+}
