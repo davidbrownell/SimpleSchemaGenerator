@@ -1,0 +1,20 @@
+Variants ->
+    value: (String | Number)
+
+    with_metadata: (
+        String { min_length: 5 }
+        | Integer { min: 10 }
+        | Number { min: 20.0 }
+    )
+
+    nested_tuple: (
+        String
+        | (Integer { min: 10 }, Number)
+    )
+
+    cardinality: (
+        String[3]
+        | Integer[4]
+    )?
+
+variants: Variants?

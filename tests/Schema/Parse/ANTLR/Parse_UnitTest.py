@@ -84,6 +84,7 @@ class TestRegions:
             "[",
             "]",
             "=",
+            "|",
             "pass",
         ]:
             scrubbed_content = scrubbed_content.replace(replace_token, "".ljust(len(replace_token)))
@@ -114,6 +115,10 @@ class TestRegions:
     # ----------------------------------------------------------------------
     def test_Tuples(self):
         self.Execute(PathEx.EnsureFile(sample_schemas / "Tuples.SimpleSchema"))
+
+    # ----------------------------------------------------------------------
+    def test_Variants(self):
+        self.Execute(PathEx.EnsureFile(sample_schemas / "Variants.SimpleSchema"))
 
 
 # ----------------------------------------------------------------------
@@ -153,6 +158,10 @@ class TestParsing:
     # ----------------------------------------------------------------------
     def test_Tuples(self, snapshot):
         self.Execute(PathEx.EnsureFile(sample_schemas / "Tuples.SimpleSchema"), snapshot)
+
+    # ----------------------------------------------------------------------
+    def test_Variants(self, snapshot):
+        self.Execute(PathEx.EnsureFile(sample_schemas / "Variants.SimpleSchema"), snapshot)
 
 
 # ----------------------------------------------------------------------
