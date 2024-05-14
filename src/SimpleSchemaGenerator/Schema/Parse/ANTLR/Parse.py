@@ -1130,18 +1130,18 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # TODO:         ),
     # TODO:     )
 
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitParse_tuple_type(self, ctx: SimpleSchemaParser.Parse_tuple_typeContext):
-    # TODO:     children = self._GetChildren(ctx)
-    # TODO:
-    # TODO:     assert children
-    # TODO:     assert all(isinstance(child, ParseType) for child in children), children
-    # TODO:
-    # TODO:     self._stack.append(
-    # TODO:         lambda region, cardinality, metadata: ParseTupleType(
-    # TODO:             region,
-    # TODO:             cardinality,
-    # TODO:             metadata,
-    # TODO:             cast(list[ParseType], children),
-    # TODO:         ),
-    # TODO:     )
+    # ----------------------------------------------------------------------
+    def visitParse_tuple_type(self, ctx: SimpleSchemaParser.Parse_tuple_typeContext):
+        children = self._GetChildren(ctx)
+
+        assert children
+        assert all(isinstance(child, ParseType) for child in children), children
+
+        self._stack.append(
+            lambda region, cardinality, metadata: ParseTupleType(
+                region,
+                cardinality,
+                metadata,
+                cast(list[ParseType], children),
+            ),
+        )
