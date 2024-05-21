@@ -71,3 +71,9 @@ WithCardinalityAndMetadata ->
 ? {
     value1: false
 }
+
+# ----------------------------------------------------------------------
+SimplifiedStructure {
+    metadata1: "value"
+    metadata2: 10
+}

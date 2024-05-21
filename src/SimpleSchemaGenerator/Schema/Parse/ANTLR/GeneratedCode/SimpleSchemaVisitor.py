@@ -1,4 +1,4 @@
-# Generated from D:/GitHub/davidbrownell/SimpleSchemaGenerator/src/SimpleSchemaGenerator/Schema/Parse/ANTLR/Grammar/SimpleSchema.g4 by ANTLR 4.13.1
+# Generated from C:/Code/GitHub/davidbrownell/SimpleSchemaGenerator/src/SimpleSchemaGenerator/Schema/Parse/ANTLR/Grammar/SimpleSchema.g4 by ANTLR 4.13.1
 from antlr4 import *
 if "." in __name__:
     from .SimpleSchemaParser import SimpleSchemaParser
@@ -136,6 +136,11 @@ class SimpleSchemaVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by SimpleSchemaParser#include_statement_from.
     def visitInclude_statement_from(self, ctx:SimpleSchemaParser.Include_statement_fromContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SimpleSchemaParser#include_statement_from_parent_dir.
+    def visitInclude_statement_from_parent_dir(self, ctx:SimpleSchemaParser.Include_statement_from_parent_dirContext):
         return self.visitChildren(ctx)
 
 

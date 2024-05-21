@@ -29,12 +29,6 @@ from dbrownell_Common import ExecuteTasks  # type: ignore[import-untyped]
 from dbrownell_Common import PathEx  # type: ignore[import-untyped]
 from dbrownell_Common.Streams.DoneManager import DoneManager  # type: ignore[import-untyped]
 
-sys.path.insert(0, str(PathEx.EnsureDir(Path(__file__).parent / "GeneratedCode")))
-with ExitStack(lambda: sys.path.pop(0)):
-    from .GeneratedCode.SimpleSchemaLexer import SimpleSchemaLexer
-    from .GeneratedCode.SimpleSchemaParser import SimpleSchemaParser
-    from .GeneratedCode.SimpleSchemaVisitor import SimpleSchemaVisitor
-
 from .Grammar.Elements.Common.ParseIdentifier import ParseIdentifier
 from .Grammar.Elements.Statements.ParseItemStatement import ParseItemStatement
 from .Grammar.Elements.Statements.ParseIncludeStatement import (
@@ -67,6 +61,12 @@ from ...Elements.Statements.Statement import Statement
 from .... import Errors
 from ....Common.Region import Location, Region
 
+sys.path.insert(0, str(PathEx.EnsureDir(Path(__file__).parent / "GeneratedCode")))
+with ExitStack(lambda: sys.path.pop(0)):
+    from .GeneratedCode.SimpleSchemaLexer import SimpleSchemaLexer
+    from .GeneratedCode.SimpleSchemaParser import SimpleSchemaParser
+    from .GeneratedCode.SimpleSchemaVisitor import SimpleSchemaVisitor
+
 
 # ----------------------------------------------------------------------
 # |
@@ -87,7 +87,7 @@ class AntlrException(Exception):
     ):
         location = Location(line, column)
 
-        super(AntlrException, self).__init__(f"{message} ({source} <{location}>")
+        super(AntlrException, self).__init__(f"{message} ({source} <{location}>)")
 
         self.source = source
         self.location = location
@@ -119,6 +119,7 @@ def Parse(
     single_threaded: bool = False,
     quiet: bool = False,
     raise_if_single_exception: bool = True,
+    tab_width: int = 4,
 ) -> dict[
     Path,  # workspace root
     dict[
@@ -129,7 +130,15 @@ def Parse(
     if file_extensions is None:
         file_extensions = DEFAULT_FILE_EXTENSIONS
 
-    workspace_names: list[Path] = [workspace.resolve() for workspace in workspaces.keys()]
+    # Ensure that the workspaces paths are fully resolved
+    for workspace_name, workspace_value in list(workspaces.items()):
+        resolved_workspace_name = workspace_name.resolve()
+
+        if resolved_workspace_name != workspace_name:
+            workspaces[resolved_workspace_name] = workspace_value
+            del workspaces[workspace_name]
+
+    workspace_names: list[Path] = [workspace for workspace in workspaces.keys()]
 
     # Sort the names so we search from the longest path to the shortest path
     workspace_names.sort(
@@ -162,158 +171,9 @@ def Parse(
         quiet=quiet,
         max_num_threads=1 if single_threaded else None,
     ) as enqueue_func:
-
-        # TODO: # ----------------------------------------------------------------------
-        # TODO: def ResolveIncludeFilename(
-        # TODO:     path: Path,
-        # TODO:     *,
-        # TODO:     allow_directory: bool,
-        # TODO: ) -> Optional[Path]:
-        # TODO:     path = path.resolve()
-        # TODO:
-        # TODO:     if path.is_file() or (allow_directory and path.is_dir()):
-        # TODO:         return path
-        # TODO:
-        # TODO:     for extension in file_extensions:
-        # TODO:         potential_path = path.parent / (path.name + extension)
-        # TODO:         if potential_path.is_file():
-        # TODO:             return potential_path
-        # TODO:
-        # TODO:     return None
-        # TODO:
-        # ----------------------------------------------------------------------
-        def CreateIncludeStatement(
-            including_filename: Path,
-            region: Region,
-            filename_or_directory: TerminalElement[Path],
-            items: list[ParseIncludeStatementItem],
-            *,
-            is_star_include: bool,
-        ) -> ParseIncludeStatement:
-            return None  # TODO: Remove me
-
-        # TODO:     root: Optional[Path] = None
-        # TODO:
-        # TODO:     for potential_root in itertools.chain(
-        # TODO:         [including_filename.parent],
-        # TODO:         workspace_names,
-        # TODO:     ):
-        # TODO:         fullpath = ResolveIncludeFilename(
-        # TODO:             potential_root / filename_or_directory.value,
-        # TODO:             allow_directory=True,
-        # TODO:         )
-        # TODO:
-        # TODO:         if fullpath is not None:
-        # TODO:             root = fullpath
-        # TODO:             break
-        # TODO:
-        # TODO:     if root is None:
-        # TODO:         raise Errors.ParseCreateIncludeStatementInvalidPath.CreateAsException(
-        # TODO:             filename_or_directory.region,
-        # TODO:             filename_or_directory.value,
-        # TODO:         )
-        # TODO:
-        # TODO:     filename: Optional[Path] = None
-        # TODO:     filename_region: Optional[Region] = None
-        # TODO:
-        # TODO:     include_type: Optional[ParseIncludeStatementType] = None
-        # TODO:
-        # TODO:     if root.is_dir():
-        # TODO:         if is_star_include:
-        # TODO:             raise Errors.ParseCreateIncludeStatementDirWithStar.CreateAsException(
-        # TODO:                 region, root
-        # TODO:             )
-        # TODO:
-        # TODO:         if len(items) != 1:
-        # TODO:             raise Errors.ParseCreateIncludeStatementTooManyItems.CreateAsException(
-        # TODO:                 items[1].region
-        # TODO:             )
-        # TODO:
-        # TODO:         filename = ResolveIncludeFilename(
-        # TODO:             root / items[0].element_name.value,
-        # TODO:             allow_directory=False,
-        # TODO:         )
-        # TODO:
-        # TODO:         filename_region = Region(
-        # TODO:             filename_or_directory.region.filename,
-        # TODO:             filename_or_directory.region.begin,
-        # TODO:             items[0].element_name.region.end,
-        # TODO:         )
-        # TODO:
-        # TODO:         if filename is None:
-        # TODO:             raise Errors.ParseCreateIncludeStatementInvalidFilename.CreateAsException(
-        # TODO:                 filename_region, items[0].element_name.value
-        # TODO:             )
-        # TODO:
-        # TODO:         include_type = ParseIncludeStatementType.Module
-        # TODO:         items = []
-        # TODO:
-        # TODO:     else:
-        # TODO:         if is_star_include:
-        # TODO:             assert not items
-        # TODO:             include_type = ParseIncludeStatementType.Star
-        # TODO:         else:
-        # TODO:             include_type = ParseIncludeStatementType.Package
-        # TODO:
-        # TODO:         filename = root
-        # TODO:         filename_region = filename_or_directory.region
-        # TODO:
-        # TODO:     assert filename is not None
-        # TODO:     assert filename.is_file(), filename
-        # TODO:     assert filename_region is not None
-        # TODO:     assert include_type is not None
-        # TODO:
-        # TODO:     # Get the workspace associated with the file
-        # TODO:     workspace: Optional[Path] = None
-        # TODO:
-        # TODO:     for workspace_name in workspace_names:
-        # TODO:         if PathEx.IsDescendant(filename, workspace_name):
-        # TODO:             workspace = workspace_name
-        # TODO:             break
-        # TODO:
-        # TODO:     if workspace is None:
-        # TODO:         raise Errors.ParseCreateIncludeStatementInvalidWorkspace.CreateAsException(
-        # TODO:             region, filename
-        # TODO:         )
-        # TODO:
-        # TODO:     # Get the relative path for the workspace
-        # TODO:     relative_path = PathEx.CreateRelativePath(workspace, filename)
-        # TODO:     assert relative_path is not None
-        # TODO:
-        # TODO:     # Determine if this is a file that should be enqueued for parsing
-        # TODO:     should_enqueue = False
-        # TODO:
-        # TODO:     with results_lock:
-        # TODO:         workspace_results = results[workspace]
-        # TODO:
-        # TODO:         if relative_path not in workspace_results:
-        # TODO:             workspace_results[relative_path] = None
-        # TODO:             should_enqueue = True
-        # TODO:
-        # TODO:     if should_enqueue:
-        # TODO:         # ----------------------------------------------------------------------
-        # TODO:         def GetContent() -> str:
-        # TODO:             with filename.open(encoding="utf-8") as f:
-        # TODO:                 return f.read()
-        # TODO:
-        # TODO:         # ----------------------------------------------------------------------
-        # TODO:
-        # TODO:         enqueue_func(
-        # TODO:             str(filename),
-        # TODO:             lambda on_simple_status_func: PrepareTask(
-        # TODO:                 workspace,
-        # TODO:                 relative_path,
-        # TODO:                 GetContent,
-        # TODO:                 is_included_file=True,
-        # TODO:             ),
-        # TODO:         )
-        # TODO:
-        # TODO:     return ParseIncludeStatement(
-        # TODO:         region,
-        # TODO:         include_type,
-        # TODO:         TerminalElement(filename_region, filename),
-        # TODO:         items,
-        # TODO:     )
+        # This variable is used in PrepareTask, but cannot be created until PrepareTask
+        # has been defined.
+        create_include_statement_func: Optional[_CreateIncludeStatementFuncType] = None
 
         # ----------------------------------------------------------------------
         def PrepareTask(
@@ -364,11 +224,15 @@ def Parse(
                         ast = parser.entry_point__()
                         assert ast
 
+                        assert create_include_statement_func is not None
+
                         visitor = _SimpleSchemaVisitor(
+                            content,
                             fullpath,
                             lambda line: cast(None, status.OnProgress(line, None)),
-                            CreateIncludeStatement,
+                            create_include_statement_func,
                             is_included_file=is_included_file,
+                            tab_width=tab_width,
                         )
 
                         ast.accept(visitor)
@@ -386,6 +250,15 @@ def Parse(
             return len(content.split("\n")), Execute
 
         # ----------------------------------------------------------------------
+
+        create_include_statement_func = _CreateIncludeStatementFuncFactory(
+            file_extensions,
+            workspace_names,
+            results,
+            results_lock,
+            enqueue_func,
+            PrepareTask,
+        )
 
         is_single_workspace = len(workspaces) == 1
 
@@ -451,24 +324,23 @@ class _ErrorListener(antlr4.DiagnosticErrorListener):
 
 
 # ----------------------------------------------------------------------
+class _CreateIncludeStatementFuncType(Protocol):
+    def __call__(
+        self,
+        include_path: Path,
+        region: Region,
+        root_indicator: Optional[Region],
+        directory_indicator: Optional[Region],
+        filename_or_directory: TerminalElement[Path],
+        items: list[ParseIncludeStatementItem],
+        *,
+        is_star_include: bool,
+    ) -> ParseIncludeStatement: ...
+
+
+# ----------------------------------------------------------------------
 class _VisitorMixin:
     """Contains functionality that doesn't change when the grammar is regenerated"""
-
-    # ----------------------------------------------------------------------
-    # |
-    # |  Public Types
-    # |
-    # ----------------------------------------------------------------------
-    class CreateIncludeStatementFunc(Protocol):
-        def __call__(
-            self,
-            include_path: Path,
-            region: Region,
-            filename_or_directory: TerminalElement[Path],
-            items: list[ParseIncludeStatementItem],
-            *,
-            is_star_include: bool,
-        ) -> ParseIncludeStatement: ...  # pragma: no cover
 
     # ----------------------------------------------------------------------
     # |
@@ -477,14 +349,18 @@ class _VisitorMixin:
     # ----------------------------------------------------------------------
     def __init__(
         self,
+        content: str,
         filename: Path,
         on_progress_func: Callable[[int], None],
-        create_include_statement_func: "_VisitorMixin.CreateIncludeStatementFunc",
+        create_include_statement_func: _CreateIncludeStatementFuncType,
         *,
         is_included_file: bool,
+        tab_width: int,
     ):
+        self.content = content
         self.filename = filename
         self.is_included_file = is_included_file
+        self.tab_width = tab_width
 
         self._on_progress_func = on_progress_func
         self._create_include_statement_func = create_include_statement_func
@@ -704,7 +580,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         elif value[0].isupper() and value[1:].islower():
             flags |= BooleanExpression.Flags.PascalCase
         else:
-            assert False, value
+            assert False, value  # pragma: no cover
 
         self._stack.append(BooleanExpression(self.CreateRegion(ctx), True, flags))
 
@@ -728,7 +604,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         elif lower_value == "off":
             flags |= BooleanExpression.Flags.OnOff
         else:
-            assert False, value
+            assert False, value  # pragma: no cover
 
         if value.isupper():
             flags |= BooleanExpression.Flags.UpperCase
@@ -737,7 +613,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         elif value[0].isupper() and value[1:].islower():
             flags |= BooleanExpression.Flags.PascalCase
         else:
-            assert False, value
+            assert False, value  # pragma: no cover
 
         self._stack.append(BooleanExpression(self.CreateRegion(ctx), False, flags))
 
@@ -766,7 +642,23 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
                 else StringExpression.QuoteType.TripleSingle
             )
 
-            initial_whitespace = token.column
+            # Get the length of the initial whitespace by looking at the characters that come
+            # before the opening token.
+            initial_whitespace = 0
+            char_index = token.start - 1
+
+            while char_index > 0:
+                char = self.content[char_index]
+
+                if char == "\n":
+                    break
+
+                if char == "\t":
+                    initial_whitespace += self.tab_width
+                else:
+                    initial_whitespace += 1
+
+                char_index -= 1
 
             # ----------------------------------------------------------------------
             def TrimPrefix(
@@ -780,7 +672,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
                     if line[index] == " ":
                         whitespace += 1
                     elif line[index] == "\t":
-                        whitespace += 4
+                        whitespace += self.tab_width
                     else:
                         raise AntlrException(
                             Errors.antlr_invalid_indentation,
@@ -854,24 +746,139 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # |  Statements
     # |
     # ----------------------------------------------------------------------
-    # TODO: def visitInclude_statement(self, ctx: SimpleSchemaParser.Include_statementContext):
-    # TODO:     return self.visitChildren(ctx)  # TODO
-    # TODO:
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitInclude_statement_from(self, ctx: SimpleSchemaParser.Include_statement_fromContext):
-    # TODO:     return self.visitChildren(ctx)  # TODO
-    # TODO:
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitInclude_statement_import_star(
-    # TODO:     self, ctx: SimpleSchemaParser.Include_statement_import_starContext
-    # TODO: ):
-    # TODO:     return self.visitChildren(ctx)  # TODO
-    # TODO:
-    # TODO: # ----------------------------------------------------------------------
-    # TODO: def visitInclude_statement_import_element(
-    # TODO:     self, ctx: SimpleSchemaParser.Include_statement_import_elementContext
-    # TODO: ):
-    # TODO:     return self.visitChildren(ctx)  # TODO
+    def visitInclude_statement(self, ctx: SimpleSchemaParser.Include_statementContext):
+        children = self._GetChildren(ctx)
+        assert len(children) >= 1, children
+
+        region = self.CreateRegion(ctx)
+
+        # Does the filename have a root indicator?
+        if isinstance(children[0], Region):
+            root_indicator = children.pop(0)
+        else:
+            root_indicator = None
+
+        # Get the filename parts
+        filename_parts: list[ParseIdentifier | TerminalElement[str]] = []
+
+        while children and isinstance(children[0], (ParseIdentifier, TerminalElement)):
+            filename_parts.append(children.pop(0))
+
+        filename = TerminalElement[Path](
+            Region(
+                filename_parts[0].region.filename,
+                filename_parts[0].region.begin,
+                filename_parts[-1].region.end,
+            ),
+            Path(*(part.value for part in filename_parts)),
+        )
+
+        if children and isinstance(children[0], Region):
+            directory_indicator = children.pop(0)
+        else:
+            directory_indicator = None
+
+        if len(children) == 1 and isinstance(children[0], str) and children[0] == "*":
+            children = []
+            is_star_include = True
+        else:
+            assert all(isinstance(child, ParseIncludeStatementItem) for child in children), children
+            children = cast(list[ParseIncludeStatementItem], children)
+
+            is_star_include = False
+
+        self._stack.append(
+            self._create_include_statement_func(
+                self.filename,
+                region,
+                root_indicator,
+                directory_indicator,
+                filename,
+                children,
+                is_star_include=is_star_include,
+            ),
+        )
+
+    # ----------------------------------------------------------------------
+    def visitInclude_statement_from(self, ctx: SimpleSchemaParser.Include_statement_fromContext):
+        entire_region = self.CreateRegion(ctx)
+
+        # Look for the root identifier
+        if (
+            len(ctx.children) > 1
+            and isinstance(ctx.children[0], antlr4.TerminalNode)
+            and ctx.children[0].symbol.text == "/"
+        ):
+            self._stack.append(
+                Region(
+                    entire_region.filename,
+                    entire_region.begin,
+                    Location(
+                        entire_region.end.line,
+                        entire_region.begin.column + 1,
+                    ),
+                ),
+            )
+
+        # Process the elements
+        result = self.visitChildren(ctx)
+
+        # Look for the directory identifier
+        if (
+            len(ctx.children) > 1
+            and isinstance(ctx.children[-1], antlr4.TerminalNode)
+            and ctx.children[-1].symbol.text == "/"
+        ):
+            self._stack.append(
+                Region(
+                    entire_region.filename,
+                    Location(
+                        entire_region.begin.line,
+                        entire_region.end.column - 1,
+                    ),
+                    entire_region.end,
+                ),
+            )
+
+        return result
+
+    # ----------------------------------------------------------------------
+    def visitInclude_statement_from_parent_dir(
+        self, ctx: SimpleSchemaParser.Include_statement_from_parent_dirContext
+    ):
+        self._stack.append(TerminalElement[str](self.CreateRegion(ctx), ".."))
+
+    # ----------------------------------------------------------------------
+    def visitInclude_statement_import_star(
+        self, ctx: SimpleSchemaParser.Include_statement_import_starContext
+    ):
+        self._stack.append("*")
+
+    # ----------------------------------------------------------------------
+    def visitInclude_statement_import_element(
+        self, ctx: SimpleSchemaParser.Include_statement_import_elementContext
+    ):
+        children = self._GetChildren(ctx)
+
+        num_children = len(children)
+        assert 1 <= num_children <= 2, children
+
+        assert isinstance(children[0], ParseIdentifier), children
+        element_name = cast(ParseIdentifier, children[0])
+
+        if num_children > 1:
+            assert isinstance(children[0], ParseIdentifier), children
+            reference_name = children[1]
+        else:
+            reference_name = ParseIdentifier(element_name.region, element_name.value)
+
+        self._stack.append(
+            ParseIncludeStatementItem(
+                self.CreateRegion(ctx),
+                element_name,
+                reference_name,
+            )
+        )
 
     # ----------------------------------------------------------------------
     def visitExtension_statement(self, ctx: SimpleSchemaParser.Extension_statementContext):
@@ -1065,7 +1072,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
                 metadata = child
 
             else:
-                assert False, child
+                assert False, child  # pragma: no cover
 
         region = self.CreateRegion(ctx)
 
@@ -1145,3 +1152,188 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
                 cast(list[ParseType], children),
             ),
         )
+
+
+# ----------------------------------------------------------------------
+# |
+# |  Private Functions
+# |
+# ----------------------------------------------------------------------
+class _PrepareTaskFuncType(Protocol):
+    def __call__(
+        self,
+        workspace_root: Path,
+        relative_path: PurePath,
+        content_func: Callable[[], str],
+        *,
+        is_included_file: bool,
+    ) -> tuple[int, ExecuteTasks.YieldQueueExecutorTypes.ExecuteFuncType]: ...
+
+
+def _CreateIncludeStatementFuncFactory(
+    file_extensions: list[str],
+    workspace_names: list[Path],
+    results: dict[Path, dict[PurePath, None | Exception | RootStatement]],
+    results_lock: threading.Lock,
+    enqueue_func: ExecuteTasks.YieldQueueExecutorTypes.EnqueueFuncType,
+    prepare_task_func: _PrepareTaskFuncType,
+) -> _CreateIncludeStatementFuncType:
+    # ----------------------------------------------------------------------
+    def ResolveIncludeFilename(
+        path: Path,
+        *,
+        allow_directory: bool,
+    ) -> Optional[Path]:
+        path = path.resolve()
+
+        if path.is_file() or (allow_directory and path.is_dir()):
+            return path
+
+        for extension in file_extensions:
+            potential_path = path.parent / (path.name + extension)
+            if potential_path.is_file():
+                return potential_path
+
+        return None
+
+    # ----------------------------------------------------------------------
+    def Impl(
+        include_path: Path,
+        region: Region,
+        root_indicator: Optional[Region],
+        directory_indicator: Optional[Region],
+        filename_or_directory: TerminalElement[Path],
+        items: list[ParseIncludeStatementItem],
+        *,
+        is_star_include: bool,
+    ) -> ParseIncludeStatement:
+        root: Optional[Path] = None
+
+        search_paths: list[list[Path]] = []
+
+        if root_indicator is None:
+            search_paths.append([include_path.parent])
+
+        search_paths.append(workspace_names)
+
+        for potential_root in itertools.chain(*search_paths):
+            fullpath = ResolveIncludeFilename(
+                potential_root / filename_or_directory.value,
+                allow_directory=directory_indicator is not None,
+            )
+
+            if fullpath is not None and (directory_indicator is None or fullpath.is_dir()):
+                root = fullpath
+                break
+
+        if root is None:
+            if directory_indicator is not None:
+                raise Errors.ParseCreateIncludeStatementInvalidDirectory.CreateAsException(
+                    filename_or_directory.region,
+                    filename_or_directory.value,
+                )
+            else:
+                raise Errors.ParseCreateIncludeStatementInvalidFilename.CreateAsException(
+                    filename_or_directory.region,
+                    filename_or_directory.value,
+                )
+
+        filename: Optional[Path] = None
+        filename_region: Optional[Region] = None
+        include_type: Optional[ParseIncludeStatementType] = None
+
+        if root.is_dir():
+            if is_star_include:
+                raise Errors.ParseCreateIncludeStatementDirWithStar.CreateAsException(region, root)
+
+            filename = ResolveIncludeFilename(
+                root / items[0].element_name.value,
+                allow_directory=False,
+            )
+
+            filename_region = Region(
+                filename_or_directory.region.filename,
+                filename_or_directory.region.begin,
+                items[0].element_name.region.end,
+            )
+
+            if filename is None:
+                raise Errors.ParseCreateIncludeStatementInvalidFilename.CreateAsException(
+                    filename_region,
+                    items[0].element_name.value,
+                )
+
+            include_type = ParseIncludeStatementType.Module
+            items = []
+
+        else:
+            if is_star_include:
+                assert not items
+                include_type = ParseIncludeStatementType.Star
+            else:
+                include_type = ParseIncludeStatementType.Package
+
+            filename = root
+            filename_region = filename_or_directory.region
+
+        assert filename is not None
+        assert filename.is_file(), filename
+        assert filename_region is not None
+        assert include_type is not None
+
+        # Get the workspace associated with the file
+        workspace: Optional[Path] = None
+
+        for workspace_name in workspace_names:
+            if PathEx.IsDescendant(filename, workspace_name):
+                workspace = workspace_name
+                break
+
+        if workspace is None:
+            raise Errors.ParseCreateIncludeStatementInvalidWorkspace.CreateAsException(
+                region,
+                filename,
+            )
+
+        # Get the relative path for the workspace
+        relative_path = PathEx.CreateRelativePath(workspace, filename)
+        assert relative_path is not None
+
+        # Determine if this is a file that should be enqueued for parsing
+        should_enqueue = False
+
+        with results_lock:
+            workspace_results = results[workspace]
+
+            if relative_path not in workspace_results:
+                workspace_results[relative_path] = None
+                should_enqueue = True
+
+        if should_enqueue:
+            # ----------------------------------------------------------------------
+            def GetContent() -> str:
+                with filename.open(encoding="utf-8") as f:
+                    return f.read()
+
+            # ----------------------------------------------------------------------
+
+            enqueue_func(
+                str(filename),
+                lambda on_simple_status_func: prepare_task_func(
+                    workspace,
+                    relative_path,
+                    GetContent,
+                    is_included_file=True,
+                ),
+            )
+
+        return ParseIncludeStatement(
+            region,
+            include_type,
+            TerminalElement(filename_region, filename),
+            items,
+        )
+
+    # ----------------------------------------------------------------------
+
+    return Impl

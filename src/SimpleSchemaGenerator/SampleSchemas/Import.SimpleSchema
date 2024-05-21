@@ -1,0 +1,17 @@
+from Tuples import Tuples
+from Variants import *
+
+from Structures import (
+    SingleBase as SB,
+    SingleStructureBase as SSB,
+    MultipleStructureBase1 as MSB1,
+    MultipleStructureBase2 as MSB2,
+)
+
+tuples_value: Tuples
+variants_value: Variants
+
+sb: SB
+ssb: SSB
+msb1: MSB1
+msb2: MSB2

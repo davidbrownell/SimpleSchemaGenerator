@@ -1,0 +1,16 @@
+# ----------------------------------------------------------------------
+CommonName: String
+
+Object ->
+    CommonName: Number
+
+    value1: CommonName
+    value2: ::CommonName
+
+
+# ----------------------------------------------------------------------
+# This test ensures that regions are defined correctly for statements
+# on consecutive lines.
+Statement1 ->
+    value: String
+Statement2: String

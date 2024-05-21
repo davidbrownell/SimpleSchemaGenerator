@@ -16,7 +16,7 @@
 from dataclasses import dataclass
 from enum import auto, Enum
 from pathlib import Path
-from typing import cast
+from typing import cast, Optional
 
 from dbrownell_Common.Types import override  # type: ignore[import-untyped]
 
@@ -25,6 +25,7 @@ from ..Common.ParseIdentifier import ParseIdentifier
 from ......Elements.Common.Element import Element
 from ......Elements.Common.TerminalElement import TerminalElement
 from ......Elements.Statements.Statement import Statement
+from .......Common.Region import Region
 from ....... import Errors
 
 
