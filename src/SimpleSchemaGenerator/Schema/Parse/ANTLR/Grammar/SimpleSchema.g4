@@ -177,7 +177,8 @@ header_statement__:                         (
 // ----------------------------------------------------------------------
 include_statement:                          INCLUDE_FROM include_statement_from INCLUDE_IMPORT include_statement_import__ NEWLINE+;
 
-include_statement_from:                     '/'? ((identifier | '..' | '.') '/'?)+;
+include_statement_from:                     '/'? '.'? ((identifier | include_statement_from_parent_dir) '/'?)+;
+include_statement_from_parent_dir:          '..';
 
 include_statement_import__:                 include_statement_import_star | include_statement_import_grouped_items__ | include_statement_import_items__;
 include_statement_import_star:              '*';

@@ -128,4 +128,4 @@ class Region:
     # ----------------------------------------------------------------------
     @cached_property
     def _string(self) -> str:
-        return "{}, {} -> {}".format(self.filename.as_posix(), self.begin, self.end)
+        return "{}, {} -> {}".format(self.filename, self.begin, self.end)

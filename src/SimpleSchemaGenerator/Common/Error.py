@@ -235,14 +235,6 @@ def _(
 # ----------------------------------------------------------------------
 @_ArgToString.register
 def _(
-    value: Path,
-) -> str:
-    return value.as_posix()
-
-
-# ----------------------------------------------------------------------
-@_ArgToString.register
-def _(
     value: list,
 ) -> str:
     return "[{}]".format(", ".join("'{}'".format(_ArgToString(v)) for v in value))

@@ -58,6 +58,7 @@ readme = "README.md"
 [project.optional-dependencies]
 dev = [
     "dbrownell_DevTools",
+    "pyfakefs ~= 5.5",
     "syrupy ~= 4.6",
 ]
 

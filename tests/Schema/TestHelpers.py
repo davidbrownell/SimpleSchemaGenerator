@@ -20,6 +20,7 @@ import yaml
 
 from contextlib import contextmanager
 from functools import cached_property
+from pathlib import Path
 from typing import Any, Iterable, Iterator, Type as PythonType
 from unittest.mock import Mock
 
@@ -36,6 +37,7 @@ from SimpleSchemaGenerator.Schema.Elements.Expressions.StringExpression import S
 from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Common.ParseIdentifier import (
     ParseIdentifier,
 )
+
 from SimpleSchemaGenerator.Schema.Visitors.ElementVisitor import ElementVisitor, VisitResult
 
 
@@ -274,7 +276,12 @@ class YamlVisitor(TerminalElementVisitor):
     def OnTerminalElement(self, element: TerminalElement) -> Iterator[VisitResult]:
         d = self._stack[-1]
 
-        d["value"] = element.value
+        value = element.value
+
+        if isinstance(value, Path):
+            value = value.as_posix()
+
+        d["value"] = value
 
         yield VisitResult.Continue
 

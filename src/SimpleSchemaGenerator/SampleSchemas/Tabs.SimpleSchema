@@ -1,0 +1,7 @@
+# Test multiline strings with tabs
+TabsTest {
+	value: """
+		   This is the
+		     multiline string.
+		   """
+}

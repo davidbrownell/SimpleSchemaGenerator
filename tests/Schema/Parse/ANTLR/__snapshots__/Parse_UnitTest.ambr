@@ -142,6 +142,13 @@
   
   '''
 # ---
+# name: TestParsing.test_Empty
+  '''
+  - __type__: RootStatement
+    statements: []
+  
+  '''
+# ---
 # name: TestParsing.test_Expressions
   '''
   - __type__: RootStatement
@@ -546,6 +553,300 @@
         expression:
           __type__: StringExpression
           value: bar
+  
+  '''
+# ---
+# name: TestParsing.test_Import
+  '''
+  - __type__: RootStatement
+    statements:
+    - __type__: ParseIncludeStatement
+      filename:
+        __type__: TerminalElement
+        value: <working_dir>/src/SimpleSchemaGenerator/SampleSchemas/Tuples.SimpleSchema
+      items:
+      - __type__: ParseIncludeStatementItem
+        element_name:
+          __type__: ParseIdentifier
+          value: Tuples
+        reference_name:
+          __type__: ParseIdentifier
+          value: Tuples
+    - __type__: ParseIncludeStatement
+      filename:
+        __type__: TerminalElement
+        value: <working_dir>/src/SimpleSchemaGenerator/SampleSchemas/Variants.SimpleSchema
+      items: []
+    - __type__: ParseIncludeStatement
+      filename:
+        __type__: TerminalElement
+        value: <working_dir>/src/SimpleSchemaGenerator/SampleSchemas/Structures.SimpleSchema
+      items:
+      - __type__: ParseIncludeStatementItem
+        element_name:
+          __type__: ParseIdentifier
+          value: SingleBase
+        reference_name:
+          __type__: ParseIdentifier
+          value: SB
+      - __type__: ParseIncludeStatementItem
+        element_name:
+          __type__: ParseIdentifier
+          value: SingleStructureBase
+        reference_name:
+          __type__: ParseIdentifier
+          value: SSB
+      - __type__: ParseIncludeStatementItem
+        element_name:
+          __type__: ParseIdentifier
+          value: MultipleStructureBase1
+        reference_name:
+          __type__: ParseIdentifier
+          value: MSB1
+      - __type__: ParseIncludeStatementItem
+        element_name:
+          __type__: ParseIdentifier
+          value: MultipleStructureBase2
+        reference_name:
+          __type__: ParseIdentifier
+          value: MSB2
+    - __type__: ParseItemStatement
+      name:
+        __type__: ParseIdentifier
+        value: tuples_value
+      type:
+        __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: Tuples
+    - __type__: ParseItemStatement
+      name:
+        __type__: ParseIdentifier
+        value: variants_value
+      type:
+        __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: Variants
+    - __type__: ParseItemStatement
+      name:
+        __type__: ParseIdentifier
+        value: sb
+      type:
+        __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: SB
+    - __type__: ParseItemStatement
+      name:
+        __type__: ParseIdentifier
+        value: ssb
+      type:
+        __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: SSB
+    - __type__: ParseItemStatement
+      name:
+        __type__: ParseIdentifier
+        value: msb1
+      type:
+        __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: MSB1
+    - __type__: ParseItemStatement
+      name:
+        __type__: ParseIdentifier
+        value: msb2
+      type:
+        __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: MSB2
+  
+  '''
+# ---
+# name: TestParsing.test_Miscellaneous
+  '''
+  - __type__: RootStatement
+    statements:
+    - __type__: ParseItemStatement
+      name:
+        __type__: ParseIdentifier
+        value: CommonName
+      type:
+        __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: String
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: Object
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      children:
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: CommonName
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          identifiers:
+          - __type__: ParseIdentifier
+            value: Number
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: value1
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          identifiers:
+          - __type__: ParseIdentifier
+            value: CommonName
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: value2
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          identifiers:
+          - __type__: ParseIdentifier
+            value: CommonName
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: Statement1
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      children:
+      - __type__: ParseItemStatement
+        name:
+          __type__: ParseIdentifier
+          value: value
+        type:
+          __type__: ParseIdentifierType
+          cardinality:
+            __type__: Cardinality
+            min:
+              __type__: IntegerExpression
+              value: 1
+            max:
+              __type__: IntegerExpression
+              value: 1
+          identifiers:
+          - __type__: ParseIdentifier
+            value: String
+    - __type__: ParseItemStatement
+      name:
+        __type__: ParseIdentifier
+        value: Statement2
+      type:
+        __type__: ParseIdentifierType
+        cardinality:
+          __type__: Cardinality
+          min:
+            __type__: IntegerExpression
+            value: 1
+          max:
+            __type__: IntegerExpression
+            value: 1
+        identifiers:
+        - __type__: ParseIdentifier
+          value: String
   
   '''
 # ---
@@ -1105,6 +1406,68 @@
           expression:
             __type__: BooleanExpression
             value: false
+      children: []
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: SimplifiedStructure
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      unresolved_metadata:
+        __type__: Metadata
+        items:
+        - __type__: MetadataItem
+          name:
+            __type__: TerminalElement
+            value: metadata1
+          expression:
+            __type__: StringExpression
+            value: value
+        - __type__: MetadataItem
+          name:
+            __type__: TerminalElement
+            value: metadata2
+          expression:
+            __type__: IntegerExpression
+            value: 10
+      children: []
+  
+  '''
+# ---
+# name: TestParsing.test_Tabs
+  '''
+  - __type__: RootStatement
+    statements:
+    - __type__: ParseStructureStatement
+      name:
+        __type__: ParseIdentifier
+        value: TabsTest
+      cardinality:
+        __type__: Cardinality
+        min:
+          __type__: IntegerExpression
+          value: 1
+        max:
+          __type__: IntegerExpression
+          value: 1
+      unresolved_metadata:
+        __type__: Metadata
+        items:
+        - __type__: MetadataItem
+          name:
+            __type__: TerminalElement
+            value: value
+          expression:
+            __type__: StringExpression
+            value: |-
+              This is the
+                multiline string.
       children: []
   
   '''

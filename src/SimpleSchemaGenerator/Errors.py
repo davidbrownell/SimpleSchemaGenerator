@@ -28,11 +28,31 @@ from .Common.Error import SimpleSchemaGeneratorException  # pylint: disable=unus
 # |  ANTLR Parsing Errors
 # |
 # ----------------------------------------------------------------------
-antlr_invalid_opening_token = "Triple-quote delimiters that initiate multiline strings cannot have any content on the same line."
-antlr_invalid_closing_token = "Triple-quote delimiters that terminate multiline strings cannot have any content on the same line."
+# These errors are defined as strings rather than ErrorType because they only have a beginning
+# Location and not a start and end Location as required by the Region in ErrorType.
+antlr_invalid_opening_token = "Triple-quote delimiters that initiate multiline strings cannot have any content on the same line as the opening token."
+antlr_invalid_closing_token = "Triple-quote delimiters that terminate multiline strings cannot have any content on the same line as the closing token."
 antlr_invalid_indentation = "Invalid multiline string indentation."
 
 ParseStructureStatementInvalidBase = CreateErrorType("Base types must be identifiers.")
+
+ParseCreateIncludeStatementDirWithStar = CreateErrorType(
+    "Filenames must be provided with wildcard imports; '{name}' is a directory.",
+    name=Path,
+)
+ParseCreateIncludeStatementInvalidFilename = CreateErrorType(
+    "'{name}' is not a valid filename.",
+    name=str,
+)
+ParseCreateIncludeStatementInvalidDirectory = CreateErrorType(
+    "'{name}' is not a valid directory.",
+    name=str,
+)
+ParseCreateIncludeStatementInvalidWorkspace = CreateErrorType(
+    "The included file '{name}' is not a descendant of any workspace.",
+    name=Path,
+)
+
 
 # ----------------------------------------------------------------------
 # |
