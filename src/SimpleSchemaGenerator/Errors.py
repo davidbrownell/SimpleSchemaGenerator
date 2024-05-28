@@ -105,3 +105,12 @@ ExtensionStatementDuplicateKeywordArgError = CreateErrorType(
     name=str,
     region=Region,
 )
+
+NamespaceDuplicateTypeName = CreateErrorType(
+    "The type '{name}' has already been defined at '{original_region}'.",
+    name=str,
+    original_region=Region,
+)
+NamespaceVisibilityError = CreateErrorType(
+    "The visibility 'protected' is not valid for root elements."
+)
