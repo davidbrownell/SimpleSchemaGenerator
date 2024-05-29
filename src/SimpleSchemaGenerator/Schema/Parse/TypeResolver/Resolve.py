@@ -13,13 +13,32 @@
 # ----------------------------------------------------------------------
 """Contains functionality for resolving types."""
 
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Callable, cast, Optional, TypeVar, Union
+from typing import Callable, cast, Iterator, Optional, Type as PythonType, TypeVar, Union
 
+from dbrownell_Common.ContextlibEx import ExitStack  # type: ignore[import-untyped]
 from dbrownell_Common.Streams.DoneManager import DoneManager  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override  # type: ignore[import-untyped]
 
+from .Impl.Namespace import Namespace
+from .Impl.TypeFactories import ReferenceTypeFactory, StructureTypeFactory
+
+from .. import PSEUDO_TYPE_NAME_PREFIX
+
+from ..ANTLR.Grammar.Elements.Common.ParseIdentifier import ParseIdentifier
+from ..ANTLR.Grammar.Elements.Statements.ParseIncludeStatement import ParseIncludeStatement
+from ..ANTLR.Grammar.Elements.Statements.ParseItemStatement import ParseItemStatement
+from ..ANTLR.Grammar.Elements.Statements.ParseStructureStatement import ParseStructureStatement
+from ..ANTLR.Grammar.Elements.Types.ParseIdentifierType import ParseIdentifierType
+
+from ...Elements.Common.Cardinality import Cardinality
+from ...Elements.Common.Visibility import Visibility
 from ...Elements.Statements.RootStatement import RootStatement
+from ...Visitors.ElementVisitor import ElementVisitor, VisitResult
+
 from ....Common.ExecuteInParallel import ExecuteInParallel as ExecuteInParallelImpl
+from .... import Errors
 
 
 # ----------------------------------------------------------------------
@@ -39,7 +58,17 @@ def Resolve(
         def CreateNamespace(
             root: RootStatement,
         ) -> Namespace:
-            pass  # BugBug
+            root_namespace = Namespace(
+                None,
+                Visibility.Public,
+                "root",
+                root,
+                None,
+            )
+
+            root.Accept(_CreateNamespacesVisitor(root, root_namespace))
+
+            return root_namespace
 
         # ----------------------------------------------------------------------
 
@@ -56,9 +85,187 @@ def Resolve(
             assert all(isinstance(value, Exception) for value in namespaces.values()), values
             return cast(dict[Path, Exception], namespaces)
 
-        namespaces = cast(dict[Path, Namespace], namespace)
+        namespaces = cast(dict[Path, Namespace], namespaces)
 
-    # BugBug
+    # Resolve includes
+    with dm.VerboseNested("Resolving includes...") as verbose_dm:
+        results = _ExecuteInParallel(
+            verbose_dm,
+            namespaces,
+            lambda root_namespace: root_namespace.ResolveIncludes(namespaces),
+            quiet=quiet,
+            max_num_threads=max_num_threads,
+            raise_if_single_exception=raise_if_single_exception,
+        )
+
+        if verbose_dm.result != 0:
+            assert all(isinstance(value, Exception) for value in results.values()), namespaces
+            return cast(dict[Path, Exception], results)
+
+    # Ensure unique type names
+    with dm.VerboseNested("Validating type names...") as verbose_dm:
+        results = _ExecuteInParallel(
+            verbose_dm,
+            namespaces,
+            lambda root_namespace: root_namespace.ResolveTypeNames(),
+            quiet=quiet,
+            max_num_threads=max_num_threads,
+            raise_if_single_exception=raise_if_single_exception,
+        )
+
+        if verbose_dm.result != 0:
+            assert all(isinstance(value, Exception) for value in results.values()), namespaces
+            return cast(dict[Path, Exception], results)
+
+    # Resolve types
+    with dm.VerboseNested("Resolving types...") as verbose_dm:
+        fundamental_types = _LoadFundamentalTypes()
+
+        results = _ExecuteInParallel(
+            verbose_dm,
+            namespaces,
+            lambda root_namespace: root_namespace.ResolveTypes(fundamental_types),
+            quiet=quiet,
+            max_num_threads=max_num_threads,
+            raise_if_single_exception=raise_if_single_exception,
+        )
+
+        if verbose_dm.result != 0:
+            assert all(isinstance(value, Exception) for value in results.values()), namespaces
+            return cast(dict[Path, Exception], results)
+
+    # Finalize types
+    with dm.VerboseNested("Finalizing types...") as verbose_dm:
+        results = _ExecuteInParallel(
+            verbose_dm,
+            namespaces,
+            lambda root_namespace: root_namespace.Finalize(),
+            quiet=quiet,
+            max_num_threads=max_num_threads,
+            raise_if_single_exception=raise_if_single_exception,
+        )
+
+        if verbose_dm.result != 0:
+            assert all(isinstance(value, Exception) for value in results.values()), namespaces
+            return cast(dict[Path, Exception], results)
+
+    return None
+
+
+# ----------------------------------------------------------------------
+# |
+# |  Private Types
+# |
+# ----------------------------------------------------------------------
+class _CreateNamespacesVisitor(ElementVisitor):
+    # ----------------------------------------------------------------------
+    def __init__(
+        self,
+        root: RootStatement,
+        root_namespace: Namespace,
+    ) -> None:
+        self._root = root
+        self._namespace_stack: list[Namespace] = [
+            root_namespace,
+        ]
+
+    # ----------------------------------------------------------------------
+    @override
+    @contextmanager
+    def OnParseIncludeStatement(
+        self,
+        element: ParseIncludeStatement,
+    ) -> Iterator[VisitResult]:
+        self._namespace_stack[-1].AddIncludeStatement(element)
+
+        yield VisitResult.Continue
+
+        element.Disable()
+
+    # ----------------------------------------------------------------------
+    @override
+    @contextmanager
+    def OnParseItemStatement(
+        self,
+        element: ParseItemStatement,
+    ) -> Iterator[VisitResult]:
+        yield VisitResult.Continue
+
+        if element.name.is_type:
+            self._namespace_stack[-1].AddNestedItem(
+                element.name.ToTerminalElement(),
+                ReferenceTypeFactory(element, self._namespace_stack[-1]),
+            )
+        elif element.name.is_expression:
+            self._namespace_stack[-1].AddItemStatement(element)
+        else:
+            assert False, element.name  # pragma: no cover
+
+    # ----------------------------------------------------------------------
+    @override
+    @contextmanager
+    def OnParseStructureStatement(
+        self,
+        element: ParseStructureStatement,
+    ) -> Iterator[VisitResult]:
+        if element.name.is_expression:
+            if not element.children:
+                raise Errors.ResolveStructureStatementEmptyPseudoElement.CrateAsException(
+                    element.region
+                )
+
+            # Create a pseudo element for this Typedef
+            unique_type_name = f"{PSEUDO_TYPE_NAME_PREFIX}-Ln{element.region.begin.line}Col{element.region.begin.column}"
+
+            new_structure = ParseStructureStatement(
+                element.region,
+                ParseIdentifier(element.region, unique_type_name),
+                element.bases,
+                element.cardinality,
+                element.unresolved_metadata,
+                element.children,
+            )
+
+            new_reference = ParseItemStatement(
+                element.region,
+                element.name,
+                ParseIdentifierType(
+                    element.region,
+                    Cardinality(element.region, None, None),
+                    None,
+                    [
+                        ParseIdentifier(element.region, unique_type_name),
+                    ],
+                    None,
+                ),
+            )
+
+            # Add the new elements and disable the current one
+            siblings, sibling_index = self._namespace_stack[-1].GetSiblingInfo(element)
+
+            siblings.insert(sibling_index + 1, new_structure)
+            siblings.insert(sibling_index + 2, new_reference)
+
+            element.Disable()
+
+            yield VisitResult.SkipAll
+            return
+
+        assert element.name.is_type
+
+        namespace = Namespace(
+            self._namespace_stack[-1],
+            element.name.visibility.value,
+            element.name.value,
+            element,
+            StructureTypeFactory(element, self._namespace_stack[-1]),
+        )
+
+        self._namespace_stack[-1].AddNestedItem(element.name.ToTerminalElement(), namespace)
+
+        self._namespace_stack.append(namespace)
+        with ExitStack(self._namespace_stack.pop):
+            yield VisitResult.Continue
 
 
 # ----------------------------------------------------------------------
@@ -91,3 +298,14 @@ def _ExecuteInParallel(
         max_num_threads=max_num_threads,
         raise_if_single_exception=raise_if_single_exception,
     )
+
+
+# ----------------------------------------------------------------------
+def _LoadFundamentalTypes() -> dict[str, PythonType[FundamentalType]]:
+    types: dict[str, PythonType[FundamentalType]] = {}
+
+    for class_name in dir(AllFundamentalTypes):
+        if not class_name.endswith("Type"):
+            continue
+
+        # BugBug

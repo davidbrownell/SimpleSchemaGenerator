@@ -108,7 +108,7 @@ class Namespace:
     def GetSiblingInfo(
         self,
         element: Element,
-    ) -> list[Element] | int:
+    ) -> tuple[list[Element], int]:
         parent_statement = self.statement
 
         pass  # BugBug
