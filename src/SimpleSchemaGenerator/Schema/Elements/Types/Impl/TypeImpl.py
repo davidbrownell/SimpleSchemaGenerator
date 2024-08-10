@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # |
-# |  Type.py
+# |  TypeImpl.py
 # |
 # |  David Brownell <db@DavidBrownell.com>
 # |      2024-04-12 20:12:04
@@ -19,14 +19,14 @@ from typing import ClassVar
 
 from dbrownell_Common.Types import extension
 
-from ..Common.Element import Element
-from ..Common.UniqueNameTrait import UniqueNameTrait
+from ...Common.Element import Element
+from ...Common.UniqueNameTrait import UniqueNameTrait
 
 
 # ----------------------------------------------------------------------
 @dataclass(frozen=True)
-class Type(UniqueNameTrait, Element):
-    """Abstract base class for IntrinsicType and ComplexType"""
+class TypeImpl(UniqueNameTrait, Element):
+    """Abstract base class for types"""
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = ""
