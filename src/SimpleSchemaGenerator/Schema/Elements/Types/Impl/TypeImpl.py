@@ -13,14 +13,16 @@
 # ----------------------------------------------------------------------
 """Contains the Type object."""
 
+from abc import abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from dbrownell_Common.Types import extension
 
 from ...Common.Element import Element
 from ...Common.UniqueNameTrait import UniqueNameTrait
+from ...Expressions.Expression import Expression
 
 
 # ----------------------------------------------------------------------
@@ -40,6 +42,16 @@ class TypeImpl(UniqueNameTrait, Element):
     @cached_property
     def display_type(self) -> str:
         return self._display_type
+
+    # ----------------------------------------------------------------------
+    @abstractmethod
+    def ToPythonInstance(
+        self,
+        expression_or_value: Expression | Any,
+    ) -> Any:
+        """Convert the expression or value into a python instance"""
+
+        raise Exception("Abstract method")  # pragma: no cover
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------

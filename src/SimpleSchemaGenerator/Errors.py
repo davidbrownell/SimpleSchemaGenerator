@@ -114,3 +114,13 @@ NamespaceDuplicateTypeName = CreateErrorType(
 NamespaceVisibilityError = CreateErrorType(
     "The visibility 'protected' is not valid for root elements."
 )
+
+
+# ----------------------------------------------------------------------
+# |
+# |  Type Errors
+# |
+# ----------------------------------------------------------------------
+basic_type_validate_invalid_python_type = (
+    "A '{python_type}' value cannot be converted to a '{type}' type."
+)

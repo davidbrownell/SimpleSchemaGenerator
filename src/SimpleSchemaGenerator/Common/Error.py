@@ -157,7 +157,7 @@ class SimpleSchemaGeneratorException(Exception):
 
     # ----------------------------------------------------------------------
     error: InitVar[Error]
-    errors: list[Error] = field(init=False)
+    errors: list[Error] = field(init=False)  # TODO: Do we ever have multiple errors?
 
     # ----------------------------------------------------------------------
     def __post_init__(

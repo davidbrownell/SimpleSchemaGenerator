@@ -34,6 +34,13 @@ class ParseType(TypeImpl):
     unresolved_metadata: Optional[Metadata]
 
     # ----------------------------------------------------------------------
+    @override
+    def ToPythonInstance(self, *args, **kwargs):  # pylint: disable=unused-argument
+        raise Exception(  # pragma: no cover
+            "This method should never be invoked on ParseType instances."
+        )
+
+    # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     @override
