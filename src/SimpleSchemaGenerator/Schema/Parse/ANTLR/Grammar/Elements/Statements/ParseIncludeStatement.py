@@ -55,15 +55,18 @@ class ParseIncludeStatementItem(Element):
     # ----------------------------------------------------------------------
     def __post_init__(self):
         if not self.element_name.is_type:
-            raise Errors.ParseIncludeStatementItemNotType.CreateAsException(
-                self.element_name.region,
-                self.element_name.value,
+            raise Errors.SimpleSchemaGeneratorException(
+                Errors.ParseIncludeStatementItemNotType.Create(
+                    self.element_name.region, self.element_name.value
+                )
             )
 
         if not self.reference_name.is_type:
-            raise Errors.ParseIncludeStatementItemReferenceNotType.CreateAsException(
-                self.reference_name.region,
-                self.reference_name.value,
+            raise Errors.SimpleSchemaGeneratorException(
+                Errors.ParseIncludeStatementItemReferenceNotType.Create(
+                    self.reference_name.region,
+                    self.reference_name.value,
+                )
             )
 
     # ----------------------------------------------------------------------
@@ -98,8 +101,10 @@ class ParseIncludeStatement(Statement):
     # ----------------------------------------------------------------------
     def __post_init__(self):
         if not self.filename.value.is_file():
-            raise Errors.ParseIncludeStatementInvalidFile.CreateAsException(
-                self.filename.region, self.filename.value
+            raise Errors.SimpleSchemaGeneratorException(
+                Errors.ParseIncludeStatementInvalidFile.Create(
+                    self.filename.region, self.filename.value
+                )
             )
 
         if self.include_type in [
@@ -107,10 +112,14 @@ class ParseIncludeStatement(Statement):
             ParseIncludeStatementType.Star,
         ]:
             if self.items:
-                raise Errors.ParseIncludeStatementInvalidItems.CreateAsException(self.region)
+                raise Errors.SimpleSchemaGeneratorException(
+                    Errors.ParseIncludeStatementInvalidItems.Create(self.region)
+                )
         elif self.include_type == ParseIncludeStatementType.Package:
             if not self.items:
-                raise Errors.ParseIncludeStatementMissingItems.CreateAsException(self.region)
+                raise Errors.SimpleSchemaGeneratorException(
+                    Errors.ParseIncludeStatementMissingItems.Create(self.region)
+                )
         else:
             assert False, self.include_type  # pragma: no cover
 

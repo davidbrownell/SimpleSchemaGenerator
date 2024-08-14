@@ -37,12 +37,14 @@ class ParseIdentifierType(ParseType):
     # ----------------------------------------------------------------------
     def __post_init__(self):
         if not self.identifiers:
-            raise Errors.ParseIdentifierTypeEmpty.CreateAsException(self.region)
+            raise Errors.SimpleSchemaGeneratorException(
+                Errors.ParseIdentifierTypeEmpty.Create(self.region)
+            )
 
         for identifier in self.identifiers:
             if not identifier.is_type:
-                raise Errors.ParseIdentifierTypeNotType.CreateAsException(
-                    identifier.region, identifier.value
+                raise Errors.SimpleSchemaGeneratorException(
+                    Errors.ParseIdentifierTypeNotType.Create(identifier.region, identifier.value)
                 )
 
     # ----------------------------------------------------------------------

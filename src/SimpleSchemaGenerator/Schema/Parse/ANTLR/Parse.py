@@ -980,7 +980,9 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
                 if isinstance(child, ParseIdentifierType):
                     bases.append(child)
                 else:
-                    raise Errors.ParseStructureStatementInvalidBase.CreateAsException(child.region)
+                    raise Errors.SimpleSchemaGeneratorException(
+                        Errors.ParseStructureStatementInvalidBase.Create(child.region)
+                    )
 
             elif isinstance(child, Cardinality):
                 assert cardinality is None, cardinality
@@ -1228,14 +1230,18 @@ def _CreateIncludeStatementFuncFactory(
 
         if root is None:
             if directory_indicator is not None:
-                raise Errors.ParseCreateIncludeStatementInvalidDirectory.CreateAsException(
-                    filename_or_directory.region,
-                    filename_or_directory.value,
+                raise Errors.SimpleSchemaGeneratorException(
+                    Errors.ParseCreateIncludeStatementInvalidDirectory.Create(
+                        filename_or_directory.region,
+                        filename_or_directory.value,
+                    ),
                 )
             else:
-                raise Errors.ParseCreateIncludeStatementInvalidFilename.CreateAsException(
-                    filename_or_directory.region,
-                    filename_or_directory.value,
+                raise Errors.SimpleSchemaGeneratorException(
+                    Errors.ParseCreateIncludeStatementInvalidFilename.Create(
+                        filename_or_directory.region,
+                        filename_or_directory.value,
+                    ),
                 )
 
         filename: Optional[Path] = None
@@ -1244,7 +1250,9 @@ def _CreateIncludeStatementFuncFactory(
 
         if root.is_dir():
             if is_star_include:
-                raise Errors.ParseCreateIncludeStatementDirWithStar.CreateAsException(region, root)
+                raise Errors.SimpleSchemaGeneratorException(
+                    Errors.ParseCreateIncludeStatementDirWithStar.Create(region, root)
+                )
 
             filename = ResolveIncludeFilename(
                 root / items[0].element_name.value,
@@ -1258,9 +1266,11 @@ def _CreateIncludeStatementFuncFactory(
             )
 
             if filename is None:
-                raise Errors.ParseCreateIncludeStatementInvalidFilename.CreateAsException(
-                    filename_region,
-                    items[0].element_name.value,
+                raise Errors.SimpleSchemaGeneratorException(
+                    Errors.ParseCreateIncludeStatementInvalidFilename.Create(
+                        filename_region,
+                        items[0].element_name.value,
+                    ),
                 )
 
             include_type = ParseIncludeStatementType.Module
@@ -1290,9 +1300,8 @@ def _CreateIncludeStatementFuncFactory(
                 break
 
         if workspace is None:
-            raise Errors.ParseCreateIncludeStatementInvalidWorkspace.CreateAsException(
-                region,
-                filename,
+            raise Errors.SimpleSchemaGeneratorException(
+                Errors.ParseCreateIncludeStatementInvalidWorkspace.Create(region, filename)
             )
 
         # Get the relative path for the workspace

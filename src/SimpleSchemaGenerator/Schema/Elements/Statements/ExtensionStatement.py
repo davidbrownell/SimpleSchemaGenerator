@@ -67,10 +67,12 @@ class ExtensionStatement(Statement):
 
             prev_value = keyword_args.get(key)
             if prev_value is not None:
-                raise Errors.ExtensionStatementDuplicateKeywordArgError.CreateAsException(
-                    keyword_arg.name.region,
-                    key,
-                    prev_value.name.region,
+                raise Errors.SimpleSchemaGeneratorException(
+                    Errors.ExtensionStatementDuplicateKeywordArgError.Create(
+                        keyword_arg.name.region,
+                        key,
+                        prev_value.name.region,
+                    ),
                 )
 
             keyword_args[key] = keyword_arg

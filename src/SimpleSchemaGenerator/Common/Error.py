@@ -19,10 +19,10 @@ import traceback
 
 from dataclasses import dataclass, field, InitVar, make_dataclass
 from enum import Enum
-from functools import singledispatch
+from functools import singledispatch, singledispatchmethod
 from io import StringIO
 from pathlib import Path
-from typing import Type as PythonType
+from typing import Optional, Type as PythonType
 
 from dbrownell_Common import TextwrapEx  # type: ignore[import-untyped]
 
@@ -60,49 +60,21 @@ class Error:
         object.__setattr__(self, "regions", regions)
 
     # ----------------------------------------------------------------------
+    @singledispatchmethod
     @classmethod
     def Create(cls, *args, **kwargs) -> "Error":
         return cls(*args, **kwargs)
 
     # ----------------------------------------------------------------------
+    @Create.register
     @classmethod
-    def CreateAsException(cls, *args, **kwargs) -> "SimpleSchemaGeneratorException":
-        error = cls(*args, **kwargs)
-        return SimpleSchemaGeneratorException(error)
-
-    # ----------------------------------------------------------------------
-    def __str__(self) -> str:
-        if len(self.regions) == 1 and "\n" not in self.message:
-            return "{} ({})".format(self.message, self.regions[0])
-
-        return textwrap.dedent(
-            """\
-            {}
-
-            {}
-            """,
-        ).format(
-            self.message.rstrip(),
-            "\n".join("    - {}".format(region) for region in self.regions),
-        )
-
-
-# ----------------------------------------------------------------------
-@dataclass(frozen=True)
-class ExceptionError(Error):
-    """Errors based on a python Exception."""
-
-    # ----------------------------------------------------------------------
-    ex: Exception
-
-    # ----------------------------------------------------------------------
-    @classmethod
-    def Create(  # pylint: disable=arguments-differ
+    def _(
         cls,
         ex: Exception,
+        region: Optional[Region] = None,
         *,
         include_callstack: bool = True,
-    ) -> "ExceptionError":
+    ):  # -> "Error":
         regions: list[Region] = []
 
         if include_callstack:
@@ -132,21 +104,43 @@ class ExceptionError(Error):
                     ),
                 )
 
+            assert regions, sink_str
+
             regions.reverse()
+
+        if region is not None:
+            regions.insert(0, region)
 
         header = "Python Exception: "
 
-        return ExceptionError(
-            "{}{}".format(
-                header,
-                TextwrapEx.Indent(
-                    str(ex),
-                    len(header),
-                    skip_first_line=True,
-                ),
+        instance = cls(
+            header
+            + TextwrapEx.Indent(
+                str(ex),
+                len(header),
+                skip_first_line=True,
             ),
             regions,
-            ex,
+        )
+
+        object.__setattr__(instance, "ex", ex)
+
+        return instance
+
+    # ----------------------------------------------------------------------
+    def __str__(self) -> str:
+        if len(self.regions) == 1 and "\n" not in self.message:
+            return "{} ({})".format(self.message, self.regions[0])
+
+        return textwrap.dedent(
+            """\
+            {}
+
+            {}
+            """,
+        ).format(
+            self.message.rstrip(),
+            "\n".join("    - {}".format(region) for region in self.regions),
         )
 
 
@@ -157,7 +151,7 @@ class SimpleSchemaGeneratorException(Exception):
 
     # ----------------------------------------------------------------------
     error: InitVar[Error]
-    errors: list[Error] = field(init=False)
+    errors: list[Error] = field(init=False)  # TODO: Will we ever initialize with multiple errors?
 
     # ----------------------------------------------------------------------
     def __post_init__(
