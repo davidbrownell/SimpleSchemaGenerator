@@ -34,7 +34,9 @@ class RootStatement(Statement):
     def __post_init__(self):
         for statement in self.statements:
             if isinstance(statement, RootStatement):
-                raise Errors.RootStatementInvalidNested.CreateAsException(statement.region)
+                raise Errors.SimpleSchemaGeneratorException(
+                    Errors.RootStatementInvalidNested.Create(statement.region)
+                )
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------

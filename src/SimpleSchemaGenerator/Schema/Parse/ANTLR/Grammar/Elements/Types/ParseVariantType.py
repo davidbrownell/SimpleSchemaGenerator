@@ -34,11 +34,15 @@ class ParseVariantType(ParseType):
     # ----------------------------------------------------------------------
     def __post_init__(self):
         if len(self.types) < 2:
-            raise Errors.ParseVariantTypeMissingTypes.CreateAsException(self.region)
+            raise Errors.SimpleSchemaGeneratorException(
+                Errors.ParseVariantTypeMissingTypes.Create(self.region)
+            )
 
         for the_type in self.types:
             if isinstance(the_type, ParseVariantType):
-                raise Errors.ParseVariantTypeNestedType.CreateAsException(the_type.region)
+                raise Errors.SimpleSchemaGeneratorException(
+                    Errors.ParseVariantTypeNestedType.Create(the_type.region)
+                )
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------

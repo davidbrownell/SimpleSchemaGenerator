@@ -112,19 +112,20 @@ class TestError:
             """,
         )
 
-    # ----------------------------------------------------------------------
-    def test_CreateAsException(self):
-        region = Region(
-            Path("foo"),
-            Location(1, 2),
-            Location(3, 4),
-        )
 
-        ex = Error.CreateAsException("Single line, single_region", region)
+# ----------------------------------------------------------------------
+def test_SimpleSchemaGeneratorException():
+    region = Region(
+        Path("foo"),
+        Location(1, 2),
+        Location(3, 4),
+    )
 
-        assert len(ex.errors) == 1
-        assert ex.errors[0].message == "Single line, single_region"
-        assert ex.errors[0].regions == [region]
+    ex = SimpleSchemaGeneratorException(Error.Create("Single line, single_region", region))
+
+    assert len(ex.errors) == 1
+    assert ex.errors[0].message == "Single line, single_region"
+    assert ex.errors[0].regions == [region]
 
 
 # ----------------------------------------------------------------------
@@ -134,12 +135,28 @@ def test_ExceptionError():
     except Exception as ex:
         the_ex = ex
 
-    ee = ExceptionError.Create(the_ex)
+    ee = Error.Create(the_ex)
 
     assert ee.ex is the_ex
     assert ee.message == "Python Exception: This is my exception"
     assert len(ee.regions) == 1
     assert ee.regions[0].filename == Path(__file__)
+
+
+# ----------------------------------------------------------------------
+def test_ExceptionErrorWithRegion():
+    try:
+        raise Exception("This is my exception")
+    except Exception as ex:
+        the_ex = ex
+
+    ee = Error.Create(the_ex, Region.Create(Path("foo"), 1, 2, 3, 4))
+
+    assert ee.ex is the_ex
+    assert ee.message == "Python Exception: This is my exception"
+    assert len(ee.regions) == 2
+    assert ee.regions[0] == Region.Create(Path("foo"), 1, 2, 3, 4)
+    assert ee.regions[1].filename == Path(__file__)
 
 
 # ----------------------------------------------------------------------

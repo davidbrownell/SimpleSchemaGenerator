@@ -42,12 +42,16 @@ class ParseIdentifier(Element):
         first_char = self.__class__._GetFirstChar(self.value)  # pylint: disable=protected-access
 
         if first_char is None:
-            raise Errors.ParseIdentifierNoChars.CreateAsException(self.region, self.value)
+            raise Errors.SimpleSchemaGeneratorException(
+                Errors.ParseIdentifierNoChars.Create(self.region, self.value)
+            )
 
         if not (
             ("a" <= first_char <= "z") or ("A" <= first_char <= "Z") or emoji.is_emoji(first_char)
         ):
-            raise Errors.ParseIdentifierNotAlpha.CreateAsException(self.region, self.value)
+            raise Errors.SimpleSchemaGeneratorException(
+                Errors.ParseIdentifierNotAlpha.Create(self.region, self.value)
+            )
 
         # Commit
         object.__setattr__(self, "_first_char", first_char)

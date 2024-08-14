@@ -62,10 +62,12 @@ class Metadata(Element):
 
             prev_value = items.get(key, None)
             if prev_value is not None:
-                raise Errors.MetadataItemDuplicated.CreateAsException(
-                    item.name.region,
-                    key,
-                    prev_value.name.region,
+                raise Errors.SimpleSchemaGeneratorException(
+                    Errors.MetadataItemDuplicated.Create(
+                        item.name.region,
+                        key,
+                        prev_value.name.region,
+                    ),
                 )
 
             items[key] = item

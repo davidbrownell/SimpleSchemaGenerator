@@ -21,6 +21,7 @@ from dbrownell_Common.Types import override  # type: ignore[import-untyped]
 
 from .Element import Element
 from ..Expressions.IntegerExpression import IntegerExpression
+
 from .... import Errors
 
 
@@ -53,10 +54,12 @@ class Cardinality(Element):
         assert min_param is not None
 
         if max_param is not None and max_param.value < min_param.value:
-            raise Errors.CardinalityInvalidRange.CreateAsException(
-                max_param.region,
-                min_param.value,
-                max_param.value,
+            raise Errors.SimpleSchemaGeneratorException(
+                Errors.CardinalityInvalidRange.Create(
+                    max_param.region,
+                    min_param.value,
+                    max_param.value,
+                ),
             )
 
         # Commit
