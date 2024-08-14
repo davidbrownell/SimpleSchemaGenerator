@@ -124,3 +124,13 @@ NamespaceVisibilityError = CreateErrorType(
 basic_type_validate_invalid_python_type = (
     "A '{python_type}' value cannot be converted to a '{type}' type."
 )
+
+cardinality_validate_list_required = "A list of items was expected."
+cardinality_validate_list_not_expected = "A list of items was not expected."
+cardinality_validate_list_too_large = (
+    "No more than {value} {value_verb} expected ({found} {found_verb} found)."
+)
+cardinality_validate_list_too_small = (
+    "At least {value} {value_verb} expected ({found} {found_verb} found)."
+)
+cardinality_validate_none_not_expected = "None was not expected."

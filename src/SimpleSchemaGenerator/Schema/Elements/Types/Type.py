@@ -237,7 +237,7 @@ class Type(VisibilityTrait, TypeImpl):
             assert False, "BugBug1"
 
         except Exception as ex:
-            assert False, "BugBug2"
+            raise SimpleSchemaGeneratorException(ExceptionError.Create(ex)) from ex
 
     # ----------------------------------------------------------------------
     @override

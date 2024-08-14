@@ -126,6 +126,7 @@ class TypeDefinition(TypeImpl):
                 raise
 
             except Exception as ex:
+                raise SimpleSchemaGeneratorException(ExceptionError.Create(ex)) from ex
                 raise Error.CreateAsException(str(ex), expression_or_value.region) from ex
 
         return Impl(expression_or_value)
