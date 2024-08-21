@@ -15,13 +15,15 @@
 
 from dataclasses import dataclass, field, InitVar
 from functools import cached_property
-from typing import Optional
+from typing import Any, Optional
 
+from dbrownell_Common.InflectEx import inflect  # type: ignore[import-untyped]
 from dbrownell_Common.Types import override  # type: ignore[import-untyped]
 
 from .Element import Element
+from ..Expressions.Expression import Expression
 from ..Expressions.IntegerExpression import IntegerExpression
-
+from ....Common.Error import Error
 from .... import Errors
 
 
@@ -82,6 +84,74 @@ class Cardinality(Element):
     @cached_property
     def is_container(self) -> bool:
         return self.max is None or self.max.value > 1
+
+    # ----------------------------------------------------------------------
+    def Validate(
+        self,
+        expression_or_value: Expression | Any,
+    ) -> None:
+        # ----------------------------------------------------------------------
+        def Impl(
+            value: Any,
+        ) -> None:
+            if value is None:
+                if self.is_optional:
+                    return
+
+                raise Exception(Errors.cardinality_validate_none_not_expected)
+
+            if self.is_container:
+                if not isinstance(value, list):
+                    raise Exception(Errors.cardinality_validate_list_required)
+
+                num_items = len(value)
+
+                if num_items < self.min.value:
+                    raise Exception(
+                        Errors.cardinality_validate_list_too_small.format(
+                            value=inflect.no("item", self.min.value),
+                            value_verb=inflect.plural_verb("was", self.min.value),
+                            found=inflect.no("item", num_items),
+                            found_verb=inflect.plural_verb("was", num_items),
+                        ),
+                    )
+
+                if self.max is not None and num_items > self.max.value:
+                    raise Exception(
+                        Errors.cardinality_validate_list_too_large.format(
+                            value=inflect.no("item", self.max.value),
+                            value_verb=inflect.plural_verb("was", self.max.value),
+                            found=inflect.no("item", num_items),
+                            found_verb=inflect.plural_verb("was", num_items),
+                        ),
+                    )
+
+                return
+
+            elif self.is_optional:
+                # We don't have enough context to validate the cardinality, but it will be validated
+                # at a later time.
+                return
+
+            if isinstance(value, list):
+                raise Exception(Errors.cardinality_validate_list_not_expected)
+
+        # ----------------------------------------------------------------------
+
+        if isinstance(expression_or_value, Expression):
+            try:
+                Impl(expression_or_value.value)
+                return
+            except Exception as ex:
+                raise Errors.SimpleSchemaGeneratorException(
+                    Error.Create(
+                        ex,
+                        expression_or_value.region,
+                        include_callstack=False,
+                    ),
+                ) from ex
+
+        Impl(expression_or_value)
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------

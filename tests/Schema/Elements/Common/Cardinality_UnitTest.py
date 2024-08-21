@@ -26,8 +26,10 @@ from dbrownell_Common import PathEx
 
 from SimpleSchemaGenerator.Common.Error import SimpleSchemaGeneratorException
 from SimpleSchemaGenerator.Common.Region import Region
+from SimpleSchemaGenerator.Errors import SimpleSchemaGeneratorException
 from SimpleSchemaGenerator.Schema.Elements.Common.Cardinality import Cardinality
 from SimpleSchemaGenerator.Schema.Elements.Expressions.IntegerExpression import IntegerExpression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.ListExpression import ListExpression
 
 sys.path.insert(0, str(PathEx.EnsureDir(Path(__file__).parent.parent.parent)))
 with ExitStack(lambda: sys.path.pop(0)):
@@ -247,3 +249,79 @@ def test_InvalidRange():
     assert len(exec_info.value.errors) == 1
     assert len(exec_info.value.errors[0].regions) == 1
     assert exec_info.value.errors[0].regions[0] is max_region
+
+
+# ----------------------------------------------------------------------
+class TestValidate:
+    # ----------------------------------------------------------------------
+    def test_Single(self):
+        c = Cardinality(Mock(), None, None)
+        c.Validate("value")
+
+        with pytest.raises(
+            Exception,
+            match=re.escape("None was not expected."),
+        ):
+            c.Validate(None)
+
+        with pytest.raises(
+            Exception,
+            match=re.escape("A list of items was not expected."),
+        ):
+            c.Validate([1, 2, 3])
+
+    # ----------------------------------------------------------------------
+    def test_Optional(self):
+        c = Cardinality(Mock(), IntegerExpression(Mock(), 0), IntegerExpression(Mock(), 1))
+
+        c.Validate(None)
+        c.Validate(1)
+
+    # ----------------------------------------------------------------------
+    def test_List(self):
+        c = Cardinality(Mock(), IntegerExpression(Mock(), 2), IntegerExpression(Mock(), 3))
+
+        c.Validate([1, 2])
+        c.Validate([1, 2, 3])
+
+        with pytest.raises(
+            Exception,
+            match=re.escape("A list of items was expected."),
+        ):
+            c.Validate(1)
+
+        with pytest.raises(
+            Exception,
+            match=re.escape("At least 2 items were expected (1 item was found)."),
+        ):
+            c.Validate([1])
+
+        with pytest.raises(
+            Exception,
+            match=re.escape("No more than 3 items were expected (4 items were found)."),
+        ):
+            c.Validate([1, 2, 3, 4])
+
+    # ----------------------------------------------------------------------
+    def test_Expression(self):
+        c = Cardinality(
+            Mock(),
+            IntegerExpression(Mock(), 2),
+            IntegerExpression(Mock(), 3),
+        )
+
+        c.Validate(
+            ListExpression(Mock(), [IntegerExpression(Mock(), 1), IntegerExpression(Mock(), 2)])
+        )
+
+        with pytest.raises(
+            SimpleSchemaGeneratorException,
+            match=re.escape(
+                "At least 2 items were expected (1 item was found). (filename2, Ln 1, Col 2 -> Ln 3, Col 4)"
+            ),
+        ):
+            c.Validate(
+                ListExpression(
+                    Region.Create(Path("filename2"), 1, 2, 3, 4), [IntegerExpression(Mock(), 1)]
+                )
+            )

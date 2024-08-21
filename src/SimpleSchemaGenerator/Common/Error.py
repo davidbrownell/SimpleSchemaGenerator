@@ -104,24 +104,12 @@ class Error:
                     ),
                 )
 
-            assert regions, sink_str
-
             regions.reverse()
 
         if region is not None:
             regions.insert(0, region)
 
-        header = "Python Exception: "
-
-        instance = cls(
-            header
-            + TextwrapEx.Indent(
-                str(ex),
-                len(header),
-                skip_first_line=True,
-            ),
-            regions,
-        )
+        instance = cls(str(ex), regions)
 
         object.__setattr__(instance, "ex", ex)
 
@@ -145,7 +133,7 @@ class Error:
 
 
 # ----------------------------------------------------------------------
-@dataclass(frozen=True)
+@dataclass
 class SimpleSchemaGeneratorException(Exception):
     """Exception raised by functionality in SimpleSchemaGenerator."""
 
@@ -167,6 +155,10 @@ class SimpleSchemaGeneratorException(Exception):
                 error,
             ],
         )
+
+    # ----------------------------------------------------------------------
+    def __str__(self) -> str:
+        return str(self.errors[0])
 
 
 # ----------------------------------------------------------------------
