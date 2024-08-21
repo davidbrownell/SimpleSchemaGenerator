@@ -93,6 +93,7 @@ line-length = 100
 [tool.coverage.run]
 omit = [
     "*/GeneratedCode/*",
+    "*/Impl/*",
     "*/Build.py",
 ]
 

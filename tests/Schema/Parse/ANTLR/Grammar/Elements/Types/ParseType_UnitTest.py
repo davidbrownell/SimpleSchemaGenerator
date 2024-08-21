@@ -17,7 +17,6 @@ import sys
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import ClassVar
 from unittest.mock import Mock
 
 from dbrownell_Common.ContextlibEx import ExitStack
@@ -35,7 +34,9 @@ with ExitStack(lambda: sys.path.pop(0)):
 # ----------------------------------------------------------------------
 @dataclass(frozen=True)
 class MyParseType(ParseType):
-    NAME: ClassVar[str] = "MyParseType"
+    @property
+    def _display_type(self) -> str:
+        return "MyParseType"
 
 
 # ----------------------------------------------------------------------

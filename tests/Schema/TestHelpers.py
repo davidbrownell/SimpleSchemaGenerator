@@ -23,6 +23,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import Any, Iterable, Iterator, Type as PythonType
 from unittest.mock import Mock
+from weakref import ref
 
 from dbrownell_Common.ContextlibEx import ExitStack
 from dbrownell_Common.Types import extension, override
@@ -531,6 +532,10 @@ class _SingleElementVisitor(ElementVisitor):
         *,
         include_disabled: bool,
     ) -> VisitResult:
+        if isinstance(element_or_elements, ref):
+            self.queue.append((detail_name, element_or_elements()))
+            return VisitResult.Continue
+
         self.queue.append((detail_name, element_or_elements))
 
         if isinstance(element_or_elements, Mock):

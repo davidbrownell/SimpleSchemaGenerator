@@ -138,7 +138,7 @@ def test_ExceptionError():
     ee = Error.Create(the_ex)
 
     assert ee.ex is the_ex
-    assert ee.message == "Python Exception: This is my exception"
+    assert ee.message == "This is my exception"
     assert len(ee.regions) == 1
     assert ee.regions[0].filename == Path(__file__)
 
@@ -153,7 +153,7 @@ def test_ExceptionErrorWithRegion():
     ee = Error.Create(the_ex, Region.Create(Path("foo"), 1, 2, 3, 4))
 
     assert ee.ex is the_ex
-    assert ee.message == "Python Exception: This is my exception"
+    assert ee.message == "This is my exception"
     assert len(ee.regions) == 2
     assert ee.regions[0] == Region.Create(Path("foo"), 1, 2, 3, 4)
     assert ee.regions[1].filename == Path(__file__)

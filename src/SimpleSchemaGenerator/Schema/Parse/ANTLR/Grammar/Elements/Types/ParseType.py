@@ -21,17 +21,22 @@ from dbrownell_Common.Types import override  # type: ignore[import-untyped]
 from ......Elements.Common.Cardinality import Cardinality
 from ......Elements.Common.Element import Element
 from ......Elements.Common.Metadata import Metadata
-from ......Elements.Types.Type import Type
+from ......Elements.Types.Impl.TypeImpl import TypeImpl
 
 
 # ----------------------------------------------------------------------
 @dataclass(frozen=True)
-class ParseType(Type):
+class ParseType(TypeImpl):
     """Temporary type generated during parsing and replaced during subsequent steps"""
 
     # ----------------------------------------------------------------------
     cardinality: Cardinality
     unresolved_metadata: Optional[Metadata]
+
+    # ----------------------------------------------------------------------
+    @override
+    def ToPythonInstance(self, *args, **kwargs):
+        raise Exception("This should never be invoked on ParseType instances.")  # pragma: no cover
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
