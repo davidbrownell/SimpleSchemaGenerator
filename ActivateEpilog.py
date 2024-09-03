@@ -1,11 +1,3 @@
-# ----------------------------------------------------------------------
-# |
-# |  Copyright (c) 2024 David Brownell
-# |  Distributed under the MIT License.
-# |
-# ----------------------------------------------------------------------
-# pylint: disable=missing-module-docstring
-
 import json
 import os
 import sys

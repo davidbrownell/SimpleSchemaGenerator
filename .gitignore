@@ -1,3 +1,5 @@
+post_generation_actions.html
+
 Activate*.cmd
 Activate*.sh
 Deactivate*.cmd
@@ -5,11 +7,15 @@ Deactivate*.sh
 
 **/__pycache__/**
 **/Generated/**
+
 **/.coverage
 **/lcov.info
 **/.vscode
 
-.antlr
 build/**
 dist/**
 src/SimpleSchemaGenerator.egg-info/**
+
+minisign_key.pri
+
+.antlr
