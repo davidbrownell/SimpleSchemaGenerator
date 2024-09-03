@@ -48,7 +48,7 @@ dev = [
 [tool.coverage.run]
 omit = [
     "*/GeneratedCode/*",
-    "*/Impl/*",
+    "src/SimpleSchemaGenerator/Schema/Elements/Types/Impl/*",
 ]
 
 [tool.hatch.version]
