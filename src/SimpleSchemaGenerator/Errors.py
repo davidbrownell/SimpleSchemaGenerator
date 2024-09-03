@@ -25,6 +25,8 @@ from .Common.Error import SimpleSchemaGeneratorException  # pylint: disable=unus
 
 # TODO: Search for 'range' and replace with 'region'
 
+# fmt: off
+
 # ----------------------------------------------------------------------
 # |
 # |  ANTLR Parsing Errors
@@ -38,22 +40,10 @@ antlr_invalid_indentation = "Invalid multiline string indentation."
 
 ParseStructureStatementInvalidBase = CreateErrorType("Base types must be identifiers.")
 
-ParseCreateIncludeStatementDirWithStar = CreateErrorType(
-    "Filenames must be provided with wildcard imports; '{name}' is a directory.",
-    name=Path,
-)
-ParseCreateIncludeStatementInvalidFilename = CreateErrorType(
-    "'{name}' is not a valid filename.",
-    name=str,
-)
-ParseCreateIncludeStatementInvalidDirectory = CreateErrorType(
-    "'{name}' is not a valid directory.",
-    name=str,
-)
-ParseCreateIncludeStatementInvalidWorkspace = CreateErrorType(
-    "The included file '{name}' is not a descendant of any workspace.",
-    name=Path,
-)
+ParseCreateIncludeStatementDirWithStar = CreateErrorType("Filenames must be provided with wildcard imports; '{name}' is a directory.", name=Path)
+ParseCreateIncludeStatementInvalidFilename = CreateErrorType("'{name}' is not a valid filename.", name=str)
+ParseCreateIncludeStatementInvalidDirectory = CreateErrorType("'{name}' is not a valid directory.", name=str)
+ParseCreateIncludeStatementInvalidWorkspace = CreateErrorType("The included file '{name}' is not a descendant of any workspace.", name=Path)
 
 
 # ----------------------------------------------------------------------
@@ -63,32 +53,18 @@ ParseCreateIncludeStatementInvalidWorkspace = CreateErrorType(
 # ----------------------------------------------------------------------
 CardinalityInvalidRange = CreateErrorType("Invalid cardinality ({min} > {max}).", min=int, max=int)
 
-MetadataItemDuplicated = CreateErrorType(
-    "The metadata item '{key}' was already provided at {prev_region}.",
-    key=str,
-    prev_region=Region,
-)
+MetadataItemDuplicated = CreateErrorType("The metadata item '{key}' was already provided at {prev_region}.", key=str, prev_region=Region)
 
 TupleExpressionEmpty = CreateErrorType("No expressions were provided.")
 
-ParseIdentifierNoChars = CreateErrorType(
-    "'{id}' does not have any identifiable characters.",
-    id=str,
-)
-ParseIdentifierNotAlpha = CreateErrorType(
-    "The first identifiable character in '{id}' must be a letter or emoji.",
-    id=str,
-)
+ParseIdentifierNoChars = CreateErrorType("'{id}' does not have any identifiable characters.", id=str)
+ParseIdentifierNotAlpha = CreateErrorType("The first identifiable character in '{id}' must be a letter or emoji.", id=str)
 
 ParseIdentifierTypeEmpty = CreateErrorType("Identifier types must have at least one identifier.")
 ParseIdentifierTypeNotType = CreateErrorType("'{id}' is not a valid type name.", id=str)
 
-ParseIncludeStatementItemNotType = CreateErrorType(
-    "The imported element '{name}' is not a type.", name=str
-)
-ParseIncludeStatementItemReferenceNotType = CreateErrorType(
-    "'{name}' is not a type name.", name=str
-)
+ParseIncludeStatementItemNotType = CreateErrorType("The imported element '{name}' is not a type.", name=str)
+ParseIncludeStatementItemReferenceNotType = CreateErrorType("'{name}' is not a type name.", name=str)
 
 ParseIncludeStatementInvalidFile = CreateErrorType("'{name}' is not a valid file.", name=Path)
 ParseIncludeStatementInvalidItems = CreateErrorType("No items were expected.")
@@ -101,12 +77,7 @@ ParseVariantTypeNestedType = CreateErrorType("Nested variant types are not suppo
 
 RootStatementInvalidNested = CreateErrorType("Root statements cannot be nested.")
 
-
-ExtensionStatementDuplicateKeywordArgError = CreateErrorType(
-    "An argument for the parameter '{name}' was already provided at '{region}'.",
-    name=str,
-    region=Region,
-)
+ExtensionStatementDuplicateKeywordArgError = CreateErrorType("An argument for the parameter '{name}' was already provided at '{region}'.", name=str, region=Region)
 
 
 # ----------------------------------------------------------------------
@@ -119,16 +90,10 @@ create_type_from_annotation_invalid_type = "'{value}' is not a supported python 
 cardinality_validate_none_not_expected = "None was not expected."
 cardinality_validate_list_required = "A list of items was expected."
 cardinality_validate_list_not_expected = "A list of items was not expected."
-cardinality_validate_list_too_large = (
-    "No more than {value} {value_verb} expected ({found} {found_verb} found)."
-)
-cardinality_validate_list_too_small = (
-    "At least {value} {value_verb} expected ({found} {found_verb} found)."
-)
+cardinality_validate_list_too_large = "No more than {value} {value_verb} expected ({found} {found_verb} found)."
+cardinality_validate_list_too_small = "At least {value} {value_verb} expected ({found} {found_verb} found)."
 
-basic_type_validate_invalid_python_type = (
-    "A '{python_type}' value cannot be converted to a '{type}' instance."
-)
+basic_type_validate_invalid_python_type = "A '{python_type}' value cannot be converted to a '{type}' instance."
 
 directory_typedef_invalid_dir = "'{value}' is not a valid directory."
 
@@ -140,15 +105,16 @@ enum_typedef_int_or_string_expected = "An Integer or String value was expected."
 enum_typedef_tuple_not_expected = "A tuple was not expected (index: {index})."
 enum_typedef_invalid_value = "'{value}' is not a valid enum value."
 
-filename_typedef_invalid_match_any = (
-    "'match_any' should only be set when 'ensure_exists' is set as well."
-)
+filename_typedef_invalid_match_any = "'match_any' should only be set when 'ensure_exists' is set as well."
 filename_typedef_does_not_exist = "'{value}' is not a valid filename or directory."
 filename_typedef_invalid_file = "'{value}' is not a valid filename."
 
 integer_typedef_min_max_invalid = "{min} > {max}"
 integer_typedef_too_small = "'{value}' is less than '{constraint}'."
 integer_typedef_too_large = "'{value}' is greater than '{constraint}'."
+
+NamespaceCycle = CreateErrorType("A cycle was detected in the definition of '{name}':\n\n{ancestors_str}", name=str, ancestors_str=str, ancestors=list[tuple[str, Region]])
+NamespaceInvalidType = CreateErrorType("The type '{name}' was not found.", name=str)
 
 number_typedef_min_max_invalid = "{min} > {max}"
 number_typedef_too_small = "'{value}' is less than '{constraint}'."
@@ -157,17 +123,17 @@ number_typedef_too_large = "'{value}' is greater than '{constraint}'."
 string_typedef_invalid_min_length = "{min_length} < 1"
 string_typedef_invalid_max_length = "{min_length} > {max_length}"
 string_typedef_too_small = "At least {value} {value_verb} expected ({found} {found_verb} found)."
-string_typedef_too_large = (
-    "No more than {value} {value_verb} expected ({found} {found_verb} found)."
-)
-string_typedef_regex_failure = (
-    "The value '{value}' does not match the regular expression '{expression}'."
-)
+string_typedef_too_large = "No more than {value} {value_verb} expected ({found} {found_verb} found)."
+string_typedef_regex_failure = "The value '{value}' does not match the regular expression '{expression}'."
 
 uri_typedef_invalid_value = "'{value}' is not a valid URI."
 
 TupleTypedefNoTypes = CreateErrorType("No types were provided.")
 tuple_type_item_mismatch = "{value} {value_verb} expected ({found} {found_verb} found)."
+
+TypeFactoryInvalidBaseCardinality = CreateErrorType("Base types must have a cardinality of 1.")
+TypeFactoryInvalidBaseType = CreateErrorType("Base types must be structure- or fundamental-types.")
+TypeFactoryInvalidBaseTypeMultiInheritance = CreateErrorType("Base types must be structure types when multiple base types are specified.")
 
 TypeOptionalToOptional = CreateErrorType("Optional types may not reference optional types.")
 
@@ -182,3 +148,17 @@ variant_typedef_invalid_value = textwrap.dedent(
 
 VariantTypedefNotEnoughTypes = CreateErrorType("At least two types must be provided.")
 VariantTypedefNested = CreateErrorType("Variant types may not be nested within variant types.")
+
+# ----------------------------------------------------------------------
+# |
+# |  Resolve Errors
+# |
+# ----------------------------------------------------------------------
+NamespaceDuplicateTypeName = CreateErrorType("The type '{name}' has already been defined at '{original_region}'.", name=str, original_region=Region)
+NamespaceInvalidIncludeItem = CreateErrorType("The included item '{name}' does not exist.", name=str)
+NamespaceInvalidIncludeItemVisibility = CreateErrorType("The included item '{name}' exists but is not accessible due to its visibility.", name=str)
+NamespaceVisibilityError = CreateErrorType("The visibility 'protected' is not valid for root elements.")
+
+ResolveStructureStatementEmptyPseudoElement = CreateErrorType("Pseudo structure definitions must contain at least one child.")
+
+# fmt: on

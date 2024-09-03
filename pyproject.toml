@@ -88,7 +88,7 @@ line-length = 100
 [tool.coverage.run]
 omit = [
     "*/GeneratedCode/*",
-    "*/Impl/*",
+    "src/SimpleSchemaGenerator/Schema/Elements/Types/Impl/*",
     "*/Build.py",
 ]
 
