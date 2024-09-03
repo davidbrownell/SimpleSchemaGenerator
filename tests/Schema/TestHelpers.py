@@ -35,6 +35,54 @@ from SimpleSchemaGenerator.Schema.Elements.Expressions.IntegerExpression import 
 from SimpleSchemaGenerator.Schema.Elements.Expressions.NoneExpression import NoneExpression
 from SimpleSchemaGenerator.Schema.Elements.Expressions.NumberExpression import NumberExpression
 from SimpleSchemaGenerator.Schema.Elements.Expressions.StringExpression import StringExpression
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.BooleanTypeDefinition import (
+    BooleanTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.DateTimeTypeDefinition import (
+    DateTimeTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.DateTypeDefinition import (
+    DateTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.DirectoryTypeDefinition import (
+    DirectoryTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.DurationTypeDefinition import (
+    DurationTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.EnumTypeDefinition import (
+    EnumTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.FilenameTypeDefinition import (
+    FilenameTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.GuidTypeDefinition import (
+    GuidTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.IntegerTypeDefinition import (
+    IntegerTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.NumberTypeDefinition import (
+    NumberTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.StringTypeDefinition import (
+    StringTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.StructureTypeDefinition import (
+    StructureTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.TimeTypeDefinition import (
+    TimeTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.TupleTypeDefinition import (
+    TupleTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.UriTypeDefinition import (
+    UriTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.VariantTypeDefinition import (
+    VariantTypeDefinition,
+)
 from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Common.ParseIdentifier import (
     ParseIdentifier,
 )
@@ -158,7 +206,13 @@ class TerminalElementVisitor(ElementVisitor):
                         if result & VisitResult.Terminate:
                             return result
                 else:
-                    result = element_or_elements.Accept(
+                    if isinstance(element_or_elements, ref):
+                        this_element = element_or_elements()
+                        assert this_element is not None
+                    else:
+                        this_element = element_or_elements
+
+                    result = this_element.Accept(
                         self,
                         include_disabled=include_disabled,
                     )
@@ -331,6 +385,122 @@ class YamlVisitor(TerminalElementVisitor):
 
         d["value"] = element.value
 
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    # |
+    # |  Types
+    # |
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnBooleanTypeDefinition(self, element: BooleanTypeDefinition) -> Iterator[VisitResult]:
+        # Nothing to do here
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnDateTimeTypeDefinition(self, element: DateTimeTypeDefinition) -> Iterator[VisitResult]:
+        # Nothing to do here
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnDateTypeDefinition(self, element: DateTypeDefinition) -> Iterator[VisitResult]:
+        # Nothing to do here
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnDirectoryTypeDefinition(self, element: DirectoryTypeDefinition) -> Iterator[VisitResult]:
+        # BugBug
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnDurationTypeDefinition(self, element: DurationTypeDefinition) -> Iterator[VisitResult]:
+        # Nothing to do here
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnEnumTypeDefinition(self, element: EnumTypeDefinition) -> Iterator[VisitResult]:
+        # BugBug
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnFilenameTypeDefinition(self, element: FilenameTypeDefinition) -> Iterator[VisitResult]:
+        # BugBug
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnGuidTypeDefinition(self, element: GuidTypeDefinition) -> Iterator[VisitResult]:
+        # Nothing to do here
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnIntegerTypeDefinition(self, element: IntegerTypeDefinition) -> Iterator[VisitResult]:
+        # BugBug
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnNumberTypeDefinition(self, element: NumberTypeDefinition) -> Iterator[VisitResult]:
+        # BugBug
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnStringTypeDefinition(self, element: StringTypeDefinition) -> Iterator[VisitResult]:
+        # BugBug
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnStructureTypeDefinition(self, element: StructureTypeDefinition) -> Iterator[VisitResult]:
+        # BugBug
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnTimeTypeDefinition(self, element: TimeTypeDefinition) -> Iterator[VisitResult]:
+        # Nothing to do here
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnTupleTypeDefinition(self, element: TupleTypeDefinition) -> Iterator[VisitResult]:
+        # BugBug
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnUriTypeDefinition(self, element: UriTypeDefinition) -> Iterator[VisitResult]:
+        # Nothing to do here
+        yield VisitResult.Continue
+
+    # ----------------------------------------------------------------------
+    @contextmanager
+    @override
+    def OnVariantTypeDefinition(self, element: VariantTypeDefinition) -> Iterator[VisitResult]:
+        # BugBug
         yield VisitResult.Continue
 
     # ----------------------------------------------------------------------
