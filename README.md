@@ -5,7 +5,7 @@
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/y/davidbrownell/SimpleSchemaGenerator?color=dark-green)](https://github.com/davidbrownell/SimpleSchemaGenerator/commits/main/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/SimpleSchemaGenerator?color=dark-green)](https://pypi.org/project/SimpleSchemaGenerator/)
 [![PyPI - Version](https://img.shields.io/pypi/v/SimpleSchemaGenerator?color=dark-green)](https://pypi.org/project/SimpleSchemaGenerator/)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/SimpleSchemaGenerator)](https://pypistats.org/packages/SimpleSchemaGenerator)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/simpleschemagenerator)](https://pypistats.org/packages/simpleschemagenerator)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9414/badge)](https://www.bestpractices.dev/projects/9414)
 [![Code Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/davidbrownell/f15146b1b8fdc0a5d45ac0eb786a84f7/raw/SimpleSchemaGenerator_coverage.json)](https://github.com/davidbrownell/SimpleSchemaGenerator/actions)
 <!-- END: Exclude Package -->
