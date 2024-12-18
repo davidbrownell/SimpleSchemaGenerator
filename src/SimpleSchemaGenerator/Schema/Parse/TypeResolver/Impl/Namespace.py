@@ -29,7 +29,7 @@ from ...ANTLR.Grammar.Elements.Statements.ParseIncludeStatement import (
 )
 from ...ANTLR.Grammar.Elements.Statements.ParseItemStatement import ParseItemStatement
 from ...ANTLR.Grammar.Elements.Statements.ParseStructureStatement import ParseStructureStatement
-from ...ANTLR.Grammar.Elements.Types.ParseIdentifierType import ParseIdentifierType
+from ...ANTLR.Grammar.Elements.Types.ParseIdentifierType import ParseIdentifier, ParseIdentifierType
 from ...ANTLR.Grammar.Elements.Types.ParseTupleType import ParseTupleType
 from ...ANTLR.Grammar.Elements.Types.ParseType import ParseType
 from ...ANTLR.Grammar.Elements.Types.ParseVariantType import ParseVariantType
@@ -463,6 +463,59 @@ class Namespace:
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
+    @staticmethod
+    def _GetNamespaceType(
+        identifiers: list[ParseIdentifier],
+        namespace: "Namespace",
+        ancestor_identities: list[TerminalElement[str]],
+        fundamental_types: dict[str, PythonType[TypeDefinition]],
+    ) -> Type | None:
+        current_namespace = namespace
+
+        for identifier_index, identifier in enumerate(identifiers):
+            potential_namespace_or_factory = current_namespace.nested.get(identifier.value, None)
+            if potential_namespace_or_factory is None:
+                if identifier_index == 0:
+                    break
+
+                raise Errors.SimpleSchemaGeneratorException(
+                    Errors.NamespaceInvalidType.Create(identifier.region, identifier.value),
+                )
+
+            # TODO: Handle visibility
+
+            is_last_identifier = identifier_index == len(identifiers) - 1
+
+            if isinstance(potential_namespace_or_factory, Namespace):
+                if potential_namespace_or_factory._structure_type_factory is not None:
+                    if is_last_identifier:
+                        return potential_namespace_or_factory._structure_type_factory.GetOrCreate(
+                            ancestor_identities,
+                            fundamental_types,
+                        )
+
+                current_namespace = potential_namespace_or_factory
+
+            elif isinstance(potential_namespace_or_factory, FundamentalTypeFactory):
+                if is_last_identifier:
+                    return potential_namespace_or_factory.GetOrCreate(
+                        ancestor_identities, fundamental_types
+                    )
+
+                # The problem isn't with the current identifier, but rather the one
+                # that follows it.
+                raise Errors.SimpleSchemaGeneratorException(
+                    Errors.NamespaceInvalidType.Create(
+                        identifiers[identifier_index + 1].region,
+                        identifiers[identifier_index + 1].value,
+                    ),
+                )
+            else:
+                assert False, potential_namespace_or_factory  # pragma: no cover
+
+        return None
+
+    # ----------------------------------------------------------------------
     def _ParseIdentifierTypeToType(
         self,
         visibility: TerminalElement[Visibility],
@@ -473,110 +526,84 @@ class Namespace:
         *,
         region: Optional[Region],
     ) -> Type:
-        if parse_type.is_global_reference is None:
-            # ----------------------------------------------------------------------
-            def GetNamespaceType() -> Type | None:
-                namespace_root = self
+        namespace_type: Type | TypeDefinition | None = None
 
-                while True:
-                    current_namespace = namespace_root
+        if parse_type.is_global_reference is not None:
+            # Rather than working up the stack to search, work from the top of the stack down
+            namespaces: list[Namespace] = []
 
-                    for identifier_index, identifier in enumerate(parse_type.identifiers):
-                        potential_namespace_or_factory = current_namespace.nested.get(
-                            identifier.value, None
-                        )
+            parent = self.parent
+            while parent:
+                namespaces.append(parent)
+                parent = parent.parent
 
-                        if potential_namespace_or_factory is None:
-                            if identifier_index == 0:
-                                break
+            namespaces.reverse()
 
-                            raise Errors.SimpleSchemaGeneratorException(
-                                Errors.NamespaceInvalidType.Create(
-                                    identifier.region, identifier.value
-                                ),
-                            )
-
-                        # TODO: Handle visibility
-
-                        is_last_identifier = identifier_index == len(parse_type.identifiers) - 1
-
-                        if isinstance(potential_namespace_or_factory, Namespace):
-                            if potential_namespace_or_factory._structure_type_factory is not None:
-                                if is_last_identifier:
-                                    return potential_namespace_or_factory._structure_type_factory.GetOrCreate(
-                                        ancestor_identities, fundamental_types
-                                    )
-
-                            current_namespace = potential_namespace_or_factory
-
-                        elif isinstance(potential_namespace_or_factory, FundamentalTypeFactory):
-                            if is_last_identifier:
-                                return potential_namespace_or_factory.GetOrCreate(
-                                    ancestor_identities, fundamental_types
-                                )
-
-                            # The problem isn't with the current identifier, but rather the one
-                            # that follows it.
-                            raise Errors.SimpleSchemaGeneratorException(
-                                Errors.NamespaceInvalidType.Create(
-                                    parse_type.identifiers[identifier_index + 1].region,
-                                    parse_type.identifiers[identifier_index + 1].value,
-                                ),
-                            )
-
-                        else:
-                            assert False, potential_namespace_or_factory  # pragma: no cover
-
-                    # Move up the hierarchy
-                    parent_namespace = namespace_root.parent
-                    if parent_namespace is None:
-                        break
-
-                    namespace_root = parent_namespace
-
-                return None
-
-            # ----------------------------------------------------------------------
-
-            namespace_type: Type | TypeDefinition | None = GetNamespaceType()
-
-            if namespace_type is not None:
-                assert isinstance(namespace_type, Type)
-
-                # Determine if there is type-altering metadata present
-                if parse_type.unresolved_metadata is not None:
-                    with namespace_type.Resolve() as resolved_type:
-                        if isinstance(resolved_type.type, TypeDefinition) and not isinstance(
-                            resolved_type.type, StructureTypeDefinition
-                        ):
-                            type_definition = resolved_type.type
-
-                            type_metadata_items: list[MetadataItem] = []
-
-                            for metadata_item in list(
-                                parse_type.unresolved_metadata.items.values()
-                            ):
-                                if metadata_item.name.value in type_definition.FIELDS:
-                                    type_metadata_items.append(
-                                        parse_type.unresolved_metadata.items.pop(
-                                            metadata_item.name.value
-                                        )
-                                    )
-
-                            if type_metadata_items:
-                                namespace_type = type_definition.DeriveNewType(
-                                    parse_type.region,
-                                    Metadata(parse_type.region, type_metadata_items),
-                                )
-
-                return Type.Create(
-                    visibility,
-                    name,
-                    namespace_type,
-                    parse_type.cardinality,
-                    parse_type.unresolved_metadata,
-                    region=region or parse_type.region,
+            for search_namespace in namespaces:
+                namespace_type = self.__class__._GetNamespaceType(
+                    parse_type.identifiers,
+                    search_namespace,
+                    ancestor_identities,
+                    fundamental_types,
                 )
+
+                if namespace_type is not None:
+                    break
+
+        else:
+            # Work up the stack to search
+            search_namespace: Namespace | None = self
+
+            while search_namespace is not None:
+                namespace_type = self.__class__._GetNamespaceType(
+                    parse_type.identifiers,
+                    search_namespace,
+                    ancestor_identities,
+                    fundamental_types,
+                )
+
+                if namespace_type is not None:
+                    break
+
+                search_namespace = search_namespace.parent
+
+        if namespace_type is not None:
+            assert isinstance(namespace_type, Type), namespace_type
+
+            # Determine if there is type-altering metadata present
+            if parse_type.unresolved_metadata is not None:
+                with namespace_type.Resolve() as resolved_type:
+                    if isinstance(resolved_type.type, TypeDefinition) and not isinstance(
+                        resolved_type.type, StructureTypeDefinition
+                    ):
+                        type_definition = resolved_type.type
+
+                        type_metadata_items: list[MetadataItem] = []
+
+                        for metadata_item in list(parse_type.unresolved_metadata.items.values()):
+                            if metadata_item.name.value in type_definition.FIELDS:
+                                type_metadata_items.append(
+                                    parse_type.unresolved_metadata.items.pop(
+                                        metadata_item.name.value
+                                    )
+                                )
+
+                        if type_metadata_items:
+                            namespace_type = type_definition.DeriveNewType(
+                                parse_type.region,
+                                Metadata(parse_type.region, type_metadata_items),
+                            )
+
+                            assert isinstance(namespace_type, Type), namespace_type
+
+            return Type.Create(
+                visibility,
+                name,
+                namespace_type,
+                parse_type.cardinality,
+                parse_type.unresolved_metadata,
+                region=region or parse_type.region,
+            )
 
         if len(parse_type.identifiers) == 1:
             fundamental_type_class = fundamental_types.get(parse_type.identifiers[0].value, None)
@@ -598,6 +625,132 @@ class Namespace:
                 parse_type.identifiers[0].value,
             ),
         )
+
+        # BugBug if parse_type.is_global_reference is None:
+        # BugBug     # ----------------------------------------------------------------------
+        # BugBug     def GetNamespaceType() -> Type | None:
+        # BugBug         namespace_root = self
+        # BugBug
+        # BugBug         while True:
+        # BugBug             current_namespace = namespace_root
+        # BugBug
+        # BugBug             for identifier_index, identifier in enumerate(parse_type.identifiers):
+        # BugBug                 potential_namespace_or_factory = current_namespace.nested.get(
+        # BugBug                     identifier.value, None
+        # BugBug                 )
+        # BugBug
+        # BugBug                 if potential_namespace_or_factory is None:
+        # BugBug                     if identifier_index == 0:
+        # BugBug                         break
+        # BugBug
+        # BugBug                     raise Errors.SimpleSchemaGeneratorException(
+        # BugBug                         Errors.NamespaceInvalidType.Create(
+        # BugBug                             identifier.region, identifier.value
+        # BugBug                         ),
+        # BugBug                     )
+        # BugBug
+        # BugBug                 # TODO: Handle visibility
+        # BugBug
+        # BugBug                 is_last_identifier = identifier_index == len(parse_type.identifiers) - 1
+        # BugBug
+        # BugBug                 if isinstance(potential_namespace_or_factory, Namespace):
+        # BugBug                     if potential_namespace_or_factory._structure_type_factory is not None:
+        # BugBug                         if is_last_identifier:
+        # BugBug                             return potential_namespace_or_factory._structure_type_factory.GetOrCreate(
+        # BugBug                                 ancestor_identities, fundamental_types
+        # BugBug                             )
+        # BugBug
+        # BugBug                     current_namespace = potential_namespace_or_factory
+        # BugBug
+        # BugBug                 elif isinstance(potential_namespace_or_factory, FundamentalTypeFactory):
+        # BugBug                     if is_last_identifier:
+        # BugBug                         return potential_namespace_or_factory.GetOrCreate(
+        # BugBug                             ancestor_identities, fundamental_types
+        # BugBug                         )
+        # BugBug
+        # BugBug                     # The problem isn't with the current identifier, but rather the one
+        # BugBug                     # that follows it.
+        # BugBug                     raise Errors.SimpleSchemaGeneratorException(
+        # BugBug                         Errors.NamespaceInvalidType.Create(
+        # BugBug                             parse_type.identifiers[identifier_index + 1].region,
+        # BugBug                             parse_type.identifiers[identifier_index + 1].value,
+        # BugBug                         ),
+        # BugBug                     )
+        # BugBug
+        # BugBug                 else:
+        # BugBug                     assert False, potential_namespace_or_factory  # pragma: no cover
+        # BugBug
+        # BugBug             # Move up the hierarchy
+        # BugBug             parent_namespace = namespace_root.parent
+        # BugBug             if parent_namespace is None:
+        # BugBug                 break
+        # BugBug
+        # BugBug             namespace_root = parent_namespace
+        # BugBug
+        # BugBug         return None
+        # BugBug
+        # BugBug     # ----------------------------------------------------------------------
+        # BugBug
+        # BugBug     namespace_type: Type | TypeDefinition | None = GetNamespaceType()
+        # BugBug
+        # BugBug     if namespace_type is not None:
+        # BugBug         assert isinstance(namespace_type, Type)
+        # BugBug
+        # BugBug         # Determine if there is type-altering metadata present
+        # BugBug         if parse_type.unresolved_metadata is not None:
+        # BugBug             with namespace_type.Resolve() as resolved_type:
+        # BugBug                 if isinstance(resolved_type.type, TypeDefinition) and not isinstance(
+        # BugBug                     resolved_type.type, StructureTypeDefinition
+        # BugBug                 ):
+        # BugBug                     type_definition = resolved_type.type
+        # BugBug
+        # BugBug                     type_metadata_items: list[MetadataItem] = []
+        # BugBug
+        # BugBug                     for metadata_item in list(
+        # BugBug                         parse_type.unresolved_metadata.items.values()
+        # BugBug                     ):
+        # BugBug                         if metadata_item.name.value in type_definition.FIELDS:
+        # BugBug                             type_metadata_items.append(
+        # BugBug                                 parse_type.unresolved_metadata.items.pop(
+        # BugBug                                     metadata_item.name.value
+        # BugBug                                 )
+        # BugBug                             )
+        # BugBug
+        # BugBug                     if type_metadata_items:
+        # BugBug                         namespace_type = type_definition.DeriveNewType(
+        # BugBug                             parse_type.region,
+        # BugBug                             Metadata(parse_type.region, type_metadata_items),
+        # BugBug                         )
+        # BugBug
+        # BugBug         return Type.Create(
+        # BugBug             visibility,
+        # BugBug             name,
+        # BugBug             namespace_type,
+        # BugBug             parse_type.cardinality,
+        # BugBug             parse_type.unresolved_metadata,
+        # BugBug             region=region or parse_type.region,
+        # BugBug         )
+        # BugBug
+        # BugBug if len(parse_type.identifiers) == 1:
+        # BugBug     fundamental_type_class = fundamental_types.get(parse_type.identifiers[0].value, None)
+        # BugBug     if fundamental_type_class is not None:
+        # BugBug         return Type.Create(
+        # BugBug             visibility,
+        # BugBug             name,
+        # BugBug             fundamental_type_class.CreateFromMetadata(
+        # BugBug                 parse_type.region, parse_type.unresolved_metadata
+        # BugBug             ),
+        # BugBug             parse_type.cardinality,
+        # BugBug             parse_type.unresolved_metadata,
+        # BugBug             region=region or parse_type.region,
+        # BugBug         )
+        # BugBug
+        # BugBug raise Errors.SimpleSchemaGeneratorException(
+        # BugBug     Errors.NamespaceInvalidType.Create(
+        # BugBug         parse_type.identifiers[0].region,
+        # BugBug         parse_type.identifiers[0].value,
+        # BugBug     ),
+        # BugBug )
 
     # ----------------------------------------------------------------------
     @staticmethod
@@ -697,7 +850,7 @@ class _StateControlledData:
     """A collection of data whose lifetime is logically controlled by the state"""
 
     # ----------------------------------------------------------------------
-    def __init__(self):
+    def __init__(self) -> None:
         self._include_statements: list[ParseIncludeStatement] = []
         self._item_statements: list[ParseItemStatement] = []
 

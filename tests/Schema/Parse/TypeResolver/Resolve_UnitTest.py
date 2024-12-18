@@ -52,7 +52,6 @@ class TestResolve:
         ids=[filename.name for filename in sample_schemas.iterdir()],
     )
     def test_File(self, filename, snapshot):
-
         if filename.name == "Import.SimpleSchema":
             expected_num_results = 4
         else:
@@ -64,7 +63,7 @@ class TestResolve:
 
         root.Accept(visitor)
 
-        # BugBug assert visitor.yaml_string == snapshot
+        assert visitor.yaml_string == snapshot
 
 
 # ----------------------------------------------------------------------
