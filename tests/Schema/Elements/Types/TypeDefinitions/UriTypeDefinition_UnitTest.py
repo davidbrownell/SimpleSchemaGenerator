@@ -30,10 +30,7 @@ class TestUriAuthority:
 
     # ----------------------------------------------------------------------
     def test_WithUsername(self):
-        assert (
-            str(Uri.Authority("////", "the_username", "foo.bar", None))
-            == "////the_username@foo.bar/"
-        )
+        assert str(Uri.Authority("////", "the_username", "foo.bar", None)) == "////the_username@foo.bar/"
 
     # ----------------------------------------------------------------------
     def test_WithPort(self):
@@ -41,10 +38,7 @@ class TestUriAuthority:
 
     # ----------------------------------------------------------------------
     def test_Complete(self):
-        assert (
-            str(Uri.Authority("//", "the_username", "foo.bar", 1234))
-            == "//the_username@foo.bar:1234/"
-        )
+        assert str(Uri.Authority("//", "the_username", "foo.bar", 1234)) == "//the_username@foo.bar:1234/"
 
 
 # ----------------------------------------------------------------------

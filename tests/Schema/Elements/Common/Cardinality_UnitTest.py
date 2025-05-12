@@ -310,9 +310,7 @@ class TestValidate:
             IntegerExpression(Mock(), 3),
         )
 
-        c.Validate(
-            ListExpression(Mock(), [IntegerExpression(Mock(), 1), IntegerExpression(Mock(), 2)])
-        )
+        c.Validate(ListExpression(Mock(), [IntegerExpression(Mock(), 1), IntegerExpression(Mock(), 2)]))
 
         with pytest.raises(
             SimpleSchemaGeneratorException,
@@ -321,7 +319,5 @@ class TestValidate:
             ),
         ):
             c.Validate(
-                ListExpression(
-                    Region.Create(Path("filename2"), 1, 2, 3, 4), [IntegerExpression(Mock(), 1)]
-                )
+                ListExpression(Region.Create(Path("filename2"), 1, 2, 3, 4), [IntegerExpression(Mock(), 1)])
             )

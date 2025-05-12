@@ -41,9 +41,7 @@ class TupleTypeDefinition(TypeDefinition):
     # ----------------------------------------------------------------------
     def __post_init__(self, *args, **kwargs):
         if not self.types:
-            raise Errors.SimpleSchemaGeneratorException(
-                Errors.TupleTypedefNoTypes.Create(self.region)
-            )
+            raise Errors.SimpleSchemaGeneratorException(Errors.TupleTypedefNoTypes.Create(self.region))
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
@@ -56,9 +54,7 @@ class TupleTypeDefinition(TypeDefinition):
         for child_type in self.types:
             child_display = child_type.display_type
 
-            if "{" in child_display and not (
-                child_display.startswith("<") and child_display.endswith(">")
-            ):
+            if "{" in child_display and not (child_display.startswith("<") and child_display.endswith(">")):
                 child_display = f"<{child_display}>"
 
             display_values.append(child_display)

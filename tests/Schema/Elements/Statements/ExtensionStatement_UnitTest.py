@@ -57,16 +57,10 @@ def test_ExtensionStatement():
     name = Mock()
     positional_arg1 = Mock()
     positional_arg2 = Mock()
-    keyword_arg1 = ExtensionStatementKeywordArg(
-        Mock(), TerminalElement[str](Mock(), "arg1"), Mock()
-    )
-    keyword_arg2 = ExtensionStatementKeywordArg(
-        Mock(), TerminalElement[str](Mock(), "arg2"), Mock()
-    )
+    keyword_arg1 = ExtensionStatementKeywordArg(Mock(), TerminalElement[str](Mock(), "arg1"), Mock())
+    keyword_arg2 = ExtensionStatementKeywordArg(Mock(), TerminalElement[str](Mock(), "arg2"), Mock())
 
-    es = ExtensionStatement(
-        region, name, [positional_arg1, positional_arg2], [keyword_arg1, keyword_arg2]
-    )
+    es = ExtensionStatement(region, name, [positional_arg1, positional_arg2], [keyword_arg1, keyword_arg2])
 
     assert es.region is region
     assert es.name is name

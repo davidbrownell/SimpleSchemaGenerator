@@ -63,9 +63,7 @@ def test_ParseIncludeStatementItem():
 def test_ErrorInvalidElementName():
     with pytest.raises(
         Exception,
-        match=re.escape(
-            "The imported element 'not_a_type' is not a type. (foo, Ln 1, Col 2 -> Ln 3, Col 4)"
-        ),
+        match=re.escape("The imported element 'not_a_type' is not a type. (foo, Ln 1, Col 2 -> Ln 3, Col 4)"),
     ):
         ParseIncludeStatementItem(
             Mock(),
@@ -113,24 +111,18 @@ def test_ParseIncludeStatement():
 def test_ErrorInvalidFile():
     with pytest.raises(
         Exception,
-        match=re.escape(
-            "'__does not exist__' is not a valid file. (file, Ln 2, Col 4 -> Ln 6, Col 8)"
-        ),
+        match=re.escape("'__does not exist__' is not a valid file. (file, Ln 2, Col 4 -> Ln 6, Col 8)"),
     ):
         ParseIncludeStatement(
             Mock(),
             Mock(),
-            TerminalElement[Path](
-                Region.Create(Path("file"), 2, 4, 6, 8), Path("__does not exist__")
-            ),
+            TerminalElement[Path](Region.Create(Path("file"), 2, 4, 6, 8), Path("__does not exist__")),
             [],
         )
 
 
 # ----------------------------------------------------------------------
-@pytest.mark.parametrize(
-    "include_type", [ParseIncludeStatementType.Module, ParseIncludeStatementType.Star]
-)
+@pytest.mark.parametrize("include_type", [ParseIncludeStatementType.Module, ParseIncludeStatementType.Star])
 def test_ErrorNoItemsExpected(include_type):
     with pytest.raises(
         Exception,

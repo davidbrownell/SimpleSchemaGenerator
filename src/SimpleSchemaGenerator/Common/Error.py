@@ -24,8 +24,6 @@ from io import StringIO
 from pathlib import Path
 from typing import Optional, Type as PythonType
 
-from dbrownell_Common import TextwrapEx  # type: ignore[import-untyped]
-
 from .Location import Location
 from .Region import Region
 
@@ -85,9 +83,7 @@ class Error:
             traceback.print_exception(ex, file=sink)
             sink_str = sink.getvalue()
 
-            regex = re.compile(
-                r"^\s*File \"(?P<filename>.+?)\", line (?P<line>\d+),.+$", re.MULTILINE
-            )
+            regex = re.compile(r"^\s*File \"(?P<filename>.+?)\", line (?P<line>\d+),.+$", re.MULTILINE)
 
             for line in sink_str.splitlines():
                 match = regex.match(line)

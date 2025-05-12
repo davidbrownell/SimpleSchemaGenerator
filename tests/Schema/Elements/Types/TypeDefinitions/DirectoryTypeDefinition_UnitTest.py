@@ -26,9 +26,7 @@ from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.DirectoryTypeDe
 def test_PythonTypeEnsureExists():
     this_dir = Path(__file__).parent
 
-    assert (
-        DirectoryTypeDefinition(Mock(), ensure_exists=True).ToPythonInstance(this_dir) is this_dir
-    )
+    assert DirectoryTypeDefinition(Mock(), ensure_exists=True).ToPythonInstance(this_dir) is this_dir
 
     bad_dir = this_dir / "does_not_exist"
 
@@ -53,13 +51,9 @@ def test_PythonTypeNoEnsureExists():
     bad_dir = this_dir / "does_not_exist"
     bad_file = Path(__file__)
 
-    assert (
-        DirectoryTypeDefinition(Mock(), ensure_exists=False).ToPythonInstance(this_dir) is this_dir
-    )
+    assert DirectoryTypeDefinition(Mock(), ensure_exists=False).ToPythonInstance(this_dir) is this_dir
     assert DirectoryTypeDefinition(Mock(), ensure_exists=False).ToPythonInstance(bad_dir) is bad_dir
-    assert (
-        DirectoryTypeDefinition(Mock(), ensure_exists=False).ToPythonInstance(bad_file) is bad_file
-    )
+    assert DirectoryTypeDefinition(Mock(), ensure_exists=False).ToPythonInstance(bad_file) is bad_file
 
 
 # ----------------------------------------------------------------------

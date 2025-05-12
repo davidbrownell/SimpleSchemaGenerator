@@ -43,9 +43,7 @@ class StringTypeDefinition(TypeDefinition):
     # ----------------------------------------------------------------------
     def __post_init__(self) -> None:
         if self.min_length < 1:
-            raise ValueError(
-                Errors.string_typedef_invalid_min_length.format(min_length=self.min_length)
-            )
+            raise ValueError(Errors.string_typedef_invalid_min_length.format(min_length=self.min_length))
 
         if self.max_length is not None and self.min_length > self.max_length:
             raise ValueError(

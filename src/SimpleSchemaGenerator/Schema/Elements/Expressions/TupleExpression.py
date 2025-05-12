@@ -36,9 +36,7 @@ class TupleExpression(Expression):
     # ----------------------------------------------------------------------
     def __post_init__(self):
         if not self.value:
-            raise Errors.SimpleSchemaGeneratorException(
-                Errors.TupleExpressionEmpty.Create(self.region)
-            )
+            raise Errors.SimpleSchemaGeneratorException(Errors.TupleExpressionEmpty.Create(self.region))
 
         super(TupleExpression, self).__post_init__()
 

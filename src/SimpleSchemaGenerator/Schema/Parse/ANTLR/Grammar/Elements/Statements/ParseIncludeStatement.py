@@ -16,7 +16,7 @@
 from dataclasses import dataclass
 from enum import auto, Enum
 from pathlib import Path
-from typing import cast, Optional
+from typing import cast
 
 from dbrownell_Common.Types import override  # type: ignore[import-untyped]
 
@@ -25,7 +25,6 @@ from ..Common.ParseIdentifier import ParseIdentifier
 from ......Elements.Common.Element import Element
 from ......Elements.Common.TerminalElement import TerminalElement
 from ......Elements.Statements.Statement import Statement
-from .......Common.Region import Region
 from ....... import Errors
 
 
@@ -102,9 +101,7 @@ class ParseIncludeStatement(Statement):
     def __post_init__(self):
         if not self.filename.value.is_file():
             raise Errors.SimpleSchemaGeneratorException(
-                Errors.ParseIncludeStatementInvalidFile.Create(
-                    self.filename.region, self.filename.value
-                )
+                Errors.ParseIncludeStatementInvalidFile.Create(self.filename.region, self.filename.value)
             )
 
         if self.include_type in [

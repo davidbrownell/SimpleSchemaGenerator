@@ -266,7 +266,10 @@ def Parse(
             for relative_path, content_func in sources.items():
                 enqueue_func(
                     str(relative_path if is_single_workspace else workspace_root / relative_path),
-                    lambda on_simple_status_func, workspace_root=workspace_root, relative_path=relative_path, content_func=content_func: PrepareTask(
+                    lambda on_simple_status_func,
+                    workspace_root=workspace_root,
+                    relative_path=relative_path,
+                    content_func=content_func: PrepareTask(
                         workspace_root,
                         relative_path,
                         content_func,
@@ -501,9 +504,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         self._stack.append(Cardinality(self.CreateRegion(ctx), min_expression, max_expression))
 
     # ----------------------------------------------------------------------
-    def visitCardinality_clause_optional(
-        self, ctx: SimpleSchemaParser.Cardinality_clause_optionalContext
-    ):
+    def visitCardinality_clause_optional(self, ctx: SimpleSchemaParser.Cardinality_clause_optionalContext):
         region = self.CreateRegion(ctx)
 
         self._stack += [IntegerExpression(region, 0), IntegerExpression(region, 1)]
@@ -521,9 +522,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         self._stack += [IntegerExpression(self.CreateRegion(ctx), 1), None]
 
     # ----------------------------------------------------------------------
-    def visitCardinality_clause_fixed(
-        self, ctx: SimpleSchemaParser.Cardinality_clause_fixedContext
-    ):
+    def visitCardinality_clause_fixed(self, ctx: SimpleSchemaParser.Cardinality_clause_fixedContext):
         children = self._GetChildren(ctx)
         assert len(children) == 1, children
         assert isinstance(children[0], IntegerExpression), children
@@ -541,15 +540,11 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # |
     # ----------------------------------------------------------------------
     def visitNumber_expression(self, ctx: SimpleSchemaParser.Number_expressionContext):
-        self._stack.append(
-            NumberExpression(self.CreateRegion(ctx), float(ctx.NUMBER().symbol.text))
-        )
+        self._stack.append(NumberExpression(self.CreateRegion(ctx), float(ctx.NUMBER().symbol.text)))
 
     # ----------------------------------------------------------------------
     def visitInteger_expression(self, ctx: SimpleSchemaParser.Integer_expressionContext):
-        self._stack.append(
-            IntegerExpression(self.CreateRegion(ctx), int(ctx.INTEGER().symbol.text))
-        )
+        self._stack.append(IntegerExpression(self.CreateRegion(ctx), int(ctx.INTEGER().symbol.text)))
 
     # ----------------------------------------------------------------------
     def visitTrue_expression(self, ctx: SimpleSchemaParser.True_expressionContext):
@@ -737,9 +732,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         children = self._GetChildren(ctx)
         assert all(isinstance(child, Expression) for child in children), children
 
-        self._stack.append(
-            TupleExpression(self.CreateRegion(ctx), cast(tuple[Expression], tuple(children)))
-        )
+        self._stack.append(TupleExpression(self.CreateRegion(ctx), cast(tuple[Expression], tuple(children))))
 
     # ----------------------------------------------------------------------
     # |
@@ -959,9 +952,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         self._stack.append(ParseItemStatement(self.CreateRegion(ctx), children[0], children[1]))
 
     # ----------------------------------------------------------------------
-    def visitParse_structure_statement(
-        self, ctx: SimpleSchemaParser.Parse_structure_statementContext
-    ):
+    def visitParse_structure_statement(self, ctx: SimpleSchemaParser.Parse_structure_statementContext):
         children = self._GetChildren(ctx)
 
         num_children = len(children)
@@ -1116,9 +1107,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         )
 
     # ----------------------------------------------------------------------
-    def visitParse_identifier_type_global(
-        self, ctx: SimpleSchemaParser.Parse_identifier_type_globalContext
-    ):
+    def visitParse_identifier_type_global(self, ctx: SimpleSchemaParser.Parse_identifier_type_globalContext):
         # It is enough to add a region value, as that will signal that the modifier exists when
         # creating the type.
         self._stack.append(self.CreateRegion(ctx))

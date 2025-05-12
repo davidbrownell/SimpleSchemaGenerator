@@ -109,9 +109,7 @@ def test_ErrorNoChars():
 
     with pytest.raises(
         SimpleSchemaGeneratorException,
-        match=re.escape(
-            "'__' does not have any identifiable characters. (bar, Ln 1, Col 2 -> Ln 3, Col 4)"
-        ),
+        match=re.escape("'__' does not have any identifiable characters. (bar, Ln 1, Col 2 -> Ln 3, Col 4)"),
     ) as exec_info:
         ParseIdentifier(region, "__")
 

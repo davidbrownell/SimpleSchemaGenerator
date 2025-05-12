@@ -71,9 +71,7 @@ class Elements(Element):
 
 # ----------------------------------------------------------------------
 def test_ElementVisitorHelper():
-    e = Elements(
-        Mock(), [Element1(Mock(), "value1"), Element2(Mock(), TerminalElement[int](Mock(), 2))]
-    )
+    e = Elements(Mock(), [Element1(Mock(), "value1"), Element2(Mock(), TerminalElement[int](Mock(), 2))])
 
     e.Accept(ElementVisitorHelper())
 

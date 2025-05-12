@@ -46,9 +46,7 @@ class ParseIdentifier(Element):
                 Errors.ParseIdentifierNoChars.Create(self.region, self.value)
             )
 
-        if not (
-            ("a" <= first_char <= "z") or ("A" <= first_char <= "Z") or emoji.is_emoji(first_char)
-        ):
+        if not (("a" <= first_char <= "z") or ("A" <= first_char <= "Z") or emoji.is_emoji(first_char)):
             raise Errors.SimpleSchemaGeneratorException(
                 Errors.ParseIdentifierNotAlpha.Create(self.region, self.value)
             )

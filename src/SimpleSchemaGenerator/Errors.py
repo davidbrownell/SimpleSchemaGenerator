@@ -20,7 +20,7 @@ from pathlib import Path
 from .Common.Error import CreateErrorType, Region
 
 # Convenience imports
-from .Common.Error import SimpleSchemaGeneratorException  # pylint: disable=unused-import
+from .Common.Error import SimpleSchemaGeneratorException  # noqa: F401
 
 
 # TODO: Search for 'range' and replace with 'region'
@@ -83,12 +83,8 @@ ParseIdentifierNotAlpha = CreateErrorType(
 ParseIdentifierTypeEmpty = CreateErrorType("Identifier types must have at least one identifier.")
 ParseIdentifierTypeNotType = CreateErrorType("'{id}' is not a valid type name.", id=str)
 
-ParseIncludeStatementItemNotType = CreateErrorType(
-    "The imported element '{name}' is not a type.", name=str
-)
-ParseIncludeStatementItemReferenceNotType = CreateErrorType(
-    "'{name}' is not a type name.", name=str
-)
+ParseIncludeStatementItemNotType = CreateErrorType("The imported element '{name}' is not a type.", name=str)
+ParseIncludeStatementItemReferenceNotType = CreateErrorType("'{name}' is not a type name.", name=str)
 
 ParseIncludeStatementInvalidFile = CreateErrorType("'{name}' is not a valid file.", name=Path)
 ParseIncludeStatementInvalidItems = CreateErrorType("No items were expected.")
@@ -122,9 +118,7 @@ cardinality_validate_list_not_expected = "A list of items was not expected."
 cardinality_validate_list_too_large = (
     "No more than {value} {value_verb} expected ({found} {found_verb} found)."
 )
-cardinality_validate_list_too_small = (
-    "At least {value} {value_verb} expected ({found} {found_verb} found)."
-)
+cardinality_validate_list_too_small = "At least {value} {value_verb} expected ({found} {found_verb} found)."
 
 basic_type_validate_invalid_python_type = (
     "A '{python_type}' value cannot be converted to a '{type}' instance."
@@ -140,9 +134,7 @@ enum_typedef_int_or_string_expected = "An Integer or String value was expected."
 enum_typedef_tuple_not_expected = "A tuple was not expected (index: {index})."
 enum_typedef_invalid_value = "'{value}' is not a valid enum value."
 
-filename_typedef_invalid_match_any = (
-    "'match_any' should only be set when 'ensure_exists' is set as well."
-)
+filename_typedef_invalid_match_any = "'match_any' should only be set when 'ensure_exists' is set as well."
 filename_typedef_does_not_exist = "'{value}' is not a valid filename or directory."
 filename_typedef_invalid_file = "'{value}' is not a valid filename."
 
@@ -157,12 +149,8 @@ number_typedef_too_large = "'{value}' is greater than '{constraint}'."
 string_typedef_invalid_min_length = "{min_length} < 1"
 string_typedef_invalid_max_length = "{min_length} > {max_length}"
 string_typedef_too_small = "At least {value} {value_verb} expected ({found} {found_verb} found)."
-string_typedef_too_large = (
-    "No more than {value} {value_verb} expected ({found} {found_verb} found)."
-)
-string_typedef_regex_failure = (
-    "The value '{value}' does not match the regular expression '{expression}'."
-)
+string_typedef_too_large = "No more than {value} {value_verb} expected ({found} {found_verb} found)."
+string_typedef_regex_failure = "The value '{value}' does not match the regular expression '{expression}'."
 
 uri_typedef_invalid_value = "'{value}' is not a valid URI."
 
