@@ -36,10 +36,7 @@ with ExitStack(lambda: sys.path.pop(0)):
 
 # ----------------------------------------------------------------------
 sample_schemas = PathEx.EnsureDir(
-    Path(__file__).parent.parent.parent.parent.parent
-    / "src"
-    / "SimpleSchemaGenerator"
-    / "SampleSchemas"
+    Path(__file__).parent.parent.parent.parent.parent / "src" / "SimpleSchemaGenerator" / "SampleSchemas"
 )
 
 
