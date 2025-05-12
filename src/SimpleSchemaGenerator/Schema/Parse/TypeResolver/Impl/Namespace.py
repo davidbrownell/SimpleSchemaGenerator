@@ -69,16 +69,12 @@ class Namespace:
         statement: RootStatement | ParseIncludeStatement | ParseStructureStatement,
         structure_type_factory: StructureTypeFactory | None,
     ) -> None:
-        assert isinstance(
-            statement, (RootStatement, ParseIncludeStatement, ParseStructureStatement)
-        ), statement
-        assert structure_type_factory is None or isinstance(
-            statement, ParseStructureStatement
-        ), statement
-
-        self._parent_ref: WeakReferenceType[Namespace] | None = (
-            None if parent is None else ref(parent)
+        assert isinstance(statement, (RootStatement, ParseIncludeStatement, ParseStructureStatement)), (
+            statement
         )
+        assert structure_type_factory is None or isinstance(statement, ParseStructureStatement), statement
+
+        self._parent_ref: WeakReferenceType[Namespace] | None = None if parent is None else ref(parent)
 
         self.visibility = visibility
         self.name = name
@@ -122,8 +118,7 @@ class Namespace:
                     ancestor_identities[0].region,
                     name=ancestor_identities[0].value,
                     ancestors_str="\n".join(
-                        f"    * '{ancestor.value}' {ancestor.region}"
-                        for ancestor in ancestor_identities
+                        f"    * '{ancestor.value}' {ancestor.region}" for ancestor in ancestor_identities
                     ),
                     ancestors=ancestor_identities,
                 ),
@@ -254,9 +249,7 @@ class Namespace:
                 # calculate errors.
                 nested_include_item = nested_include_item[0][1]
 
-                if (
-                    self.__class__._GetVisibility(nested_include_item).value != Visibility.Public
-                ):  # pylint: disable=protected-access
+                if self.__class__._GetVisibility(nested_include_item).value != Visibility.Public:  # pylint: disable=protected-access
                     continue
 
                 parent_namespace.AddNestedItem(
@@ -306,10 +299,7 @@ class Namespace:
                     # calculate errors.
                     nested_include_item = nested_include_item[0][1]
 
-                    if (
-                        self.__class__._GetVisibility(nested_include_item).value
-                        != Visibility.Public
-                    ):
+                    if self.__class__._GetVisibility(nested_include_item).value != Visibility.Public:
                         raise Errors.SimpleSchemaGeneratorException(
                             Errors.NamespaceInvalidIncludeItemVisibility.Create(
                                 include_item.element_name.region,
@@ -435,9 +425,7 @@ class Namespace:
                         f"ItemStatement-Ln{item_statement.region.begin.line}Col{item_statement.region.begin.column}",
                     ),
                     item_statement.type,
-                    TerminalElement[str](
-                        item_statement.type.region, f"{item_statement_name.value}'s Type"
-                    ),
+                    TerminalElement[str](item_statement.type.region, f"{item_statement_name.value}'s Type"),
                     [],
                     fundamental_types,
                 ),
@@ -498,9 +486,7 @@ class Namespace:
 
             elif isinstance(potential_namespace_or_factory, FundamentalTypeFactory):
                 if is_last_identifier:
-                    return potential_namespace_or_factory.GetOrCreate(
-                        ancestor_identities, fundamental_types
-                    )
+                    return potential_namespace_or_factory.GetOrCreate(ancestor_identities, fundamental_types)
 
                 # The problem isn't with the current identifier, but rather the one
                 # that follows it.
@@ -583,9 +569,7 @@ class Namespace:
                         for metadata_item in list(parse_type.unresolved_metadata.items.values()):
                             if metadata_item.name.value in type_definition.FIELDS:
                                 type_metadata_items.append(
-                                    parse_type.unresolved_metadata.items.pop(
-                                        metadata_item.name.value
-                                    )
+                                    parse_type.unresolved_metadata.items.pop(metadata_item.name.value)
                                 )
 
                         if type_metadata_items:
@@ -854,9 +838,7 @@ class _StateControlledData:
         self._include_statements: list[ParseIncludeStatement] = []
         self._item_statements: list[ParseItemStatement] = []
 
-        self._working_nested: dict[str, list[tuple[Region, Namespace | FundamentalTypeFactory]]] = (
-            {}
-        )
+        self._working_nested: dict[str, list[tuple[Region, Namespace | FundamentalTypeFactory]]] = {}
         self._final_nested: dict[str, Namespace | FundamentalTypeFactory] = {}
 
         self._state = _State.Initialized

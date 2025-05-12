@@ -216,7 +216,9 @@ class _CreateNamespacesVisitor(ElementVisitorHelper):
             # Create a pseudo element for this statement. This ensures that there is always a
             # structure definition and then and item that references it for all structures
             # (regardless of how they were defined).
-            unique_type_name = f"{PSEUDO_TYPE_NAME_PREFIX}-Ln{element.region.begin.line}Col{element.region.begin.column}"
+            unique_type_name = (
+                f"{PSEUDO_TYPE_NAME_PREFIX}-Ln{element.region.begin.line}Col{element.region.begin.column}"
+            )
 
             new_structure = ParseStructureStatement(
                 element.region,

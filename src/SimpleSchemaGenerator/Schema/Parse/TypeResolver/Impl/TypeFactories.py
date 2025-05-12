@@ -221,9 +221,9 @@ class StructureTypeFactory(_TypeFactory):
                                 Errors.TypeFactoryInvalidBaseCardinality.Create(base.region)
                             )
 
-                        if not isinstance(
-                            resolved_base_type.type, all_fundamental_types
-                        ) and not isinstance(resolved_base_type.type, StructureTypeDefinition):
+                        if not isinstance(resolved_base_type.type, all_fundamental_types) and not isinstance(
+                            resolved_base_type.type, StructureTypeDefinition
+                        ):
                             raise Errors.SimpleSchemaGeneratorException(
                                 Errors.TypeFactoryInvalidBaseType.Create(resolved_base_type.region)
                             )
