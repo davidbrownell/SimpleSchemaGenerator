@@ -81,9 +81,7 @@ class Type(VisibilityTrait, TypeImpl):
 
     category: Category = field(init=False)
 
-    _is_shared: Optional[bool] = field(
-        init=False, default=None
-    )  # Valid after `ResolvedIsShared` is called
+    _is_shared: Optional[bool] = field(init=False, default=None)  # Valid after `ResolvedIsShared` is called
 
     is_source: InitVar[bool] = field(kw_only=True, default=False)
 

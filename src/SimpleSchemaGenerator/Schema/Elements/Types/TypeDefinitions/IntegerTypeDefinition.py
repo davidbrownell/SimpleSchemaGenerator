@@ -60,9 +60,7 @@ class IntegerTypeDefinition(TypeDefinition):
     # ----------------------------------------------------------------------
     def __post_init__(self):
         if self.min is not None and self.max is not None and self.min > self.max:
-            raise ValueError(
-                Errors.integer_typedef_min_max_invalid.format(min=self.min, max=self.max)
-            )
+            raise ValueError(Errors.integer_typedef_min_max_invalid.format(min=self.min, max=self.max))
 
     # ----------------------------------------------------------------------
     # |
@@ -93,13 +91,9 @@ class IntegerTypeDefinition(TypeDefinition):
         value: int,
     ) -> int:
         if self.min is not None and value < self.min:
-            raise Exception(
-                Errors.integer_typedef_too_small.format(constraint=self.min, value=value)
-            )
+            raise Exception(Errors.integer_typedef_too_small.format(constraint=self.min, value=value))
 
         if self.max is not None and value > self.max:
-            raise Exception(
-                Errors.integer_typedef_too_large.format(constraint=self.max, value=value)
-            )
+            raise Exception(Errors.integer_typedef_too_large.format(constraint=self.max, value=value))
 
         return value

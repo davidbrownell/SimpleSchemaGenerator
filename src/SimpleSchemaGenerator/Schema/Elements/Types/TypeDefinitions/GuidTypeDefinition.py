@@ -14,7 +14,7 @@
 """Contains the GuidTypeDefinition object."""
 
 from dataclasses import dataclass
-from typing import Any, ClassVar, Type as PythonType
+from typing import ClassVar, Type as PythonType
 from uuid import UUID
 
 from dbrownell_Common.Types import override  # type: ignore[import-untyped]

@@ -74,9 +74,7 @@ def test_MultipleIdentifiers():
     identifier2 = ParseIdentifier(Mock(), "Identifier2")
     is_global_reference = None
 
-    t = ParseIdentifierType(
-        region, cardinality, metadata, [identifier1, identifier2], is_global_reference
-    )
+    t = ParseIdentifierType(region, cardinality, metadata, [identifier1, identifier2], is_global_reference)
 
     assert t.region is region
     assert t.cardinality is cardinality

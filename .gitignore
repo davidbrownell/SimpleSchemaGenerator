@@ -19,3 +19,5 @@ src/SimpleSchemaGenerator.egg-info/**
 minisign_key.pri
 
 .antlr
+.DS_Store
+post_generation_instructions.html

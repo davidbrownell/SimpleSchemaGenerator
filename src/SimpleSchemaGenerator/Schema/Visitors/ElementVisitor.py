@@ -131,7 +131,8 @@ class ElementVisitorHelper(ElementVisitor):
     @staticmethod
     @contextmanager
     def _DefaultElementMethod(
-        *args, **kwargs  # pylint: disable=unused-argument
+        *args,
+        **kwargs,  # pylint: disable=unused-argument
     ) -> Iterator[VisitResult]:
         yield VisitResult.Continue
 

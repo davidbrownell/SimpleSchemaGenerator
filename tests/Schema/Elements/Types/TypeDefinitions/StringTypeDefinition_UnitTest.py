@@ -27,14 +27,8 @@ def test_DisplayType():
     assert StringTypeDefinition(Mock()).display_type == "String"
     assert StringTypeDefinition(Mock(), 3).display_type == "String {>= 3 characters}"
     assert StringTypeDefinition(Mock(), max_length=4).display_type == "String {<= 4 characters}"
-    assert (
-        StringTypeDefinition(Mock(), 10, 20).display_type
-        == "String {>= 10 characters, <= 20 characters}"
-    )
-    assert (
-        StringTypeDefinition(Mock(), validation_expression="abc").display_type
-        == "String {matches 'abc'}"
-    )
+    assert StringTypeDefinition(Mock(), 10, 20).display_type == "String {>= 10 characters, <= 20 characters}"
+    assert StringTypeDefinition(Mock(), validation_expression="abc").display_type == "String {matches 'abc'}"
 
 
 # ----------------------------------------------------------------------
@@ -93,10 +87,6 @@ def test_ToPythonInstanceTooLong():
 def test_ToPythonInstanceExpressionError():
     with pytest.raises(
         Exception,
-        match=re.escape(
-            "The value 'this does not match' does not match the regular expression 'test'."
-        ),
+        match=re.escape("The value 'this does not match' does not match the regular expression 'test'."),
     ):
-        StringTypeDefinition(Mock(), validation_expression="test").ToPythonInstance(
-            "this does not match"
-        )
+        StringTypeDefinition(Mock(), validation_expression="test").ToPythonInstance("this does not match")

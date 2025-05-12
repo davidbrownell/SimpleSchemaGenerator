@@ -24,18 +24,9 @@ from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.FilenameTypeDef
 
 # ----------------------------------------------------------------------
 def test_DisplayType():
-    assert (
-        FilenameTypeDefinition(Mock(), ensure_exists=False, match_any=False).display_type
-        == "Filename"
-    )
-    assert (
-        FilenameTypeDefinition(Mock(), ensure_exists=True, match_any=False).display_type
-        == "Filename!"
-    )
-    assert (
-        FilenameTypeDefinition(Mock(), ensure_exists=True, match_any=True).display_type
-        == "Filename!^"
-    )
+    assert FilenameTypeDefinition(Mock(), ensure_exists=False, match_any=False).display_type == "Filename"
+    assert FilenameTypeDefinition(Mock(), ensure_exists=True, match_any=False).display_type == "Filename!"
+    assert FilenameTypeDefinition(Mock(), ensure_exists=True, match_any=True).display_type == "Filename!^"
 
     with pytest.raises(
         ValueError,

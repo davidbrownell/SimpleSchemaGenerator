@@ -60,9 +60,7 @@ class NumberTypeDefinition(TypeDefinition):
     # ----------------------------------------------------------------------
     def __post_init__(self):
         if self.min is not None and self.max is not None and self.min > self.max:
-            raise ValueError(
-                Errors.number_typedef_min_max_invalid.format(min=self.min, max=self.max)
-            )
+            raise ValueError(Errors.number_typedef_min_max_invalid.format(min=self.min, max=self.max))
 
     # ----------------------------------------------------------------------
     @property
@@ -89,13 +87,9 @@ class NumberTypeDefinition(TypeDefinition):
         value: float,
     ) -> float:
         if self.min is not None and value < self.min:
-            raise Exception(
-                Errors.number_typedef_too_small.format(constraint=self.min, value=value)
-            )
+            raise Exception(Errors.number_typedef_too_small.format(constraint=self.min, value=value))
 
         if self.max is not None and value > self.max:
-            raise Exception(
-                Errors.number_typedef_too_large.format(constraint=self.max, value=value)
-            )
+            raise Exception(Errors.number_typedef_too_large.format(constraint=self.max, value=value))
 
         return value

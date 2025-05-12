@@ -96,9 +96,7 @@ def test_ErrorSingleType():
 def test_ErrorNestedVariant():
     with pytest.raises(
         Exception,
-        match=re.escape(
-            "Nested variant types are not supported. (abc, Ln 11, Col 22 -> Ln 33, Col 44)"
-        ),
+        match=re.escape("Nested variant types are not supported. (abc, Ln 11, Col 22 -> Ln 33, Col 44)"),
     ):
         ParseVariantType(
             Mock(),

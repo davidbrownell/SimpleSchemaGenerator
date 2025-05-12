@@ -15,7 +15,7 @@
 
 from dataclasses import dataclass
 from typing import cast, TYPE_CHECKING
-from weakref import ref, ReferenceType as WeakReferenceType
+from weakref import ReferenceType as WeakReferenceType
 
 from dbrownell_Common.Types import override  # type: ignore[import-untyped]
 

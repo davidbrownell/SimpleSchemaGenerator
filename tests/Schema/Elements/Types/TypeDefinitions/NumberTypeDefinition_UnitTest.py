@@ -27,9 +27,7 @@ def test_DisplayType():
     assert NumberTypeDefinition(Mock())._display_type == "Number"
     assert NumberTypeDefinition(Mock(), min=0.0)._display_type == "Number {>= 0.0}"
     assert NumberTypeDefinition(Mock(), max=0.0)._display_type == "Number {<= 0.0}"
-    assert (
-        NumberTypeDefinition(Mock(), min=0.0, max=10.0)._display_type == "Number {>= 0.0, <= 10.0}"
-    )
+    assert NumberTypeDefinition(Mock(), min=0.0, max=10.0)._display_type == "Number {>= 0.0, <= 10.0}"
 
 
 # ----------------------------------------------------------------------

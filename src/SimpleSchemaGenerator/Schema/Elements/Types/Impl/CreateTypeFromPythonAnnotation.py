@@ -63,23 +63,20 @@ def CreateTypeFromPythonAnnotation(
             # Variant
             type_definition = VariantTypeDefinition(
                 Region.CreateFromCode(),
-                [
-                    CreateTypeFromPythonAnnotation(the_type, has_default_value=False)
-                    for the_type in types
-                ],
+                [CreateTypeFromPythonAnnotation(the_type, has_default_value=False) for the_type in types],
             )
 
     while type_definition is None and (
         isinstance(python_type_annotation, GenericAlias)
         or isinstance(python_type_annotation, _BaseGenericAlias)
     ):
-        if python_type_annotation.__origin__ == list:
+        if python_type_annotation.__origin__ is list:
             cardinality_max = None
 
             assert len(python_type_annotation.__args__) == 1, python_type_annotation.__args__
             python_type_annotation = python_type_annotation.__args__[0]
 
-        elif python_type_annotation.__origin__ == tuple:
+        elif python_type_annotation.__origin__ is tuple:
             type_definition = TupleTypeDefinition(
                 Region.CreateFromCode(),
                 [
@@ -91,19 +88,17 @@ def CreateTypeFromPythonAnnotation(
     if type_definition is None:
         if isinstance(python_type_annotation, EnumMeta):
             type_definition = EnumTypeDefinition(Region.CreateFromCode(), python_type_annotation)
-        elif python_type_annotation == bool:
+        elif python_type_annotation is bool:
             type_definition = BooleanTypeDefinition(Region.CreateFromCode())
-        elif python_type_annotation == int:
+        elif python_type_annotation is int:
             type_definition = IntegerTypeDefinition(Region.CreateFromCode())
-        elif python_type_annotation == float:
+        elif python_type_annotation is float:
             type_definition = NumberTypeDefinition(Region.CreateFromCode())
-        elif python_type_annotation == str:
+        elif python_type_annotation is str:
             type_definition = StringTypeDefinition(Region.CreateFromCode())
         else:
             raise Exception(
-                Errors.create_type_from_annotation_invalid_type.format(
-                    value=python_type_annotation.__name__
-                )
+                Errors.create_type_from_annotation_invalid_type.format(value=python_type_annotation.__name__)
             )
 
     return Type.Create(

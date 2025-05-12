@@ -234,9 +234,7 @@ def test_ToPythonInstance():
 
     assert td.ToPythonInstance("value") == "value"
     assert (
-        td.ToPythonInstance(
-            StringExpression(Mock(), "another_value", StringExpression.QuoteType.Single)
-        )
+        td.ToPythonInstance(StringExpression(Mock(), "another_value", StringExpression.QuoteType.Single))
         == "another_value"
     )
 

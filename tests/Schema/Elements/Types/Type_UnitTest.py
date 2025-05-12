@@ -281,9 +281,7 @@ def test_ErrorOptionalToOptional():
             ),
         ),
     ):
-        _CreateType(
-            optional_type, _CreateCardinality(0, 1, Region.Create(Path("filename2"), 5, 6, 7, 8))
-        )
+        _CreateType(optional_type, _CreateCardinality(0, 1, Region.Create(Path("filename2"), 5, 6, 7, 8)))
 
 
 # ----------------------------------------------------------------------
@@ -489,10 +487,7 @@ class TestToPythonInstance:
         )
 
         assert t.ToPythonInstance("foo") == "foo"
-        assert (
-            t.ToPythonInstance(StringExpression(Mock(), "bar", StringExpression.QuoteType.Single))
-            == "bar"
-        )
+        assert t.ToPythonInstance(StringExpression(Mock(), "bar", StringExpression.QuoteType.Single)) == "bar"
 
     # ----------------------------------------------------------------------
     def test_Multiple(self):
@@ -521,10 +516,7 @@ class TestToPythonInstance:
         assert t.ToPythonInstance("foo") == "foo"
 
         assert t.ToPythonInstance(NoneExpression(Mock())) is None
-        assert (
-            t.ToPythonInstance(StringExpression(Mock(), "bar", StringExpression.QuoteType.Single))
-            == "bar"
-        )
+        assert t.ToPythonInstance(StringExpression(Mock(), "bar", StringExpression.QuoteType.Single)) == "bar"
 
     # ----------------------------------------------------------------------
     def test_Alias(self):
@@ -553,10 +545,7 @@ class TestToPythonInstance:
 
         assert t.ToPythonInstance("foo") == "foo"
         assert t.ToPythonInstance(123) == 123
-        assert (
-            t.ToPythonInstance(StringExpression(Mock(), "bar", StringExpression.QuoteType.Single))
-            == "bar"
-        )
+        assert t.ToPythonInstance(StringExpression(Mock(), "bar", StringExpression.QuoteType.Single)) == "bar"
         assert t.ToPythonInstance(IntegerExpression(Mock(), 456)) == 456
 
     # ----------------------------------------------------------------------

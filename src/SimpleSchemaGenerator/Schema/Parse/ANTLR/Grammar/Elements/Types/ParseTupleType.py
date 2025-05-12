@@ -34,9 +34,7 @@ class ParseTupleType(ParseType):
     # ----------------------------------------------------------------------
     def __post_init__(self):
         if not self.types:
-            raise Errors.SimpleSchemaGeneratorException(
-                Errors.ParseTupleTypeMissingTypes.Create(self.region)
-            )
+            raise Errors.SimpleSchemaGeneratorException(Errors.ParseTupleTypeMissingTypes.Create(self.region))
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------

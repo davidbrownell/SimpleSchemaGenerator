@@ -63,9 +63,7 @@ def test_Create():
 def test_ErrorCreateWithoutEnoughTypes():
     with pytest.raises(
         Errors.SimpleSchemaGeneratorException,
-        match=re.escape(
-            "At least two types must be provided. (filename, Ln 1, Col 2 -> Ln 3, Col 4)"
-        ),
+        match=re.escape("At least two types must be provided. (filename, Ln 1, Col 2 -> Ln 3, Col 4)"),
     ):
         VariantTypeDefinition(Region.Create(Path("filename"), 1, 2, 3, 4), [Mock()])
 
@@ -170,10 +168,7 @@ def test_ToPythonInstanceSingle():
     assert td.ToPythonInstance(IntegerExpression(Mock(), 5)) == 5
 
     assert td.ToPythonInstance("test") == "test"
-    assert (
-        td.ToPythonInstance(StringExpression(Mock(), "test", StringExpression.QuoteType.Single))
-        == "test"
-    )
+    assert td.ToPythonInstance(StringExpression(Mock(), "test", StringExpression.QuoteType.Single)) == "test"
 
     with pytest.raises(
         Exception,
@@ -211,9 +206,7 @@ def test_ToPythonInstanceSingle():
             ),
         ),
     ):
-        td.ToPythonInstance(
-            IntegerExpression(Region.Create(Path("filename3"), 10, 20, 30, 40), 123)
-        )
+        td.ToPythonInstance(IntegerExpression(Region.Create(Path("filename3"), 10, 20, 30, 40), 123))
 
 
 # ----------------------------------------------------------------------
@@ -252,10 +245,7 @@ def test_ToPythonInstanceChildCardinality():
     ) == [1, 2]
 
     assert td.ToPythonInstance("test") == "test"
-    assert (
-        td.ToPythonInstance(StringExpression(Mock(), "test", StringExpression.QuoteType.Single))
-        == "test"
-    )
+    assert td.ToPythonInstance(StringExpression(Mock(), "test", StringExpression.QuoteType.Single)) == "test"
 
     with pytest.raises(
         Exception,
@@ -293,6 +283,4 @@ def test_ToPythonInstanceChildCardinality():
             ),
         ),
     ):
-        td.ToPythonInstance(
-            IntegerExpression(Region.Create(Path("filename3"), 10, 20, 30, 40), 123)
-        )
+        td.ToPythonInstance(IntegerExpression(Region.Create(Path("filename3"), 10, 20, 30, 40), 123))

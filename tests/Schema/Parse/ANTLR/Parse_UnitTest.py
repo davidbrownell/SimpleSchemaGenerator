@@ -39,10 +39,7 @@ with ExitStack(lambda: sys.path.pop(0)):
 
 # ----------------------------------------------------------------------
 sample_schemas = PathEx.EnsureDir(
-    Path(__file__).parent.parent.parent.parent.parent
-    / "src"
-    / "SimpleSchemaGenerator"
-    / "SampleSchemas"
+    Path(__file__).parent.parent.parent.parent.parent / "src" / "SimpleSchemaGenerator" / "SampleSchemas"
 )
 
 
@@ -197,9 +194,7 @@ class TestParsing:
             PathEx.EnsureFile(sample_schemas / "Import.SimpleSchema"),
             snapshot,
             expected_num_results=4,
-            yaml_content_decoration_func=lambda content: content.replace(
-                working_dir_str, "<working_dir>"
-            ),
+            yaml_content_decoration_func=lambda content: content.replace(working_dir_str, "<working_dir>"),
         )
 
     # ----------------------------------------------------------------------
@@ -493,9 +488,7 @@ def test_ErrorInvalidSyntax():
 def test_ErrorStringInvalidIndentation():
     with pytest.raises(
         Exception,
-        match=re.escape(
-            f"Invalid multiline string indentation. ({_SINGLE_CONTENT_FILENAME} <Ln 3, Col 14>)"
-        ),
+        match=re.escape(f"Invalid multiline string indentation. ({_SINGLE_CONTENT_FILENAME} <Ln 3, Col 14>)"),
     ):
         _ExecuteSingleContent(
             textwrap.dedent(
@@ -684,10 +677,7 @@ class _RegionVisitor(TerminalElementVisitor):
     def OnNumberExpression(self, element: NumberExpression) -> Iterator[VisitResult]:
         value = str(element.value)
 
-        if (
-            len(value) > element.region.end.column - element.region.begin.column
-            and int(element.value) == 0
-        ):
+        if len(value) > element.region.end.column - element.region.begin.column and int(element.value) == 0:
             value = value.replace("0.", ".")
 
         self._PopulateLine(element, value)
@@ -860,11 +850,7 @@ def _ExecuteSingleContent(
     content: str,
 ) -> RootStatement:
     result = _Execute(
-        {
-            _SINGLE_CONTENT_FILENAME.parent: {
-                PurePath(_SINGLE_CONTENT_FILENAME.name): lambda: content
-            }
-        }
+        {_SINGLE_CONTENT_FILENAME.parent: {PurePath(_SINGLE_CONTENT_FILENAME.name): lambda: content}}
     )
 
     assert len(result) == 1

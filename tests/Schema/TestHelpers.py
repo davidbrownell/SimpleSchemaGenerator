@@ -108,9 +108,7 @@ class TerminalElementVisitor(ElementVisitor):
         if index != -1 and index + len("__") + 1 < len(method_name):
             attribute_name = method_name[index + len("__") :]
 
-            return lambda *args, **kwargs: self._DefaultDetailMethod(
-                attribute_name, *args, **kwargs
-            )
+            return lambda *args, **kwargs: self._DefaultDetailMethod(attribute_name, *args, **kwargs)
 
         return self._DefaultElementMethod
 
@@ -125,17 +123,15 @@ class TerminalElementVisitor(ElementVisitor):
         is_terminal_element = self._terminal_element_lookup_map.get(element.__class__, None)
         if is_terminal_element is None:
             is_terminal_element = (
-                type(element)._GenerateAcceptDetails
-                is Element._GenerateAcceptDetails  # pylint: disable=protected-access
-                and type(element)._GetAcceptChildren
-                is Element._GetAcceptChildren  # pylint: disable=protected-access
+                type(element)._GenerateAcceptDetails is Element._GenerateAcceptDetails  # pylint: disable=protected-access
+                and type(element)._GetAcceptChildren is Element._GetAcceptChildren  # pylint: disable=protected-access
             )
 
             self._terminal_element_lookup_map[element.__class__] = is_terminal_element
 
-        assert (
-            not is_terminal_element
-        ), f"Terminal element '{element.__class__.__name__}' not handled in '{self.__class__.__name__}'."
+        assert not is_terminal_element, (
+            f"Terminal element '{element.__class__.__name__}' not handled in '{self.__class__.__name__}'."
+        )
 
         yield VisitResult.Continue
 
@@ -520,7 +516,8 @@ class _SingleElementVisitor(ElementVisitor):
     @staticmethod
     @contextmanager
     def _DefaultElementMethod(
-        *args, **kwargs  # pylint: disable=unused-argument
+        *args,
+        **kwargs,  # pylint: disable=unused-argument
     ) -> Iterator[VisitResult]:
         yield VisitResult.Continue
 

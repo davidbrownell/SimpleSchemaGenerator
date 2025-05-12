@@ -13,9 +13,9 @@
 # ----------------------------------------------------------------------
 """Contains the EnumTypeDefinition object."""
 
-from dataclasses import dataclass, field, InitVar
+from dataclasses import dataclass, field
 from enum import Enum, EnumMeta
-from typing import Callable, cast, ClassVar, Optional, Type as PythonType, Union
+from typing import Callable, cast, ClassVar, Type as PythonType, Union
 
 from dbrownell_Common.Types import override  # type: ignore[import-untyped]
 
@@ -65,13 +65,9 @@ class EnumTypeDefinition(TypeDefinition):
 
                     if not v[1]:
                         if isinstance(v[1], str):
-                            raise ValueError(
-                                Errors.enum_typedef_string_value_required.format(index=index)
-                            )
+                            raise ValueError(Errors.enum_typedef_string_value_required.format(index=index))
                         elif isinstance(v[1], int):
-                            raise ValueError(
-                                Errors.enum_typedef_non_zero_required.format(index=index)
-                            )
+                            raise ValueError(Errors.enum_typedef_non_zero_required.format(index=index))
                         else:
                             assert False, v[1]  # pragma: no cover
 
@@ -156,7 +152,13 @@ class EnumTypeDefinition(TypeDefinition):
                 expected_desc = "An Integer"
 
             elif isinstance(get_value_func(0), str):
-                value_to_enum_name_func = lambda value: value  # type: ignore
+                # ----------------------------------------------------------------------
+                def ValueIdentity(value):
+                    return value
+
+                # ----------------------------------------------------------------------
+
+                value_to_enum_name_func = ValueIdentity
 
                 expected_type = str
                 expected_desc = "A String"

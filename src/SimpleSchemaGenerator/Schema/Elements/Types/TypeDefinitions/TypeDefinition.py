@@ -154,7 +154,13 @@ class TypeDefinition(TypeImpl):
         pop_metadata_item_func: Callable[[str], MetadataItem | _MISSING_TYPE] | None = None
 
         if metadata is None:
-            pop_metadata_item_func = lambda name: MISSING
+            # ----------------------------------------------------------------------
+            def PopMetadataItem(name: str) -> MetadataItem | _MISSING_TYPE:
+                return MISSING
+
+            # ----------------------------------------------------------------------
+
+            pop_metadata_item_func = PopMetadataItem
         else:
             # ----------------------------------------------------------------------
             def PopMetadataItem(
