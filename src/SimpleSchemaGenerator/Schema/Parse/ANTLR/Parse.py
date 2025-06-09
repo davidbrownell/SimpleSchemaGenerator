@@ -17,17 +17,18 @@ import itertools
 import sys
 import threading
 
+from collections.abc import Callable
 from functools import cached_property
 from pathlib import Path, PurePath
-from typing import Any, Callable, cast, Optional, Protocol
+from typing import Any, cast, Optional, Protocol
 
 import antlr4  # type: ignore[import-untyped]
 
 from antlr4.error.ErrorListener import ConsoleErrorListener
-from dbrownell_Common.ContextlibEx import ExitStack  # type: ignore[import-untyped]
-from dbrownell_Common import ExecuteTasks  # type: ignore[import-untyped]
-from dbrownell_Common import PathEx  # type: ignore[import-untyped]
-from dbrownell_Common.Streams.DoneManager import DoneManager  # type: ignore[import-untyped]
+from dbrownell_Common.ContextlibEx import ExitStack
+from dbrownell_Common import ExecuteTasks
+from dbrownell_Common import PathEx
+from dbrownell_Common.Streams.DoneManager import DoneManager
 
 from .Grammar.Elements.Common.ParseIdentifier import ParseIdentifier
 from .Grammar.Elements.Statements.ParseItemStatement import ParseItemStatement
@@ -41,25 +42,25 @@ from .Grammar.Elements.Types.ParseIdentifierType import ParseIdentifierType
 from .Grammar.Elements.Types.ParseTupleType import ParseTupleType
 from .Grammar.Elements.Types.ParseType import ParseType
 from .Grammar.Elements.Types.ParseVariantType import ParseVariantType
-from ...Elements.Common.Cardinality import Cardinality
-from ...Elements.Common.Metadata import Metadata, MetadataItem
-from ...Elements.Common.TerminalElement import TerminalElement
-from ...Elements.Expressions.BooleanExpression import BooleanExpression
-from ...Elements.Expressions.Expression import Expression
-from ...Elements.Expressions.IntegerExpression import IntegerExpression
-from ...Elements.Expressions.ListExpression import ListExpression
-from ...Elements.Expressions.NoneExpression import NoneExpression
-from ...Elements.Expressions.NumberExpression import NumberExpression
-from ...Elements.Expressions.StringExpression import StringExpression
-from ...Elements.Expressions.TupleExpression import TupleExpression
-from ...Elements.Statements.ExtensionStatement import (
+from SimpleSchemaGenerator.Schema.Elements.Common.Cardinality import Cardinality
+from SimpleSchemaGenerator.Schema.Elements.Common.Metadata import Metadata, MetadataItem
+from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import TerminalElement
+from SimpleSchemaGenerator.Schema.Elements.Expressions.BooleanExpression import BooleanExpression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.Expression import Expression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.IntegerExpression import IntegerExpression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.ListExpression import ListExpression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.NoneExpression import NoneExpression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.NumberExpression import NumberExpression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.StringExpression import StringExpression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.TupleExpression import TupleExpression
+from SimpleSchemaGenerator.Schema.Elements.Statements.ExtensionStatement import (
     ExtensionStatement,
     ExtensionStatementKeywordArg,
 )
-from ...Elements.Statements.RootStatement import RootStatement
-from ...Elements.Statements.Statement import Statement
-from .... import Errors
-from ....Common.Region import Location, Region
+from SimpleSchemaGenerator.Schema.Elements.Statements.RootStatement import RootStatement
+from SimpleSchemaGenerator.Schema.Elements.Statements.Statement import Statement
+from SimpleSchemaGenerator import Errors
+from SimpleSchemaGenerator.Common.Region import Location, Region
 
 sys.path.insert(0, str(PathEx.EnsureDir(Path(__file__).parent / "GeneratedCode")))
 with ExitStack(lambda: sys.path.pop(0)):
@@ -73,7 +74,7 @@ with ExitStack(lambda: sys.path.pop(0)):
 # |  Public Types
 # |
 # ----------------------------------------------------------------------
-class AntlrException(Exception):
+class AntlrError(Exception):
     """Exception raised for parsing-related errors"""
 
     # ----------------------------------------------------------------------
@@ -83,11 +84,11 @@ class AntlrException(Exception):
         source: Path,
         line: int,
         column: int,
-        ex: Optional[antlr4.RecognitionException],
-    ):
+        ex: antlr4.RecognitionException | None,
+    ) -> None:
         location = Location(line, column)
 
-        super(AntlrException, self).__init__(f"{message} ({source} <{location}>)")
+        super().__init__(f"{message} ({source} <{location}>)")
 
         self.source = source
         self.location = location
@@ -105,7 +106,7 @@ DEFAULT_FILE_EXTENSIONS: list[str] = [
 # |  Public Functions
 # |
 # ----------------------------------------------------------------------
-def Parse(
+def Parse(  # noqa: C901, PLR0915
     dm: DoneManager,
     workspaces: dict[
         Path,  # workspace_root
@@ -114,7 +115,7 @@ def Parse(
             Callable[[], str],  # get content
         ],
     ],
-    file_extensions: Optional[list[str]] = None,
+    file_extensions: list[str] | None = None,
     *,
     single_threaded: bool = False,
     quiet: bool = False,
@@ -138,7 +139,7 @@ def Parse(
             workspaces[resolved_workspace_name] = workspace_value
             del workspaces[workspace_name]
 
-    workspace_names: list[Path] = [workspace for workspace in workspaces.keys()]
+    workspace_names: list[Path] = list(workspaces.keys())
 
     # Sort the names so we search from the longest path to the shortest path
     workspace_names.sort(
@@ -159,7 +160,7 @@ def Parse(
     for workspace_root, sources in workspaces.items():
         these_results: dict[PurePath, None | Exception | RootStatement] = {}
 
-        for relative_path in sources.keys():
+        for relative_path in sources:
             these_results[relative_path] = None
 
         results[workspace_root] = these_results
@@ -173,7 +174,7 @@ def Parse(
     ) as enqueue_func:
         # This variable is used in PrepareTask, but cannot be created until PrepareTask
         # has been defined.
-        create_include_statement_func: Optional[_CreateIncludeStatementFuncType] = None
+        create_include_statement_func: _CreateIncludeStatementFuncType | None = None
 
         # ----------------------------------------------------------------------
         def PrepareTask(
@@ -188,11 +189,11 @@ def Parse(
             # ----------------------------------------------------------------------
             def Execute(
                 status: ExecuteTasks.Status,
-            ) -> Optional[str]:
+            ) -> str | None:
                 result: None | Exception | RootStatement = None
 
                 # ----------------------------------------------------------------------
-                def OnExit():
+                def OnExit() -> None:
                     assert result is not None
                     assert results[workspace_root][relative_path] is None
                     results[workspace_root][relative_path] = result
@@ -266,7 +267,7 @@ def Parse(
             for relative_path, content_func in sources.items():
                 enqueue_func(
                     str(relative_path if is_single_workspace else workspace_root / relative_path),
-                    lambda on_simple_status_func,
+                    lambda on_simple_status_func,  # noqa: ARG005
                     workspace_root=workspace_root,
                     relative_path=relative_path,
                     content_func=content_func: PrepareTask(
@@ -281,9 +282,7 @@ def Parse(
         exceptions: list[Exception] = []
 
         for workspace_results in results.values():
-            for result in workspace_results.values():
-                if isinstance(result, Exception):
-                    exceptions.append(result)
+            exceptions += [result for result in workspace_results.values() if isinstance(result, Exception)]
 
         if len(exceptions) == 1:
             raise exceptions[0]
@@ -307,23 +306,23 @@ class _ErrorListener(antlr4.DiagnosticErrorListener):
         source: Path,
         *args,
         **kwargs,
-    ):
-        super(_ErrorListener, self).__init__(*args, **kwargs)
+    ) -> None:
+        super().__init__(*args, **kwargs)
 
         self._source = source
 
     # ----------------------------------------------------------------------
     def syntaxError(
         self,
-        recognizer: SimpleSchemaParser,  # pylint: disable=unused-argument
-        offendingSymbol: antlr4.Token,  # pylint: disable=unused-argument
+        recognizer: SimpleSchemaParser,  # noqa: ARG002
+        offendingSymbol: antlr4.Token,  # noqa: ARG002, N803
         line: int,
         column: int,
         msg: str,
         e: antlr4.RecognitionException,
-    ):
+    ) -> None:
         if e is not None:
-            raise AntlrException(msg, self._source, line, column + 1, e)
+            raise AntlrError(msg, self._source, line, column + 1, e)
 
 
 # ----------------------------------------------------------------------
@@ -332,8 +331,8 @@ class _CreateIncludeStatementFuncType(Protocol):
         self,
         include_path: Path,
         region: Region,
-        root_indicator: Optional[Region],
-        directory_indicator: Optional[Region],
+        root_indicator: Region | None,
+        directory_indicator: Region | None,
         filename_or_directory: TerminalElement[Path],
         items: list[ParseIncludeStatementItem],
         *,
@@ -359,7 +358,7 @@ class _VisitorMixin:
         *,
         is_included_file: bool,
         tab_width: int,
-    ):
+    ) -> None:
         self.content = content
         self.filename = filename
         self.is_included_file = is_included_file
@@ -415,7 +414,7 @@ class _VisitorMixin:
 
             if ctx.stop.type == SimpleSchemaParser.NEWLINE:
                 assert content.startswith("\n"), content
-                assert num_lines == 2, lines
+                assert num_lines == 2, lines  # noqa: PLR2004
 
             stop_line = ctx.stop.line + num_lines - 1
             stop_col = len(lines[-1])
@@ -436,7 +435,7 @@ class _VisitorMixin:
     # |  Protected Methods
     # |
     # ----------------------------------------------------------------------
-    def _GetChildren(self, ctx) -> list[Any]:
+    def _GetChildren(self, ctx: antlr4.RuleContext) -> list[Any]:
         prev_num_stack_items = len(self._stack)
 
         cast(SimpleSchemaVisitor, self).visitChildren(ctx)
@@ -463,24 +462,24 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # |  Common
     # |
     # ----------------------------------------------------------------------
-    def visitIdentifier(self, ctx: SimpleSchemaParser.IdentifierContext):
+    def visitIdentifier(self, ctx: SimpleSchemaParser.IdentifierContext) -> None:
         region = self.CreateRegion(ctx)
         value = ctx.IDENTIFIER().symbol.text
 
         self._stack.append(ParseIdentifier(region, value))
 
     # ----------------------------------------------------------------------
-    def visitMetadata_clause(self, ctx: SimpleSchemaParser.Metadata_clauseContext):
+    def visitMetadata_clause(self, ctx: SimpleSchemaParser.Metadata_clauseContext) -> None:
         children = self._GetChildren(ctx)
         assert all(isinstance(child, MetadataItem) for child in children), children
 
         self._stack.append(Metadata(self.CreateRegion(ctx), cast(list[MetadataItem], children)))
 
     # ----------------------------------------------------------------------
-    def visitMetadata_clause_item(self, ctx: SimpleSchemaParser.Metadata_clause_itemContext):
+    def visitMetadata_clause_item(self, ctx: SimpleSchemaParser.Metadata_clause_itemContext) -> None:
         children = self._GetChildren(ctx)
 
-        assert len(children) == 2, children
+        assert len(children) == 2, children  # noqa: PLR2004
         assert isinstance(children[0], ParseIdentifier), children
         assert isinstance(children[1], Expression), children
 
@@ -490,21 +489,23 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         self._stack.append(MetadataItem(self.CreateRegion(ctx), name, value))
 
     # ----------------------------------------------------------------------
-    def visitCardinality_clause(self, ctx: SimpleSchemaParser.Cardinality_clauseContext):
+    def visitCardinality_clause(self, ctx: SimpleSchemaParser.Cardinality_clauseContext) -> None:
         children = self._GetChildren(ctx)
 
-        assert len(children) == 2, children
+        assert len(children) == 2, children  # noqa: PLR2004
 
         assert isinstance(children[0], IntegerExpression), children
         min_expression = cast(IntegerExpression, children[0])
 
         assert children[1] is None or isinstance(children[1], IntegerExpression), children
-        max_expression = cast(Optional[IntegerExpression], children[1])
+        max_expression = cast(IntegerExpression | None, children[1])
 
         self._stack.append(Cardinality(self.CreateRegion(ctx), min_expression, max_expression))
 
     # ----------------------------------------------------------------------
-    def visitCardinality_clause_optional(self, ctx: SimpleSchemaParser.Cardinality_clause_optionalContext):
+    def visitCardinality_clause_optional(
+        self, ctx: SimpleSchemaParser.Cardinality_clause_optionalContext
+    ) -> None:
         region = self.CreateRegion(ctx)
 
         self._stack += [IntegerExpression(region, 0), IntegerExpression(region, 1)]
@@ -512,17 +513,17 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # ----------------------------------------------------------------------
     def visitCardinality_clause_zero_or_more(
         self, ctx: SimpleSchemaParser.Cardinality_clause_zero_or_moreContext
-    ):
+    ) -> None:
         self._stack += [IntegerExpression(self.CreateRegion(ctx), 0), None]
 
     # ----------------------------------------------------------------------
     def visitCardinality_clause_one_or_more(
         self, ctx: SimpleSchemaParser.Cardinality_clause_one_or_moreContext
-    ):
+    ) -> None:
         self._stack += [IntegerExpression(self.CreateRegion(ctx), 1), None]
 
     # ----------------------------------------------------------------------
-    def visitCardinality_clause_fixed(self, ctx: SimpleSchemaParser.Cardinality_clause_fixedContext):
+    def visitCardinality_clause_fixed(self, ctx: SimpleSchemaParser.Cardinality_clause_fixedContext) -> None:
         children = self._GetChildren(ctx)
         assert len(children) == 1, children
         assert isinstance(children[0], IntegerExpression), children
@@ -539,15 +540,15 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # |  Expressions
     # |
     # ----------------------------------------------------------------------
-    def visitNumber_expression(self, ctx: SimpleSchemaParser.Number_expressionContext):
+    def visitNumber_expression(self, ctx: SimpleSchemaParser.Number_expressionContext) -> None:
         self._stack.append(NumberExpression(self.CreateRegion(ctx), float(ctx.NUMBER().symbol.text)))
 
     # ----------------------------------------------------------------------
-    def visitInteger_expression(self, ctx: SimpleSchemaParser.Integer_expressionContext):
+    def visitInteger_expression(self, ctx: SimpleSchemaParser.Integer_expressionContext) -> None:
         self._stack.append(IntegerExpression(self.CreateRegion(ctx), int(ctx.INTEGER().symbol.text)))
 
     # ----------------------------------------------------------------------
-    def visitTrue_expression(self, ctx: SimpleSchemaParser.True_expressionContext):
+    def visitTrue_expression(self, ctx: SimpleSchemaParser.True_expressionContext) -> None:
         assert len(ctx.children) == 1, ctx.children
         child = ctx.children[0]
 
@@ -566,7 +567,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         elif lower_value == "on":
             flags |= BooleanExpression.Flags.OnOff
         else:
-            assert False, value  # pragma: no cover
+            raise AssertionError(value)  # pragma: no cover
 
         if value.isupper():
             flags |= BooleanExpression.Flags.UpperCase
@@ -575,12 +576,12 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         elif value[0].isupper() and value[1:].islower():
             flags |= BooleanExpression.Flags.PascalCase
         else:
-            assert False, value  # pragma: no cover
+            raise AssertionError(value)  # pragma: no cover
 
-        self._stack.append(BooleanExpression(self.CreateRegion(ctx), True, flags))
+        self._stack.append(BooleanExpression(self.CreateRegion(ctx), True, flags))  # noqa: FBT003
 
     # ----------------------------------------------------------------------
-    def visitFalse_expression(self, ctx: SimpleSchemaParser.False_expressionContext):
+    def visitFalse_expression(self, ctx: SimpleSchemaParser.False_expressionContext) -> None:
         assert len(ctx.children) == 1, ctx.children
         child = ctx.children[0]
 
@@ -599,7 +600,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         elif lower_value == "off":
             flags |= BooleanExpression.Flags.OnOff
         else:
-            assert False, value  # pragma: no cover
+            raise AssertionError(value)  # pragma: no cover
 
         if value.isupper():
             flags |= BooleanExpression.Flags.UpperCase
@@ -608,29 +609,29 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         elif value[0].isupper() and value[1:].islower():
             flags |= BooleanExpression.Flags.PascalCase
         else:
-            assert False, value  # pragma: no cover
+            raise AssertionError(value)  # pragma: no cover
 
-        self._stack.append(BooleanExpression(self.CreateRegion(ctx), False, flags))
+        self._stack.append(BooleanExpression(self.CreateRegion(ctx), False, flags))  # noqa: FBT003
 
     # ----------------------------------------------------------------------
-    def visitNone_expression(self, ctx: SimpleSchemaParser.None_expressionContext):
+    def visitNone_expression(self, ctx: SimpleSchemaParser.None_expressionContext) -> None:
         self._stack.append(NoneExpression(self.CreateRegion(ctx)))
 
     # ----------------------------------------------------------------------
-    def visitString_expression(self, ctx: SimpleSchemaParser.String_expressionContext):
+    def visitString_expression(self, ctx: SimpleSchemaParser.String_expressionContext) -> None:
         context = ctx
 
         while not isinstance(context, antlr4.TerminalNode):
             assert len(context.children) == 1
             context = context.children[0]
 
-        token = context.symbol  # type: ignore
+        token = context.symbol
         value = token.text
 
         # At the very least, we should have a beginning and ending quote
-        assert len(value) > 2
+        assert len(value) > 2  # noqa: PLR2004
 
-        if value.startswith('"""') or value.startswith("'''"):
+        if value.startswith(('"""', "'''")):
             quote_type = (
                 StringExpression.QuoteType.TripleDouble
                 if value.startswith('"""')
@@ -669,7 +670,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
                     elif line[index] == "\t":
                         whitespace += self.tab_width
                     else:
-                        raise AntlrException(
+                        raise AntlrError(
                             Errors.antlr_invalid_indentation,
                             self.filename,
                             ctx.start.line + line_offset,
@@ -686,8 +687,8 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
             lines = value.split("\n")
 
             initial_line = lines[0].rstrip()
-            if len(initial_line) != 3:
-                raise AntlrException(
+            if len(initial_line) != 3:  # noqa: PLR2004
+                raise AntlrError(
                     Errors.antlr_invalid_opening_token,
                     self.filename,
                     ctx.start.line,
@@ -696,8 +697,8 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
                 )
 
             final_line = lines[-1]
-            if len(TrimPrefix(final_line, len(lines))) != 3:
-                raise AntlrException(
+            if len(TrimPrefix(final_line, len(lines))) != 3:  # noqa: PLR2004
+                raise AntlrError(
                     Errors.antlr_invalid_closing_token,
                     self.filename,
                     ctx.start.line + len(lines) - 1,
@@ -716,19 +717,19 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
             value = value[1:-1].replace("\\'", "'")
             quote_type = StringExpression.QuoteType.Single
         else:
-            assert False, value  # pragma: no cover
+            raise AssertionError(value)  # pragma: no cover
 
         self._stack.append(StringExpression(self.CreateRegion(ctx), value, quote_type))
 
     # ----------------------------------------------------------------------
-    def visitList_expression(self, ctx: SimpleSchemaParser.List_expressionContext):
+    def visitList_expression(self, ctx: SimpleSchemaParser.List_expressionContext) -> None:
         children = self._GetChildren(ctx)
         assert all(isinstance(child, Expression) for child in children), children
 
         self._stack.append(ListExpression(self.CreateRegion(ctx), cast(list[Expression], children)))
 
     # ----------------------------------------------------------------------
-    def visitTuple_expression(self, ctx: SimpleSchemaParser.Tuple_expressionContext):
+    def visitTuple_expression(self, ctx: SimpleSchemaParser.Tuple_expressionContext) -> None:
         children = self._GetChildren(ctx)
         assert all(isinstance(child, Expression) for child in children), children
 
@@ -739,22 +740,19 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # |  Statements
     # |
     # ----------------------------------------------------------------------
-    def visitInclude_statement(self, ctx: SimpleSchemaParser.Include_statementContext):
+    def visitInclude_statement(self, ctx: SimpleSchemaParser.Include_statementContext) -> None:
         children = self._GetChildren(ctx)
         assert len(children) >= 1, children
 
         region = self.CreateRegion(ctx)
 
         # Does the filename have a root indicator?
-        if isinstance(children[0], Region):
-            root_indicator = children.pop(0)
-        else:
-            root_indicator = None
+        root_indicator = children.pop(0) if isinstance(children[0], Region) else None
 
         # Get the filename parts
         filename_parts: list[ParseIdentifier | TerminalElement[str]] = []
 
-        while children and isinstance(children[0], (ParseIdentifier, TerminalElement)):
+        while children and isinstance(children[0], ParseIdentifier | TerminalElement):
             filename_parts.append(children.pop(0))
 
         filename = TerminalElement[Path](
@@ -766,10 +764,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
             Path(*(part.value for part in filename_parts)),
         )
 
-        if children and isinstance(children[0], Region):
-            directory_indicator = children.pop(0)
-        else:
-            directory_indicator = None
+        directory_indicator = children.pop(0) if children and isinstance(children[0], Region) else None
 
         if len(children) == 1 and isinstance(children[0], str) and children[0] == "*":
             children = []
@@ -793,7 +788,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         )
 
     # ----------------------------------------------------------------------
-    def visitInclude_statement_from(self, ctx: SimpleSchemaParser.Include_statement_fromContext):
+    def visitInclude_statement_from(self, ctx: SimpleSchemaParser.Include_statement_fromContext) -> None:
         entire_region = self.CreateRegion(ctx)
 
         # Look for the root identifier
@@ -838,23 +833,24 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # ----------------------------------------------------------------------
     def visitInclude_statement_from_parent_dir(
         self, ctx: SimpleSchemaParser.Include_statement_from_parent_dirContext
-    ):
+    ) -> None:
         self._stack.append(TerminalElement[str](self.CreateRegion(ctx), ".."))
 
     # ----------------------------------------------------------------------
     def visitInclude_statement_import_star(
-        self, ctx: SimpleSchemaParser.Include_statement_import_starContext
-    ):
+        self,
+        ctx: SimpleSchemaParser.Include_statement_import_starContext,  # noqa: ARG002
+    ) -> None:
         self._stack.append("*")
 
     # ----------------------------------------------------------------------
     def visitInclude_statement_import_element(
         self, ctx: SimpleSchemaParser.Include_statement_import_elementContext
-    ):
+    ) -> None:
         children = self._GetChildren(ctx)
 
         num_children = len(children)
-        assert 1 <= num_children <= 2, children
+        assert 1 <= num_children <= 2, children  # noqa: PLR2004
 
         assert isinstance(children[0], ParseIdentifier), children
         element_name = cast(ParseIdentifier, children[0])
@@ -874,20 +870,21 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         )
 
     # ----------------------------------------------------------------------
-    def visitExtension_statement(self, ctx: SimpleSchemaParser.Extension_statementContext):
+    def visitExtension_statement(self, ctx: SimpleSchemaParser.Extension_statementContext) -> None:
         children = self._GetChildren(ctx)
 
         num_children = len(children)
-        assert 1 <= num_children <= 3, children
+        assert 1 <= num_children <= 3, children  # noqa: PLR2004
 
         assert isinstance(children[0], ParseIdentifier), children
         name = children[0].ToTerminalElement()
 
-        positional_args: Optional[list[Expression]] = None
-        keyword_args: Optional[list[ExtensionStatementKeywordArg]] = None
+        positional_args: list[Expression] | None = None
+        keyword_args: list[ExtensionStatementKeywordArg] | None = None
 
         for child in children[1:]:
-            assert isinstance(child, list) and child, child
+            assert isinstance(child, list), child
+            assert child
 
             if isinstance(child[0], ExtensionStatementKeywordArg):
                 assert keyword_args is None, (keyword_args, child)
@@ -908,7 +905,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # ----------------------------------------------------------------------
     def visitExtension_statement_positional_args(
         self, ctx: SimpleSchemaParser.Extension_statement_positional_argsContext
-    ):
+    ) -> None:
         children = self._GetChildren(ctx)
         assert all(isinstance(child, Expression) for child in children), children
 
@@ -917,7 +914,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # ----------------------------------------------------------------------
     def visitExtension_statement_keyword_args(
         self, ctx: SimpleSchemaParser.Extension_statement_keyword_argsContext
-    ):
+    ) -> None:
         children = self._GetChildren(ctx)
         assert all(isinstance(child, ExtensionStatementKeywordArg) for child in children), children
 
@@ -926,10 +923,10 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # ----------------------------------------------------------------------
     def visitExtension_statement_keyword_arg(
         self, ctx: SimpleSchemaParser.Extension_statement_keyword_argContext
-    ):
+    ) -> None:
         children = self._GetChildren(ctx)
 
-        assert len(children) == 2, children
+        assert len(children) == 2, children  # noqa: PLR2004
         assert isinstance(children[0], ParseIdentifier), children
         assert isinstance(children[1], Expression), children
 
@@ -942,9 +939,9 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         )
 
     # ----------------------------------------------------------------------
-    def visitParse_item_statement(self, ctx: SimpleSchemaParser.Parse_item_statementContext):
+    def visitParse_item_statement(self, ctx: SimpleSchemaParser.Parse_item_statementContext) -> None:
         children = self._GetChildren(ctx)
-        assert len(children) == 2
+        assert len(children) == 2  # noqa: PLR2004
 
         assert isinstance(children[0], ParseIdentifier), children
         assert isinstance(children[1], ParseType), children
@@ -952,7 +949,9 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         self._stack.append(ParseItemStatement(self.CreateRegion(ctx), children[0], children[1]))
 
     # ----------------------------------------------------------------------
-    def visitParse_structure_statement(self, ctx: SimpleSchemaParser.Parse_structure_statementContext):
+    def visitParse_structure_statement(
+        self, ctx: SimpleSchemaParser.Parse_structure_statementContext
+    ) -> None:
         children = self._GetChildren(ctx)
 
         num_children = len(children)
@@ -962,8 +961,8 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         name = children[0]
 
         bases: list[ParseIdentifierType] = []
-        cardinality: Optional[Cardinality] = None
-        metadata: Optional[Metadata] = None
+        cardinality: Cardinality | None = None
+        metadata: Metadata | None = None
         statements: list[Statement] = []
 
         for child in children[1:]:
@@ -971,7 +970,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
                 if isinstance(child, ParseIdentifierType):
                     bases.append(child)
                 else:
-                    raise Errors.SimpleSchemaGeneratorException(
+                    raise Errors.SimpleSchemaGeneratorError(
                         Errors.ParseStructureStatementInvalidBase.Create(child.region)
                     )
 
@@ -987,7 +986,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
                 statements.append(child)
 
             else:
-                assert False, child  # pragma: no cover
+                raise AssertionError(child)  # pragma: no cover  # noqa: TRY004
 
         region = self.CreateRegion(ctx)
 
@@ -1008,10 +1007,10 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # ----------------------------------------------------------------------
     def visitParse_structure_simplified_statement(
         self, ctx: SimpleSchemaParser.Parse_structure_simplified_statementContext
-    ):
+    ) -> None:
         children = self._GetChildren(ctx)
 
-        assert len(children) == 2, children
+        assert len(children) == 2, children  # noqa: PLR2004
         assert isinstance(children[0], ParseIdentifier), children
         assert isinstance(children[1], Metadata), children
 
@@ -1033,11 +1032,11 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
     # |  Types
     # |
     # ----------------------------------------------------------------------
-    def visitParse_type(self, ctx: SimpleSchemaParser.Parse_typeContext):
+    def visitParse_type(self, ctx: SimpleSchemaParser.Parse_typeContext) -> None:
         children = self._GetChildren(ctx)
 
         num_children = len(children)
-        assert 1 <= num_children <= 3, children
+        assert 1 <= num_children <= 3, children  # noqa: PLR2004
 
         assert callable(children[0]), children
         create_func = cast(
@@ -1045,15 +1044,15 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
                 [
                     Region,
                     Cardinality,
-                    Optional[Metadata],
+                    Metadata | None,
                 ],
                 ParseType,
             ],
             children[0],
         )
 
-        cardinality: Optional[Cardinality] = None
-        metadata: Optional[Metadata] = None
+        cardinality: Cardinality | None = None
+        metadata: Metadata | None = None
 
         for child in children[1:]:
             if isinstance(child, Cardinality):
@@ -1065,7 +1064,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
                 metadata = child
 
             else:
-                assert False, child  # pragma: no cover
+                raise AssertionError(child)  # pragma: no cover  # noqa: TRY004
 
         region = self.CreateRegion(ctx)
 
@@ -1075,12 +1074,12 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         self._stack.append(create_func(region, cardinality, metadata))
 
     # ----------------------------------------------------------------------
-    def visitParse_identifier_type(self, ctx: SimpleSchemaParser.Parse_identifier_typeContext):
+    def visitParse_identifier_type(self, ctx: SimpleSchemaParser.Parse_identifier_typeContext) -> None:
         children = self._GetChildren(ctx)
         assert len(children) >= 1, children
 
         identifiers: list[ParseIdentifier] = []
-        is_global: Optional[Region] = None
+        is_global: Region | None = None
 
         for child_index, child in enumerate(children):
             if isinstance(child, ParseIdentifier):
@@ -1092,7 +1091,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
                 is_global = child
 
             else:
-                assert False, child  # pragma: no cover
+                raise AssertionError(child)  # pragma: no cover  # noqa: TRY004
 
         assert identifiers, children
 
@@ -1107,13 +1106,15 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         )
 
     # ----------------------------------------------------------------------
-    def visitParse_identifier_type_global(self, ctx: SimpleSchemaParser.Parse_identifier_type_globalContext):
+    def visitParse_identifier_type_global(
+        self, ctx: SimpleSchemaParser.Parse_identifier_type_globalContext
+    ) -> None:
         # It is enough to add a region value, as that will signal that the modifier exists when
         # creating the type.
         self._stack.append(self.CreateRegion(ctx))
 
     # ----------------------------------------------------------------------
-    def visitParse_variant_type(self, ctx: SimpleSchemaParser.Parse_variant_typeContext):
+    def visitParse_variant_type(self, ctx: SimpleSchemaParser.Parse_variant_typeContext) -> None:
         children = self._GetChildren(ctx)
 
         assert children
@@ -1129,7 +1130,7 @@ class _SimpleSchemaVisitor(SimpleSchemaVisitor, _VisitorMixin):
         )
 
     # ----------------------------------------------------------------------
-    def visitParse_tuple_type(self, ctx: SimpleSchemaParser.Parse_tuple_typeContext):
+    def visitParse_tuple_type(self, ctx: SimpleSchemaParser.Parse_tuple_typeContext) -> None:
         children = self._GetChildren(ctx)
 
         assert children
@@ -1161,7 +1162,7 @@ class _PrepareTaskFuncType(Protocol):
     ) -> tuple[int, ExecuteTasks.YieldQueueExecutorTypes.ExecuteFuncType]: ...
 
 
-def _CreateIncludeStatementFuncFactory(
+def _CreateIncludeStatementFuncFactory(  # noqa: C901, PLR0915
     file_extensions: list[str],
     workspace_names: list[Path],
     results: dict[Path, dict[PurePath, None | Exception | RootStatement]],
@@ -1174,7 +1175,7 @@ def _CreateIncludeStatementFuncFactory(
         path: Path,
         *,
         allow_directory: bool,
-    ) -> Optional[Path]:
+    ) -> Optional[Path]:  # noqa: UP007
         path = path.resolve()
 
         if path.is_file() or (allow_directory and path.is_dir()):
@@ -1188,17 +1189,17 @@ def _CreateIncludeStatementFuncFactory(
         return None
 
     # ----------------------------------------------------------------------
-    def Impl(
+    def Impl(  # noqa: C901, PLR0915
         include_path: Path,
         region: Region,
-        root_indicator: Optional[Region],
-        directory_indicator: Optional[Region],
+        root_indicator: Region | None,
+        directory_indicator: Region | None,
         filename_or_directory: TerminalElement[Path],
         items: list[ParseIncludeStatementItem],
         *,
         is_star_include: bool,
     ) -> ParseIncludeStatement:
-        root: Optional[Path] = None
+        root: Path | None = None
 
         search_paths: list[list[Path]] = []
 
@@ -1219,27 +1220,27 @@ def _CreateIncludeStatementFuncFactory(
 
         if root is None:
             if directory_indicator is not None:
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Errors.ParseCreateIncludeStatementInvalidDirectory.Create(
                         filename_or_directory.region,
                         filename_or_directory.value,
                     ),
                 )
-            else:
-                raise Errors.SimpleSchemaGeneratorException(
-                    Errors.ParseCreateIncludeStatementInvalidFilename.Create(
-                        filename_or_directory.region,
-                        filename_or_directory.value,
-                    ),
-                )
 
-        filename: Optional[Path] = None
-        filename_region: Optional[Region] = None
-        include_type: Optional[ParseIncludeStatementType] = None
+            raise Errors.SimpleSchemaGeneratorError(
+                Errors.ParseCreateIncludeStatementInvalidFilename.Create(
+                    filename_or_directory.region,
+                    filename_or_directory.value,
+                ),
+            )
+
+        filename: Path | None = None
+        filename_region: Region | None = None
+        include_type: ParseIncludeStatementType | None = None
 
         if root.is_dir():
             if is_star_include:
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Errors.ParseCreateIncludeStatementDirWithStar.Create(region, root)
                 )
 
@@ -1255,7 +1256,7 @@ def _CreateIncludeStatementFuncFactory(
             )
 
             if filename is None:
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Errors.ParseCreateIncludeStatementInvalidFilename.Create(
                         filename_region,
                         items[0].element_name.value,
@@ -1281,7 +1282,7 @@ def _CreateIncludeStatementFuncFactory(
         assert include_type is not None
 
         # Get the workspace associated with the file
-        workspace: Optional[Path] = None
+        workspace: Path | None = None
 
         for workspace_name in workspace_names:
             if PathEx.IsDescendant(filename, workspace_name):
@@ -1289,7 +1290,7 @@ def _CreateIncludeStatementFuncFactory(
                 break
 
         if workspace is None:
-            raise Errors.SimpleSchemaGeneratorException(
+            raise Errors.SimpleSchemaGeneratorError(
                 Errors.ParseCreateIncludeStatementInvalidWorkspace.Create(region, filename)
             )
 
@@ -1317,7 +1318,7 @@ def _CreateIncludeStatementFuncFactory(
 
             enqueue_func(
                 str(filename),
-                lambda on_simple_status_func: prepare_task_func(
+                lambda _: prepare_task_func(
                     workspace,
                     relative_path,
                     GetContent,

@@ -21,7 +21,7 @@ import yaml
 from contextlib import contextmanager
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Iterable, Iterator, Type as PythonType
+from typing import Any, Iterable, Iterator
 from unittest.mock import Mock
 from weakref import ref
 
@@ -58,7 +58,7 @@ class TerminalElementVisitor(ElementVisitor):
 
     # ----------------------------------------------------------------------
     def __init__(self) -> None:
-        self._terminal_element_lookup_map: dict[PythonType, bool] = {}
+        self._terminal_element_lookup_map: dict[type, bool] = {}
 
     # ----------------------------------------------------------------------
     @contextmanager
@@ -123,8 +123,8 @@ class TerminalElementVisitor(ElementVisitor):
         is_terminal_element = self._terminal_element_lookup_map.get(element.__class__, None)
         if is_terminal_element is None:
             is_terminal_element = (
-                type(element)._GenerateAcceptDetails is Element._GenerateAcceptDetails  # pylint: disable=protected-access
-                and type(element)._GetAcceptChildren is Element._GetAcceptChildren  # pylint: disable=protected-access
+                type(element)._GenerateAcceptDetails is Element._GenerateAcceptDetails  # noqa: SLF001
+                and type(element)._GetAcceptChildren is Element._GetAcceptChildren  # noqa: SLF001
             )
 
             self._terminal_element_lookup_map[element.__class__] = is_terminal_element
@@ -182,7 +182,7 @@ class YamlVisitor(TerminalElementVisitor):
         *,
         include_disabled_status: bool = False,
     ) -> None:
-        super(YamlVisitor, self).__init__()
+        super().__init__()
 
         self.include_disabled_status = include_disabled_status
 
@@ -259,7 +259,7 @@ class YamlVisitor(TerminalElementVisitor):
 
         if not isinstance(element_or_elements, list):
             assert len(items) == 1
-            items = items[0]  # type: ignore
+            items = items[0]
 
         self._stack[-1][member_name] = items
 
@@ -408,7 +408,7 @@ class _MonkeyPatchedDumper(object):
 
             # ----------------------------------------------------------------------
             def __init__(self, *args, **kwargs):
-                super(CustomDumper, self).__init__(
+                super().__init__(
                     *args,
                     **{
                         **kwargs,
@@ -453,7 +453,7 @@ class _SingleElementVisitor(ElementVisitor):
 
     # ----------------------------------------------------------------------
     def __init__(self, element_under_test: Element) -> None:
-        super(_SingleElementVisitor, self).__init__()
+        super().__init__()
 
         self._element_under_test = element_under_test
         self.queue: list[Element | tuple[str, Element | list[Element]]] = []
@@ -502,7 +502,7 @@ class _SingleElementVisitor(ElementVisitor):
         if index != -1 and index + len("__") + 1 < len(method_name):
             name = method_name[index + len("__") :]
             return types.MethodType(
-                lambda self, *args, name=name, **kwargs: self._DefaultDetailMethod(  # pylint: disable=protected-access
+                lambda self, *args, name=name, **kwargs: self._DefaultDetailMethod(  # noqa: SLF001
                     name, *args, **kwargs
                 ),
                 self,

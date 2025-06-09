@@ -27,11 +27,11 @@ class Location:
     column: int
 
     # ----------------------------------------------------------------------
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.line < 1:
-            raise ValueError(f"Invalid line value: {self.line}")
+            raise ValueError(f"Invalid line value: {self.line}")  # noqa: EM102, TRY003
         if self.column < 1:
-            raise ValueError(f"Invalid column value: {self.column}")
+            raise ValueError(f"Invalid column value: {self.column}")  # noqa: EM102, TRY003
 
     # ----------------------------------------------------------------------
     def __str__(self) -> str:
@@ -54,22 +54,22 @@ class Location:
         return 0
 
     # ----------------------------------------------------------------------
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         return isinstance(other, Location) and self.__class__.Compare(self, other) == 0
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other: object) -> bool:
         return not isinstance(other, Location) or self.__class__.Compare(self, other) != 0
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: object) -> bool:
         return isinstance(other, Location) and self.__class__.Compare(self, other) < 0
 
-    def __le__(self, other) -> bool:
+    def __le__(self, other: object) -> bool:
         return isinstance(other, Location) and self.__class__.Compare(self, other) <= 0
 
-    def __gt__(self, other) -> bool:
+    def __gt__(self, other: object) -> bool:
         return isinstance(other, Location) and self.__class__.Compare(self, other) > 0
 
-    def __ge__(self, other) -> bool:
+    def __ge__(self, other: object) -> bool:
         return isinstance(other, Location) and self.__class__.Compare(self, other) >= 0
 
     # ----------------------------------------------------------------------

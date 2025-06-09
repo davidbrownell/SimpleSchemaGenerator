@@ -24,9 +24,9 @@ import pytest
 from dbrownell_Common.ContextlibEx import ExitStack
 from dbrownell_Common import PathEx
 
-from SimpleSchemaGenerator.Common.Error import SimpleSchemaGeneratorException
+from SimpleSchemaGenerator.Common.Error import SimpleSchemaGeneratorError
 from SimpleSchemaGenerator.Common.Region import Region
-from SimpleSchemaGenerator.Errors import SimpleSchemaGeneratorException
+from SimpleSchemaGenerator.Errors import SimpleSchemaGeneratorError
 from SimpleSchemaGenerator.Schema.Elements.Common.Cardinality import Cardinality
 from SimpleSchemaGenerator.Schema.Elements.Expressions.IntegerExpression import IntegerExpression
 from SimpleSchemaGenerator.Schema.Elements.Expressions.ListExpression import ListExpression
@@ -241,7 +241,7 @@ def test_InvalidRange():
     max_region = Region.Create(Path("one"), 1, 2, 3, 4)
 
     with pytest.raises(
-        SimpleSchemaGeneratorException,
+        SimpleSchemaGeneratorError,
         match=re.escape("Invalid cardinality (100 > 4). (one, Ln 1, Col 2 -> Ln 3, Col 4)"),
     ) as exec_info:
         Cardinality(Mock(), IntegerExpression(Mock(), 100), IntegerExpression(max_region, 4))
@@ -313,7 +313,7 @@ class TestValidate:
         c.Validate(ListExpression(Mock(), [IntegerExpression(Mock(), 1), IntegerExpression(Mock(), 2)]))
 
         with pytest.raises(
-            SimpleSchemaGeneratorException,
+            SimpleSchemaGeneratorError,
             match=re.escape(
                 "At least 2 items were expected (1 item was found). (filename2, Ln 1, Col 2 -> Ln 3, Col 4)"
             ),

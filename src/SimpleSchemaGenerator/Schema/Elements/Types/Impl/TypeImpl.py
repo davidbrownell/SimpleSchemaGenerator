@@ -16,11 +16,10 @@
 from abc import abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Any
 
-from ...Common.Element import Element
-from ...Common.UniqueNameTrait import UniqueNameTrait
-from ...Expressions.Expression import Expression
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
+from SimpleSchemaGenerator.Schema.Elements.Common.UniqueNameTrait import UniqueNameTrait
+from SimpleSchemaGenerator.Schema.Elements.Expressions.Expression import Expression
 
 
 # ----------------------------------------------------------------------
@@ -37,9 +36,9 @@ class TypeImpl(UniqueNameTrait, Element):
     @abstractmethod
     def ToPythonInstance(
         self,
-        expression_or_value: Expression | Any,
-    ) -> Any:
-        raise Exception("Abstract method")  # pragma: no cover
+        expression_or_value: Expression | object,
+    ) -> object:
+        raise Exception("Abstract method")  # pragma: no cover  # noqa: EM101, TRY003
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
@@ -47,4 +46,4 @@ class TypeImpl(UniqueNameTrait, Element):
     @property
     @abstractmethod
     def _display_type(self) -> str:
-        raise Exception("Abstract property")  # pragma: no cover
+        raise Exception("Abstract property")  # pragma: no cover  # noqa: EM101, TRY003

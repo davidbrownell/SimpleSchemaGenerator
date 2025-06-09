@@ -23,7 +23,7 @@ import pytest
 from dbrownell_Common.ContextlibEx import ExitStack
 from dbrownell_Common import PathEx
 
-from SimpleSchemaGenerator.Errors import SimpleSchemaGeneratorException
+from SimpleSchemaGenerator.Errors import SimpleSchemaGeneratorError
 from SimpleSchemaGenerator.Common.Region import *
 from SimpleSchemaGenerator.Schema.Elements.Common.Metadata import *
 
@@ -91,7 +91,7 @@ def test_ErrorDuplicateKey():
     second_region = Region.Create(Path("two"), 2, 4, 6, 8)
 
     with pytest.raises(
-        SimpleSchemaGeneratorException,
+        SimpleSchemaGeneratorError,
         match=re.escape(
             "The metadata item 'foo' was already provided at one, Ln 1, Col 2 -> Ln 3, Col 4. (two, Ln 2, Col 4 -> Ln 6, Col 8)"
         ),

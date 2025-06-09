@@ -62,7 +62,7 @@ def test_Create():
 # ----------------------------------------------------------------------
 def test_ErrorCreateWithoutEnoughTypes():
     with pytest.raises(
-        Errors.SimpleSchemaGeneratorException,
+        Errors.SimpleSchemaGeneratorError,
         match=re.escape("At least two types must be provided. (filename, Ln 1, Col 2 -> Ln 3, Col 4)"),
     ):
         VariantTypeDefinition(Region.Create(Path("filename"), 1, 2, 3, 4), [Mock()])
@@ -71,7 +71,7 @@ def test_ErrorCreateWithoutEnoughTypes():
 # ----------------------------------------------------------------------
 def test_ErrorNestedVariant():
     with pytest.raises(
-        Errors.SimpleSchemaGeneratorException,
+        Errors.SimpleSchemaGeneratorError,
         match=re.escape(
             "Variant types may not be nested within variant types. (filename, Ln 11, Col 22 -> Ln 33, Col 44)"
         ),

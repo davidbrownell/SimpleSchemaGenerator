@@ -43,15 +43,15 @@ class MyEnum(Enum):
 @dataclass(frozen=True)
 class MyTypeDefinition(TypeDefinition):
     NAME: ClassVar[str] = "MyTypeDefinition"
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (str,)
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (str,)
 
     boolean_value: bool = field(default=False)
     int_value: int = field(default=0)
     float_value: float = field(default=0.0)
     string_value: str = field(default="")
 
-    optional_value: Optional[int] = field(default=None)
-    variant_value: Union[int, str] = field(default=0)
+    optional_value: int | None = field(default=None)
+    variant_value: int | str = field(default=0)
     tuple_value: tuple[int, str] = field(default_factory=lambda: (0, ""))
     enum_value: MyEnum = field(default=MyEnum.Value1)
 
@@ -93,9 +93,9 @@ def test_ConstructException():
     @dataclass(frozen=True)
     class TestTypeDefinition(TypeDefinition):
         NAME: ClassVar[str] = "TestTypeDefinition"
-        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (str,)
+        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (str,)
 
-        def __post_init__(self):
+        def __post_init__(self) -> None:
             raise Exception("This is the exception")
 
         @override
@@ -112,15 +112,15 @@ def test_ConstructException():
 
 
 # ----------------------------------------------------------------------
-def test_ConstructSimpleSchemaGeneratorException():
+def test_ConstructSimpleSchemaGeneratorError():
     # ----------------------------------------------------------------------
     @dataclass(frozen=True)
     class TestTypeDefinition(TypeDefinition):
         NAME: ClassVar[str] = "TestTypeDefinition"
-        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (str,)
+        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (str,)
 
-        def __post_init__(self):
-            raise Errors.SimpleSchemaGeneratorException(
+        def __post_init__(self) -> None:
+            raise Errors.SimpleSchemaGeneratorError(
                 Error.Create(
                     Exception("This is a test."),
                     region=Region.Create(Path("filename1"), 1, 2, 3, 4),
@@ -154,7 +154,7 @@ def test_ErrorNoName():
     # ----------------------------------------------------------------------
     @dataclass(frozen=True)
     class BadTypeDefinition(TypeDefinition):
-        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (str,)
+        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (str,)
 
         @override
         def _ToPythonInstanceImpl(
@@ -205,19 +205,19 @@ def test_ErrorToPythonInstanceWrongType():
 
 
 # ----------------------------------------------------------------------
-def test_ErrorToPythonInstanceImplSimpleSchemaGeneratorException():
+def test_ErrorToPythonInstanceImplSimpleSchemaGeneratorError():
     # ----------------------------------------------------------------------
     @dataclass(frozen=True)
     class BadTypeDefinition(TypeDefinition):
         NAME: ClassVar[str] = "BadTypeDefinition"
-        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (str,)
+        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (str,)
 
         @override
         def _ToPythonInstanceImpl(
             self,
             value: str,
         ) -> str:
-            raise Errors.SimpleSchemaGeneratorException(Error.Create(Exception("This is a test.")))
+            raise Errors.SimpleSchemaGeneratorError(Error.Create(Exception("This is a test.")))
 
     # ----------------------------------------------------------------------
 
@@ -239,7 +239,7 @@ def test_ToPythonInstance():
     )
 
     with pytest.raises(
-        Errors.SimpleSchemaGeneratorException,
+        Errors.SimpleSchemaGeneratorError,
         match=re.escape(
             "A 'int' value cannot be converted to a 'MyTypeDefinition' instance. (filename, Ln 1, Col 2 -> Ln 3, Col 4)"
         ),
@@ -253,7 +253,7 @@ def test_ToPythonInstanceException():
     @dataclass(frozen=True)
     class TestTypeDefinition(TypeDefinition):
         NAME: ClassVar[str] = "TestTypeDefinition"
-        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (int,)
+        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (int,)
 
         @override
         def _ToPythonInstanceImpl(
@@ -274,16 +274,16 @@ def test_ToPythonInstanceException():
 
 
 # ----------------------------------------------------------------------
-def test_ToPythonInstanceSimpleSchemaGeneratorException():
+def test_ToPythonInstanceSimpleSchemaGeneratorError():
     # ----------------------------------------------------------------------
     @dataclass(frozen=True)
     class TestTypeDefinition(TypeDefinition):
         NAME: ClassVar[str] = "TestTypeDefinition"
-        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (int,)
+        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (int,)
 
         @override
         def _ToPythonInstanceImpl(self, *args, **kwargs):
-            raise Errors.SimpleSchemaGeneratorException(
+            raise Errors.SimpleSchemaGeneratorError(
                 Error.Create(
                     Exception("This is a test."),
                     region=Region.Create(Path("filename1"), 1, 2, 3, 4),
@@ -440,7 +440,7 @@ def test_CreateFromMetadataErrorUnsupportedType():
     @dataclass(frozen=True)
     class BadTypeDefinition(TypeDefinition):
         NAME: ClassVar[str] = "BadTypeDefinition"
-        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (object,)
+        SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (object,)
 
         bad_value: MyObject
 

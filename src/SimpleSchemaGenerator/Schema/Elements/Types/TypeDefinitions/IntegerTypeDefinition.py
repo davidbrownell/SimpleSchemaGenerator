@@ -15,12 +15,12 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import ClassVar, Optional, Type as PythonType
+from typing import ClassVar
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .TypeDefinition import TypeDefinition
-from ..... import Errors
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -30,7 +30,7 @@ class IntegerTypeDefinition(TypeDefinition):
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "Integer"
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (int,)
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (int,)
 
     # ----------------------------------------------------------------------
     # |
@@ -49,16 +49,16 @@ class IntegerTypeDefinition(TypeDefinition):
     # |  Public Data
     # |
     # ----------------------------------------------------------------------
-    min: Optional[int] = field(default=None)
-    max: Optional[int] = field(default=None)
-    bits: Optional[Bits] = field(default=None)
+    min: int | None = field(default=None)
+    max: int | None = field(default=None)
+    bits: Bits | None = field(default=None)
 
     # ----------------------------------------------------------------------
     # |
     # |  Public Methods
     # |
     # ----------------------------------------------------------------------
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.min is not None and self.max is not None and self.min > self.max:
             raise ValueError(Errors.integer_typedef_min_max_invalid.format(min=self.min, max=self.max))
 
@@ -77,7 +77,7 @@ class IntegerTypeDefinition(TypeDefinition):
         if self.max is not None:
             constraints.append(f"<= {self.max}")
 
-        result = super(IntegerTypeDefinition, self)._display_type
+        result = super()._display_type
 
         if constraints:
             result += " {{{}}}".format(", ".join(constraints))

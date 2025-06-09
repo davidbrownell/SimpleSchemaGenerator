@@ -19,7 +19,7 @@ import textwrap
 
 from contextlib import contextmanager
 from pathlib import Path, PurePath
-from typing import Callable, cast, Iterator, Optional
+from typing import Callable, cast, Iterator
 
 import pytest
 
@@ -153,7 +153,7 @@ class TestParsing:
         snapshot,
         *,
         expected_num_results: int = 1,
-        yaml_content_decoration_func: Optional[Callable[[str], str]] = None,
+        yaml_content_decoration_func: Callable[[str], str] | None = None,
     ) -> None:
         # Parse the content
         root = _ExecuteSingleFile(path, expected_num_results=expected_num_results)
@@ -569,7 +569,7 @@ def test_ErrorInvalidStructureBase():
 class _RegionVisitor(TerminalElementVisitor):
     # ----------------------------------------------------------------------
     def __init__(self) -> None:
-        super(_RegionVisitor, self).__init__()
+        super().__init__()
         self._content: list[list[str]] = []
 
     # ----------------------------------------------------------------------
@@ -643,7 +643,7 @@ class _RegionVisitor(TerminalElementVisitor):
         elif element.flags & BooleanExpression.Flags.OnOff:
             value = "on" if element.value else "off"
         else:
-            assert False, (element.flags, element.value)
+            raise AssertionError(element.flags, element.value)
 
         if element.flags & BooleanExpression.Flags.LowerCase:
             pass  # Nothing to do as the value is already lowercase
@@ -652,7 +652,7 @@ class _RegionVisitor(TerminalElementVisitor):
         elif element.flags & BooleanExpression.Flags.PascalCase:
             value = value.capitalize()
         else:
-            assert False, (element.flags, element.value)
+            raise AssertionError(element.flags, element.value)
 
         self._PopulateLine(element, value)
         yield VisitResult.Continue
@@ -700,7 +700,7 @@ class _RegionVisitor(TerminalElementVisitor):
             elif element.quote_type == StringExpression.QuoteType.TripleDouble:
                 quote = '"""'
             else:
-                assert False, element.quote_type  # pragma: no cover
+                raise AssertionError(element.quote_type)  # pragma: no cover
 
             # The first character of the token opening will already appear in the line, as we ensure
             # that the column starting point has the correct number of characters in OnElement.
@@ -735,7 +735,7 @@ class _RegionVisitor(TerminalElementVisitor):
             elif element.quote_type == StringExpression.QuoteType.Double:
                 value = '"{}"'.format(element.value.replace('"', '\\"'))
             else:
-                assert False, element.quote_type  # pragma: no cover
+                raise AssertionError(element.quote_type)  # pragma: no cover
 
             self._PopulateLine(element, value)
 
@@ -792,7 +792,7 @@ def _Execute(
     quiet: bool = False,
     raise_if_single_exception: bool = True,
     expected_result: int = 0,
-    expected_content: Optional[str] = None,
+    expected_content: str | None = None,
 ) -> dict[
     Path,  # workspace root
     dict[

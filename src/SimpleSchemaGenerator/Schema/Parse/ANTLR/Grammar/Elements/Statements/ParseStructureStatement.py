@@ -14,16 +14,18 @@
 # """Contains the ParseStructureStatement object."""
 
 from dataclasses import dataclass
-from typing import cast, Optional
+from typing import cast
 
 from dbrownell_Common.Types import override
 
-from ..Common.ParseIdentifier import ParseIdentifier
-from ..Types.ParseIdentifierType import ParseIdentifierType
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Common.ParseIdentifier import ParseIdentifier
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Types.ParseIdentifierType import (
+    ParseIdentifierType,
+)
 
-from ......Elements.Common.Cardinality import Cardinality
-from ......Elements.Common.Metadata import Metadata
-from ......Elements.Statements.Statement import Element, Statement
+from SimpleSchemaGenerator.Schema.Elements.Common.Cardinality import Cardinality
+from SimpleSchemaGenerator.Schema.Elements.Common.Metadata import Metadata
+from SimpleSchemaGenerator.Schema.Elements.Statements.Statement import Element, Statement
 
 
 # ----------------------------------------------------------------------
@@ -33,9 +35,9 @@ class ParseStructureStatement(Statement):
 
     # ----------------------------------------------------------------------
     name: ParseIdentifier
-    bases: Optional[list[ParseIdentifierType]]
+    bases: list[ParseIdentifierType] | None
     cardinality: Cardinality
-    unresolved_metadata: Optional[Metadata]
+    unresolved_metadata: Metadata | None
     children: list[Statement]  # Can be empty
 
     # ----------------------------------------------------------------------
@@ -43,29 +45,29 @@ class ParseStructureStatement(Statement):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield from super(ParseStructureStatement, self)._GenerateAcceptDetails()
+        yield from super()._GenerateAcceptDetails()
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "name", self.name
         )
 
         if self.bases:
-            yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+            yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
                 "bases", cast(list[Element], self.bases)
             )
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "cardinality", self.cardinality
         )
 
         if self.unresolved_metadata:
-            yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+            yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
                 "unresolved_metadata", self.unresolved_metadata
             )
 
     # ----------------------------------------------------------------------
     @override
     def _GetAcceptChildren(self) -> Element._GetAcceptChildrenResultType:
-        return Element._GetAcceptChildrenResult(  # pylint: disable=protected-access
+        return Element._GetAcceptChildrenResult(  # noqa: SLF001
             "children", cast(list[Element], self.children)
         )

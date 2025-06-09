@@ -22,7 +22,6 @@ from enum import Enum
 from functools import singledispatch, singledispatchmethod
 from io import StringIO
 from pathlib import Path
-from typing import Optional, Type as PythonType
 
 from .Location import Location
 from .Region import Region
@@ -66,10 +65,10 @@ class Error:
     # ----------------------------------------------------------------------
     @Create.register
     @classmethod
-    def _(
+    def _(  # noqa: ANN206
         cls,
         ex: Exception,
-        region: Optional[Region] = None,
+        region: Region | None = None,
         *,
         include_callstack: bool = True,
     ):  # -> "Error":
@@ -130,7 +129,7 @@ class Error:
 
 # ----------------------------------------------------------------------
 @dataclass
-class SimpleSchemaGeneratorException(Exception):
+class SimpleSchemaGeneratorError(Exception):
     """Exception raised by functionality in SimpleSchemaGenerator."""
 
     # ----------------------------------------------------------------------
@@ -142,7 +141,7 @@ class SimpleSchemaGeneratorException(Exception):
         self,
         error: Error,
     ) -> None:
-        super(SimpleSchemaGeneratorException, self).__init__(str(error))
+        super().__init__(str(error))
 
         object.__setattr__(
             self,
@@ -164,8 +163,8 @@ class SimpleSchemaGeneratorException(Exception):
 # ----------------------------------------------------------------------
 def CreateErrorType(
     message_template: str,
-    **args: PythonType,
-) -> PythonType[Error]:
+    **args: type,
+) -> type[Error]:
     dynamic_fields_class = make_dataclass(
         "DynamicFields",
         args.items(),
@@ -182,8 +181,8 @@ def CreateErrorType(
         message: str = field(init=False)
 
         # ----------------------------------------------------------------------
-        def __post_init__(self, *args, **kwargs):
-            super(NewError, self).__post_init__(*args, **kwargs)
+        def __post_init__(self, *args, **kwargs) -> None:
+            super().__post_init__(*args, **kwargs)
 
             object.__setattr__(
                 self,
@@ -202,7 +201,7 @@ def CreateErrorType(
 # ----------------------------------------------------------------------
 # ----------------------------------------------------------------------
 @singledispatch
-def _ArgToString(value) -> str:
+def _ArgToString(value: object) -> str:
     return str(value)
 
 

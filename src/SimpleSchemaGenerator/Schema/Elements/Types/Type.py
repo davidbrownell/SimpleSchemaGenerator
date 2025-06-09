@@ -13,11 +13,12 @@
 # ----------------------------------------------------------------------
 """Contains the Type object"""
 
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field, InitVar
 from enum import auto, Enum
 from types import NoneType
-from typing import Any, cast, Iterator, Optional, Union
+from typing import cast, Union
 from weakref import ref, ReferenceType as WeakReferenceType
 
 from dbrownell_Common.Types import extension, override
@@ -27,16 +28,16 @@ from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import Element
 from .Impl.TypeImpl import TypeImpl
 from .TypeDefinitions.TypeDefinition import TypeDefinition
 from .TypeDefinitions.VariantTypeDefinition import VariantTypeDefinition
-from ..Common.Cardinality import Cardinality
-from ..Common.Metadata import Metadata
-from ..Common.TerminalElement import TerminalElement
-from ..Common.Visibility import Visibility, VisibilityTrait
-from ..Expressions.Expression import Expression
-from ..Expressions.ListExpression import ListExpression
-from ..Expressions.NoneExpression import NoneExpression
-from ....Common.Error import Error
-from ....Common.Region import Region
-from .... import Errors
+from SimpleSchemaGenerator.Schema.Elements.Common.Cardinality import Cardinality
+from SimpleSchemaGenerator.Schema.Elements.Common.Metadata import Metadata
+from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import TerminalElement
+from SimpleSchemaGenerator.Schema.Elements.Common.Visibility import Visibility, VisibilityTrait
+from SimpleSchemaGenerator.Schema.Elements.Expressions.Expression import Expression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.ListExpression import ListExpression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.NoneExpression import NoneExpression
+from SimpleSchemaGenerator.Common.Error import Error
+from SimpleSchemaGenerator.Common.Region import Region
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -68,20 +69,23 @@ class Type(VisibilityTrait, TypeImpl):
 
     cardinality: Cardinality
 
-    _metadata: Union[
-        Optional[Metadata],  # Valid before `ResolveMetadata` is called
-        dict[  # Valid after `ResolveMetadata` is called
+    _metadata: (
+        # Valid before `ResolveMetadata` is called
+        Metadata
+        | None
+        # Valid after `ResolveMetadata` is called
+        | dict[
             str,
-            Union[
-                TerminalElement,  # Metadata item that was recognized and resolved
-                Expression,  # Metadata item that was not recognized and therefore not resolved
-            ],
-        ],
-    ]
+            (
+                TerminalElement  # Metadata item that was recognized and resolved
+                | Expression  # Metadata item that was not recognized and therefore not resolved
+            ),
+        ]
+    )
 
     category: Category = field(init=False)
 
-    _is_shared: Optional[bool] = field(init=False, default=None)  # Valid after `ResolvedIsShared` is called
+    _is_shared: bool | None = field(init=False, default=None)  # Valid after `ResolvedIsShared` is called
 
     is_source: InitVar[bool] = field(kw_only=True, default=False)
 
@@ -102,9 +106,9 @@ class Type(VisibilityTrait, TypeImpl):
         name: TerminalElement[str],
         the_type: Union[TypeDefinition, "Type"],
         cardinality: Cardinality,
-        metadata: Optional[Metadata],
+        metadata: Metadata | None,
         *,
-        region: Optional[Region] = None,
+        region: Region | None = None,
         suppress_region_in_exceptions: bool = False,
     ) -> "Type":
         if metadata and not metadata.items:
@@ -122,7 +126,7 @@ class Type(VisibilityTrait, TypeImpl):
                 # Ensure that all Types ultimately resolve to a Type with a single cardinality that
                 # points to a TypeDefinition. This will let us support the `::item` syntax, which
                 # allows access to a single element that was defined within the context of an array.
-                referenced_type = cls(  # type: ignore
+                referenced_type = cls(
                     region,
                     TerminalElement[Visibility](the_type.region, Visibility.Private),
                     the_type,
@@ -138,7 +142,7 @@ class Type(VisibilityTrait, TypeImpl):
         else:
             is_source = False
 
-            referenced_type = the_type  # type: ignore
+            referenced_type = the_type
 
         return cls(
             region,
@@ -170,7 +174,7 @@ class Type(VisibilityTrait, TypeImpl):
             if self.cardinality.is_optional and isinstance(self.type, Type):
                 with self.type.Resolve() as resolved_type:
                     if resolved_type.cardinality.is_optional:
-                        raise Errors.SimpleSchemaGeneratorException(
+                        raise Errors.SimpleSchemaGeneratorError(
                             Errors.TypeOptionalToOptional.Create(self.cardinality.region)
                         )
 
@@ -182,26 +186,26 @@ class Type(VisibilityTrait, TypeImpl):
         return isinstance(self._metadata, dict)
 
     @property
-    def unresolved_metadata(self) -> Optional[Metadata]:
+    def unresolved_metadata(self) -> Metadata | None:
         if isinstance(self._metadata, dict):
-            raise RuntimeError("Metadata has been resolved.")
+            raise TypeError("Metadata has been resolved.")  # noqa: EM101, TRY003
 
         return self._metadata
 
     @property
-    def resolved_metadata(self) -> dict[str, Union[TerminalElement, Expression]]:
+    def resolved_metadata(self) -> dict[str, TerminalElement | Expression]:
         if self._metadata is None or isinstance(self._metadata, Metadata):
-            raise RuntimeError("Metadata has not been resolved.")
+            raise RuntimeError("Metadata has not been resolved.")  # noqa: EM101, TRY003
 
         return self._metadata
 
     # ----------------------------------------------------------------------
     def ResolveMetadata(
         self,
-        metadata: dict[str, Union[TerminalElement, Expression]],
+        metadata: dict[str, TerminalElement | Expression],
     ) -> None:
         if self.is_metadata_resolved:
-            raise RuntimeError("Metadata has already been resolved.")
+            raise RuntimeError("Metadata has already been resolved.")  # noqa: EM101, TRY003
 
         object.__setattr__(self, "_metadata", metadata)
 
@@ -213,17 +217,17 @@ class Type(VisibilityTrait, TypeImpl):
     @property
     def is_shared(self) -> bool:
         if self._is_shared is None:
-            raise RuntimeError("Shared status has not been resolved.")
+            raise RuntimeError("Shared status has not been resolved.")  # noqa: EM101, TRY003
 
         return self._is_shared
 
     # ----------------------------------------------------------------------
     def ResolveIsShared(
         self,
-        is_shared: bool,
+        is_shared: bool,  # noqa: FBT001
     ) -> None:
         if self.is_shared_resolved:
-            raise RuntimeError("Shared status has already been resolved.")
+            raise RuntimeError("Shared status has already been resolved.")  # noqa: EM101, TRY003
 
         object.__setattr__(self, "_is_shared", is_shared)
 
@@ -239,14 +243,14 @@ class Type(VisibilityTrait, TypeImpl):
             with self.type.Resolve() as resolved_type:
                 yield resolved_type
 
-        except Errors.SimpleSchemaGeneratorException as ex:
+        except Errors.SimpleSchemaGeneratorError as ex:
             if not self.suppress_region_in_exceptions and self.region not in ex.errors[0].regions:
                 ex.errors[0].regions.append(self.region)
 
             raise
 
         except Exception as ex:
-            raise Errors.SimpleSchemaGeneratorException(
+            raise Errors.SimpleSchemaGeneratorError(
                 Error.Create(
                     ex,
                     self.region,
@@ -258,9 +262,9 @@ class Type(VisibilityTrait, TypeImpl):
     @override
     def ToPythonInstance(
         self,
-        expression_or_value: Expression | Any,
-    ) -> Any:
-        if isinstance(expression_or_value, (NoneExpression, NoneType)):
+        expression_or_value: Expression | object,
+    ) -> object:
+        if isinstance(expression_or_value, NoneExpression | NoneType):
             self.cardinality.Validate(expression_or_value)
             return None
 
@@ -283,15 +287,15 @@ class Type(VisibilityTrait, TypeImpl):
     @extension
     def ToPythonInstanceImpl(
         self,
-        expression_or_value: Expression | Any,
-    ) -> Any:
+        expression_or_value: Expression | object,
+    ) -> object:
         # This method is called during normal operations or when a VariantType has determined that
         # special cardinality rules are not in play.
-        assert not isinstance(expression_or_value, (NoneExpression, NoneType))
+        assert not isinstance(expression_or_value, NoneExpression | NoneType)
 
         self.cardinality.Validate(expression_or_value)
 
-        items: Optional[list] = None
+        items: list | None = None
 
         if isinstance(expression_or_value, ListExpression):
             items = expression_or_value.value
@@ -322,21 +326,21 @@ class Type(VisibilityTrait, TypeImpl):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield from VisibilityTrait._GenerateAcceptDetails(self)
+        yield from VisibilityTrait._GenerateAcceptDetails(self)  # noqa: SLF001
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "name", self.name
         )
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "cardinality", self.cardinality
         )
 
         if isinstance(self._metadata, Metadata):
-            yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+            yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
                 "metadata", self._metadata
             )
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "type",
             cast(WeakReferenceType[Element], ref(self.type)),
         )

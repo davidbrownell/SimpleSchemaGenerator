@@ -15,12 +15,12 @@
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import ClassVar, Type as PythonType
+from typing import ClassVar
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .TypeDefinition import TypeDefinition
-from ..... import Errors
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -30,7 +30,7 @@ class DirectoryTypeDefinition(TypeDefinition):
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "Directory"
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (Path,)
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (Path,)
 
     ensure_exists: bool = field(default=True, kw_only=True)
 
@@ -40,7 +40,7 @@ class DirectoryTypeDefinition(TypeDefinition):
     @property
     @override
     def _display_type(self) -> str:
-        result = super(DirectoryTypeDefinition, self)._display_type
+        result = super()._display_type
 
         if self.ensure_exists:
             result += "!"

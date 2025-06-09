@@ -19,8 +19,8 @@ from typing import cast
 from dbrownell_Common.Types import override
 
 from .ParseType import ParseType
-from ......Elements.Common.Element import Element
-from ....... import Errors
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -32,18 +32,18 @@ class ParseTupleType(ParseType):
     types: list[ParseType]
 
     # ----------------------------------------------------------------------
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.types:
-            raise Errors.SimpleSchemaGeneratorException(Errors.ParseTupleTypeMissingTypes.Create(self.region))
+            raise Errors.SimpleSchemaGeneratorError(Errors.ParseTupleTypeMissingTypes.Create(self.region))
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield from super(ParseTupleType, self)._GenerateAcceptDetails()
+        yield from super()._GenerateAcceptDetails()
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "types",
             cast(list[Element], self.types),
         )

@@ -17,10 +17,10 @@ from dataclasses import dataclass
 
 from dbrownell_Common.Types import override
 
-from ..Common.ParseIdentifier import ParseIdentifier
-from ..Types.ParseType import ParseType
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Common.ParseIdentifier import ParseIdentifier
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Types.ParseType import ParseType
 
-from ......Elements.Statements.Statement import Element, Statement
+from SimpleSchemaGenerator.Schema.Elements.Statements.Statement import Element, Statement
 
 
 # ----------------------------------------------------------------------
@@ -37,11 +37,11 @@ class ParseItemStatement(Statement):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield from super(ParseItemStatement, self)._GenerateAcceptDetails()
+        yield from super()._GenerateAcceptDetails()
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "name", self.name
         )
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "type", self.type
         )

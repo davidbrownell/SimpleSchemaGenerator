@@ -19,7 +19,6 @@ import textwrap
 
 from dataclasses import MISSING, _MISSING_TYPE
 from pathlib import Path
-from typing import Optional
 from unittest.mock import MagicMock as Mock
 
 import pytest
@@ -269,7 +268,7 @@ def test_ErrorOptionalToOptional():
     )
 
     with pytest.raises(
-        Errors.SimpleSchemaGeneratorException,
+        Errors.SimpleSchemaGeneratorError,
         match=re.escape(
             textwrap.dedent(
                 """\
@@ -303,7 +302,7 @@ def test_ResolveMetadata():
     assert t.resolved_metadata == {}
 
     with pytest.raises(
-        RuntimeError,
+        TypeError,
         match=re.escape("Metadata has been resolved."),
     ):
         t.unresolved_metadata
@@ -399,14 +398,14 @@ class TestResolve:
         )
 
         with pytest.raises(
-            Errors.SimpleSchemaGeneratorException,
+            Errors.SimpleSchemaGeneratorError,
             match=re.escape("An error (the--filename, Ln 2, Col 4 -> Ln 6, Col 8)"),
         ):
             with t.Resolve():
                 raise Exception("An error")
 
         with pytest.raises(
-            Errors.SimpleSchemaGeneratorException,
+            Errors.SimpleSchemaGeneratorError,
             match=re.escape(
                 textwrap.dedent(
                     """\
@@ -419,7 +418,7 @@ class TestResolve:
             ),
         ):
             with t.Resolve():
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Error.Create(
                         Exception("An error"),
                         Region.Create(Path("This unique file"), 1, 2, 3, 4),
@@ -439,7 +438,7 @@ class TestResolve:
         )
 
         with pytest.raises(
-            Errors.SimpleSchemaGeneratorException,
+            Errors.SimpleSchemaGeneratorError,
             match=re.escape(
                 textwrap.dedent(
                     """\
@@ -455,7 +454,7 @@ class TestResolve:
                 raise Exception("An error")
 
         with pytest.raises(
-            Errors.SimpleSchemaGeneratorException,
+            Errors.SimpleSchemaGeneratorError,
             match=re.escape(
                 textwrap.dedent(
                     """\
@@ -469,7 +468,7 @@ class TestResolve:
             ),
         ):
             with t.Resolve():
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Error.Create(
                         Exception("An error"),
                         region=Region.Create(Path("filename3"), 14, 16, 18, 20),
@@ -675,9 +674,9 @@ def _CreateType(
     the_type: TypeDefinition | Type,
     cardinality: Cardinality,
     *,
-    region: Optional[Region] = None,
-    visibility: Optional[TerminalElement[Visibility]] = None,
-    name: Optional[TerminalElement[str]] = None,
+    region: Region | None = None,
+    visibility: TerminalElement[Visibility] | None = None,
+    name: TerminalElement[str] | None = None,
     metadata: _MISSING_TYPE | None | Metadata = MISSING,
     suppress_region_in_exceptions: bool = False,
 ) -> Type:

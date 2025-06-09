@@ -20,7 +20,7 @@ from pathlib import Path
 from .Common.Error import CreateErrorType, Region
 
 # Convenience imports
-from .Common.Error import SimpleSchemaGeneratorException  # noqa: F401
+from .Common.Error import SimpleSchemaGeneratorError  # noqa: F401
 
 
 # TODO: Search for 'range' and replace with 'region'
@@ -32,8 +32,8 @@ from .Common.Error import SimpleSchemaGeneratorException  # noqa: F401
 # ----------------------------------------------------------------------
 # These errors are defined as strings rather than ErrorType because they only have a beginning
 # Location and not a start and end Location as required by the Region in ErrorType.
-antlr_invalid_opening_token = "Triple-quote delimiters that initiate multiline strings cannot have any content on the same line as the opening token."
-antlr_invalid_closing_token = "Triple-quote delimiters that terminate multiline strings cannot have any content on the same line as the closing token."
+antlr_invalid_opening_token = "Triple-quote delimiters that initiate multiline strings cannot have any content on the same line as the opening token."  # noqa: S105
+antlr_invalid_closing_token = "Triple-quote delimiters that terminate multiline strings cannot have any content on the same line as the closing token."  # noqa: S105
 antlr_invalid_indentation = "Invalid multiline string indentation."
 
 ParseStructureStatementInvalidBase = CreateErrorType("Base types must be identifiers.")

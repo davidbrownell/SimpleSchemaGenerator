@@ -15,12 +15,12 @@
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import ClassVar, Type as PythonType
+from typing import ClassVar
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .TypeDefinition import TypeDefinition
-from ..... import Errors
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -30,13 +30,13 @@ class FilenameTypeDefinition(TypeDefinition):
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "Filename"
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (Path,)
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (Path,)
 
     ensure_exists: bool = field(default=True, kw_only=True)
     match_any: bool = field(default=False, kw_only=True)
 
     # ----------------------------------------------------------------------
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.match_any and not self.ensure_exists:
             raise ValueError(Errors.filename_typedef_invalid_match_any)
 
@@ -46,7 +46,7 @@ class FilenameTypeDefinition(TypeDefinition):
     @property
     @override
     def _display_type(self) -> str:
-        result = super(FilenameTypeDefinition, self)._display_type
+        result = super()._display_type
 
         if self.ensure_exists:
             result += "!"
@@ -65,7 +65,7 @@ class FilenameTypeDefinition(TypeDefinition):
         if self.ensure_exists:
             if self.match_any and not value.exists():
                 raise Exception(Errors.filename_typedef_does_not_exist.format(value=value))
-            elif not self.match_any and not value.is_file():
+            if not self.match_any and not value.is_file():
                 raise Exception(Errors.filename_typedef_invalid_file.format(value=value))
 
         return value

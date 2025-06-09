@@ -14,13 +14,13 @@
 """Contains the StructureTypeDefinition object."""
 
 from dataclasses import dataclass
-from typing import ClassVar, Type as PythonType
+from typing import ClassVar, NoReturn
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .TypeDefinition import TypeDefinition
-from ...Common.Element import Element
-from ...Statements.StructureStatement import StructureStatement
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
+from SimpleSchemaGenerator.Schema.Elements.Statements.StructureStatement import StructureStatement
 
 
 # ----------------------------------------------------------------------
@@ -30,7 +30,7 @@ class StructureTypeDefinition(TypeDefinition):
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "Structure"
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (object,)
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (object,)
 
     structure: StructureStatement
 
@@ -45,13 +45,13 @@ class StructureTypeDefinition(TypeDefinition):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "structure", self.structure
         )
 
     # ----------------------------------------------------------------------
     @override
-    def _ToPythonInstanceImpl(self, *args, **kwargs):
-        raise Exception(  # pragma: no cover
-            "This method should never be called for StructureTypeDefinition instances."
-        )
+    def _ToPythonInstanceImpl(self, *args, **kwargs) -> NoReturn:  # noqa: ARG002
+        raise Exception(  # noqa: TRY003
+            "This method should never be called for StructureTypeDefinition instances."  # noqa: EM101
+        )  # pragma: no cover

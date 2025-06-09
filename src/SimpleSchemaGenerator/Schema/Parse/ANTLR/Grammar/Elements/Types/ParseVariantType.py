@@ -16,11 +16,11 @@
 from dataclasses import dataclass
 from typing import cast
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .ParseType import ParseType
-from ......Elements.Common.Element import Element
-from ....... import Errors
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -32,15 +32,13 @@ class ParseVariantType(ParseType):
     types: list[ParseType]
 
     # ----------------------------------------------------------------------
-    def __post_init__(self):
-        if len(self.types) < 2:
-            raise Errors.SimpleSchemaGeneratorException(
-                Errors.ParseVariantTypeMissingTypes.Create(self.region)
-            )
+    def __post_init__(self) -> None:
+        if len(self.types) < 2:  # noqa: PLR2004
+            raise Errors.SimpleSchemaGeneratorError(Errors.ParseVariantTypeMissingTypes.Create(self.region))
 
         for the_type in self.types:
             if isinstance(the_type, ParseVariantType):
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Errors.ParseVariantTypeNestedType.Create(the_type.region)
                 )
 
@@ -49,9 +47,9 @@ class ParseVariantType(ParseType):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield from super(ParseVariantType, self)._GenerateAcceptDetails()
+        yield from super()._GenerateAcceptDetails()
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "types",
             cast(list[Element], self.types),
         )

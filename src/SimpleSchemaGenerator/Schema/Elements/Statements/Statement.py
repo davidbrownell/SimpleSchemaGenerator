@@ -15,7 +15,7 @@
 
 from dataclasses import dataclass
 
-from ..Common.Element import Element
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
 
 
 # ----------------------------------------------------------------------

@@ -15,9 +15,9 @@
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import ClassVar, Type as PythonType
+from typing import ClassVar
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .TypeDefinition import TypeDefinition
 
@@ -29,7 +29,7 @@ class DateTimeTypeDefinition(TypeDefinition):
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "DateTime"
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (datetime,)
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (datetime,)
 
     # ----------------------------------------------------------------------
     @override

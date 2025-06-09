@@ -16,15 +16,15 @@
 import itertools
 
 from dataclasses import dataclass, MISSING
-from typing import Any, cast, ClassVar, Type as PythonType
+from typing import Any, cast, ClassVar
 
-from dbrownell_Common.InflectEx import inflect  # type: ignore[import-untyped]
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.InflectEx import inflect
+from dbrownell_Common.Types import override
 
 from .TypeDefinition import TypeDefinition
-from ..Type import Type
-from ...Common.Element import Element
-from ..... import Errors
+from SimpleSchemaGenerator.Schema.Elements.Types.Type import Type
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -34,14 +34,14 @@ class TupleTypeDefinition(TypeDefinition):
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "Tuple"
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (tuple,)
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (tuple,)
 
     types: list[Type]
 
     # ----------------------------------------------------------------------
-    def __post_init__(self, *args, **kwargs):
+    def __post_init__(self, *args, **kwargs) -> None:
         if not self.types:
-            raise Errors.SimpleSchemaGeneratorException(Errors.TupleTypedefNoTypes.Create(self.region))
+            raise Errors.SimpleSchemaGeneratorError(Errors.TupleTypedefNoTypes.Create(self.region))
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
@@ -91,9 +91,9 @@ class TupleTypeDefinition(TypeDefinition):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield from super(TupleTypeDefinition, self)._GenerateAcceptDetails()
+        yield from super()._GenerateAcceptDetails()
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "types",
             cast(list[Element], self.types),
         )

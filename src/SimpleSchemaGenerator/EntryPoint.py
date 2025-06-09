@@ -4,7 +4,7 @@
 # |  Distributed under the MIT License.
 # |
 # ----------------------------------------------------------------------
-"""This file serves as an example of how to create scripts that can be invoked from the command line once the package is installed."""
+"""Example of how to create scripts that can be invoked from the command line once the package is installed."""
 
 import sys
 
@@ -19,8 +19,8 @@ from SimpleSchemaGenerator import __version__
 class NaturalOrderGrouper(TyperGroup):
     # pylint: disable=missing-class-docstring
     # ----------------------------------------------------------------------
-    def list_commands(self, *args, **kwargs):  # pylint: disable=unused-argument
-        return self.commands.keys()
+    def list_commands(self, *args, **kwargs) -> list[str]:  # noqa: ARG002
+        return list(self.commands.keys())
 
 
 # ----------------------------------------------------------------------
@@ -45,7 +45,7 @@ def EntryPoint(
 # ----------------------------------------------------------------------
 @app.command("Version")
 def Version() -> None:
-    """Prints the version of the package."""
+    """Print the version of the package."""
 
     sys.stdout.write(__version__)
 

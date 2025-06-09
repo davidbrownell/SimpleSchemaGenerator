@@ -14,11 +14,12 @@
 """Contains types used when creating Element visitors"""
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from enum import auto, Flag
-from typing import Iterable, Iterator, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 if TYPE_CHECKING:
     from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element  # pragma: no cover
@@ -51,7 +52,7 @@ class ElementVisitor(ABC):
         self,
         element: "Element",
     ) -> Iterator[VisitResult]:
-        raise Exception("Abstract method")  # pragma: no cover
+        raise Exception("Abstract method")  # pragma: no cover  # noqa: EM101, TRY003
 
     # ----------------------------------------------------------------------
     @abstractmethod
@@ -60,7 +61,7 @@ class ElementVisitor(ABC):
         self,
         element: "Element",
     ) -> Iterator[VisitResult]:
-        raise Exception("Abstract method")  # pragma: no cover
+        raise Exception("Abstract method")  # pragma: no cover  # noqa: EM101, TRY003
 
     # ----------------------------------------------------------------------
     @abstractmethod
@@ -71,7 +72,7 @@ class ElementVisitor(ABC):
         children_name: str,
         children: Iterable["Element"],
     ) -> Iterator[VisitResult]:
-        raise Exception("Abstract method")  # pragma: no cover
+        raise Exception("Abstract method")  # pragma: no cover  # noqa: EM101, TRY003
 
     # ----------------------------------------------------------------------
     # Derived classes should implement the following methods:
@@ -90,7 +91,7 @@ class ElementVisitorHelper(ElementVisitor):
     @contextmanager
     def OnElement(
         self,
-        element: "Element",  # pylint: disable=unused-argument
+        element: "Element",  # noqa: ARG002
     ) -> Iterator[VisitResult]:
         yield VisitResult.Continue
 
@@ -99,7 +100,7 @@ class ElementVisitorHelper(ElementVisitor):
     @contextmanager
     def OnElementDetails(
         self,
-        element: "Element",  # pylint: disable=unused-argument
+        element: "Element",  # noqa: ARG002
     ) -> Iterator[VisitResult]:
         yield VisitResult.Continue
 
@@ -108,14 +109,14 @@ class ElementVisitorHelper(ElementVisitor):
     @contextmanager
     def OnElementChildren(
         self,
-        element: "Element",  # pylint: disable=unused-argument
-        children_name: str,  # pylint: disable=unused-argument
-        children: Iterable["Element"],  # pylint: disable=unused-argument
+        element: "Element",  # noqa: ARG002
+        children_name: str,  # noqa: ARG002
+        children: Iterable["Element"],  # noqa: ARG002
     ) -> Iterator[VisitResult]:
         yield VisitResult.Continue
 
     # ----------------------------------------------------------------------
-    def __getattr__(
+    def __getattr__(  # noqa: ANN204
         self,
         method_name: str,
     ):
@@ -123,17 +124,14 @@ class ElementVisitorHelper(ElementVisitor):
         if index != -1 and index + len("__") + 1 < len(method_name):
             return self._DefaultDetailMethod
 
-        return self.__class__._DefaultElementMethod  # pylint: disable=protected-access
+        return self.__class__._DefaultElementMethod  # noqa: SLF001
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     @staticmethod
     @contextmanager
-    def _DefaultElementMethod(
-        *args,
-        **kwargs,  # pylint: disable=unused-argument
-    ) -> Iterator[VisitResult]:
+    def _DefaultElementMethod(*args, **kwargs) -> Iterator[VisitResult]:  # noqa: ARG004
         yield VisitResult.Continue
 
     # ----------------------------------------------------------------------

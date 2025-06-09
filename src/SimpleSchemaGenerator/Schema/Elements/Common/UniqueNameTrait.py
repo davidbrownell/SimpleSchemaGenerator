@@ -14,7 +14,6 @@
 """Contains the UniqueNameTrait object."""
 
 from dataclasses import dataclass, field
-from typing import Union
 
 
 # ----------------------------------------------------------------------
@@ -23,10 +22,10 @@ class UniqueNameTrait:
     """Trait for Elements that are given an unique name during parsing."""
 
     # ----------------------------------------------------------------------
-    _unique_name: Union[
-        None,  # Before NormalizeUniqueName is called
-        str,  # After NormalizeUniqueName is called
-    ] = field(init=False, default=None)
+    _unique_name: (
+        None  # Before NormalizeUniqueName is called
+        | str  # After NormalizeUniqueName is called
+    ) = field(init=False, default=None)
 
     # ----------------------------------------------------------------------
     @property

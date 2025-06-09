@@ -114,14 +114,14 @@ class TestError:
 
 
 # ----------------------------------------------------------------------
-def test_SimpleSchemaGeneratorException():
+def test_SimpleSchemaGeneratorError():
     region = Region(
         Path("foo"),
         Location(1, 2),
         Location(3, 4),
     )
 
-    ex = SimpleSchemaGeneratorException(Error.Create("Single line, single_region", region))
+    ex = SimpleSchemaGeneratorError(Error.Create("Single line, single_region", region))
 
     assert len(ex.errors) == 1
     assert ex.errors[0].message == "Single line, single_region"

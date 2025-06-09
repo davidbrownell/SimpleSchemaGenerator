@@ -24,7 +24,7 @@ import pytest
 from dbrownell_Common.ContextlibEx import ExitStack
 from dbrownell_Common import PathEx
 
-from SimpleSchemaGenerator.Common.Error import SimpleSchemaGeneratorException
+from SimpleSchemaGenerator.Common.Error import SimpleSchemaGeneratorError
 from SimpleSchemaGenerator.Common.Region import Region
 from SimpleSchemaGenerator.Schema.Elements.Expressions.IntegerExpression import IntegerExpression
 from SimpleSchemaGenerator.Schema.Elements.Expressions.TupleExpression import TupleExpression
@@ -39,7 +39,7 @@ def test_ErrorEmpty():
     region = Region.Create(Path("one"), 1, 2, 3, 4)
 
     with pytest.raises(
-        SimpleSchemaGeneratorException,
+        SimpleSchemaGeneratorError,
         match=re.escape("No expressions were provided. (one, Ln 1, Col 2 -> Ln 3, Col 4)"),
     ) as exec_info:
         TupleExpression(region, tuple())

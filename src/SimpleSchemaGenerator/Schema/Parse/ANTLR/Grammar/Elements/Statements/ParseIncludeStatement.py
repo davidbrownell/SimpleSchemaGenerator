@@ -18,14 +18,14 @@ from enum import auto, Enum
 from pathlib import Path
 from typing import cast
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
-from ..Common.ParseIdentifier import ParseIdentifier
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Common.ParseIdentifier import ParseIdentifier
 
-from ......Elements.Common.Element import Element
-from ......Elements.Common.TerminalElement import TerminalElement
-from ......Elements.Statements.Statement import Statement
-from ....... import Errors
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
+from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import TerminalElement
+from SimpleSchemaGenerator.Schema.Elements.Statements.Statement import Statement
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -52,16 +52,16 @@ class ParseIncludeStatementItem(Element):
     reference_name: ParseIdentifier
 
     # ----------------------------------------------------------------------
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.element_name.is_type:
-            raise Errors.SimpleSchemaGeneratorException(
+            raise Errors.SimpleSchemaGeneratorError(
                 Errors.ParseIncludeStatementItemNotType.Create(
                     self.element_name.region, self.element_name.value
                 )
             )
 
         if not self.reference_name.is_type:
-            raise Errors.SimpleSchemaGeneratorException(
+            raise Errors.SimpleSchemaGeneratorError(
                 Errors.ParseIncludeStatementItemReferenceNotType.Create(
                     self.reference_name.region,
                     self.reference_name.value,
@@ -73,14 +73,14 @@ class ParseIncludeStatementItem(Element):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield from super(ParseIncludeStatementItem, self)._GenerateAcceptDetails()
+        yield from super()._GenerateAcceptDetails()
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "element_name",
             self.element_name,
         )
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "reference_name",
             self.reference_name,
         )
@@ -98,9 +98,9 @@ class ParseIncludeStatement(Statement):
     items: list[ParseIncludeStatementItem]  # Can be empty
 
     # ----------------------------------------------------------------------
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.filename.value.is_file():
-            raise Errors.SimpleSchemaGeneratorException(
+            raise Errors.SimpleSchemaGeneratorError(
                 Errors.ParseIncludeStatementInvalidFile.Create(self.filename.region, self.filename.value)
             )
 
@@ -109,30 +109,30 @@ class ParseIncludeStatement(Statement):
             ParseIncludeStatementType.Star,
         ]:
             if self.items:
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Errors.ParseIncludeStatementInvalidItems.Create(self.region)
                 )
         elif self.include_type == ParseIncludeStatementType.Package:
             if not self.items:
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Errors.ParseIncludeStatementMissingItems.Create(self.region)
                 )
         else:
-            assert False, self.include_type  # pragma: no cover
+            raise AssertionError(self.include_type)  # pragma: no cover
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield from super(ParseIncludeStatement, self)._GenerateAcceptDetails()
+        yield from super()._GenerateAcceptDetails()
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "filename",
             self.filename,
         )
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "items",
             cast(list[Element], self.items),
         )

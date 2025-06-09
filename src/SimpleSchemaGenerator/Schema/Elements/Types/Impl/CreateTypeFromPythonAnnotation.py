@@ -14,29 +14,43 @@
 """Contains functionality that creates a Type from a Python type annotation."""
 
 from enum import EnumMeta
-from types import GenericAlias, NoneType
-from typing import Any, _BaseGenericAlias, _UnionGenericAlias
+from types import GenericAlias, NoneType, UnionType
+from typing import Any, _BaseGenericAlias, _UnionGenericAlias, TYPE_CHECKING
 
-from ..Type import Type
-from ..TypeDefinitions.BooleanTypeDefinition import BooleanTypeDefinition
-from ..TypeDefinitions.EnumTypeDefinition import EnumTypeDefinition
-from ..TypeDefinitions.IntegerTypeDefinition import IntegerTypeDefinition
-from ..TypeDefinitions.NumberTypeDefinition import NumberTypeDefinition
-from ..TypeDefinitions.StringTypeDefinition import StringTypeDefinition
-from ..TypeDefinitions.TupleTypeDefinition import TupleTypeDefinition
-from ..TypeDefinitions.TypeDefinition import TypeDefinition
-from ..TypeDefinitions.VariantTypeDefinition import VariantTypeDefinition
-from ...Common.Cardinality import Cardinality
-from ...Common.TerminalElement import TerminalElement
-from ...Common.Visibility import Visibility
-from ...Expressions.IntegerExpression import IntegerExpression
-from .....Common.Region import Region
-from ..... import Errors
+from SimpleSchemaGenerator.Schema.Elements.Types.Type import Type
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.BooleanTypeDefinition import (
+    BooleanTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.EnumTypeDefinition import EnumTypeDefinition
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.IntegerTypeDefinition import (
+    IntegerTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.NumberTypeDefinition import (
+    NumberTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.StringTypeDefinition import (
+    StringTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.TupleTypeDefinition import (
+    TupleTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.VariantTypeDefinition import (
+    VariantTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Common.Cardinality import Cardinality
+from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import TerminalElement
+from SimpleSchemaGenerator.Schema.Elements.Common.Visibility import Visibility
+from SimpleSchemaGenerator.Schema.Elements.Expressions.IntegerExpression import IntegerExpression
+from SimpleSchemaGenerator.Common.Region import Region
+from SimpleSchemaGenerator import Errors
+
+if TYPE_CHECKING:
+    from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.TypeDefinition import TypeDefinition
 
 
 # ----------------------------------------------------------------------
 def CreateTypeFromPythonAnnotation(
-    python_type_annotation,
+    python_type_annotation,  # noqa: ANN001
     *,
     has_default_value: bool,
 ) -> Type:
@@ -45,7 +59,7 @@ def CreateTypeFromPythonAnnotation(
 
     type_definition: TypeDefinition | None = None
 
-    if isinstance(python_type_annotation, _UnionGenericAlias):
+    if isinstance(python_type_annotation, _UnionGenericAlias | UnionType):
         # Optional or Variant
         types: list[Any] = []
 
@@ -66,10 +80,7 @@ def CreateTypeFromPythonAnnotation(
                 [CreateTypeFromPythonAnnotation(the_type, has_default_value=False) for the_type in types],
             )
 
-    while type_definition is None and (
-        isinstance(python_type_annotation, GenericAlias)
-        or isinstance(python_type_annotation, _BaseGenericAlias)
-    ):
+    while type_definition is None and (isinstance(python_type_annotation, GenericAlias | _BaseGenericAlias)):
         if python_type_annotation.__origin__ is list:
             cardinality_max = None
 
