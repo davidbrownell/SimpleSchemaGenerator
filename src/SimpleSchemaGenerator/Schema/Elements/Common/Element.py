@@ -14,11 +14,12 @@
 """Contains the Element object"""
 
 from abc import ABC
+from collections.abc import Generator
 from dataclasses import dataclass, field
-from typing import Generator, Optional, Union
+from typing import Union
 from weakref import ReferenceType as WeakReferenceType
 
-from dbrownell_Common.Types import extension  # type: ignore[import-untyped]
+from dbrownell_Common.Types import extension
 
 from SimpleSchemaGenerator.Common.Region import Region
 from SimpleSchemaGenerator.Schema.Visitors.ElementVisitor import ElementVisitor, VisitResult
@@ -49,7 +50,7 @@ class Element(ABC):
         object.__setattr__(self, "_disabled", True)
 
     # ----------------------------------------------------------------------
-    def Accept(
+    def Accept(  # noqa: C901
         self,
         visitor: ElementVisitor,
         *,
@@ -144,7 +145,7 @@ class Element(ABC):
             list[WeakReferenceType["Element"]],
         ]
 
-    _GenerateAcceptDetailsResultType = Generator[_GenerateAcceptDetailsItem, None, None]
+    _GenerateAcceptDetailsResultType = Generator[_GenerateAcceptDetailsItem]
 
     # ----------------------------------------------------------------------
     @dataclass(frozen=True)
@@ -152,7 +153,7 @@ class Element(ABC):
         children_name: str
         children: list["Element"]
 
-    _GetAcceptChildrenResultType = Optional[_GetAcceptChildrenResult]
+    type _GetAcceptChildrenResultType = _GetAcceptChildrenResult | None
 
     # ----------------------------------------------------------------------
     # |

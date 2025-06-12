@@ -72,8 +72,8 @@ class Region:
     # ----------------------------------------------------------------------
     @staticmethod
     def Compare(
-        this: "Region",  # type: ignore
-        that: "Region",  # type: ignore
+        this: "Region",
+        that: "Region",
     ) -> int:
         if this.filename != that.filename:
             return -1 if this.filename < that.filename else 1
@@ -89,22 +89,22 @@ class Region:
         return 0
 
     # ----------------------------------------------------------------------
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         return isinstance(other, Region) and self.__class__.Compare(self, other) == 0
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other: object) -> bool:
         return not isinstance(other, Region) or self.__class__.Compare(self, other) != 0
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: object) -> bool:
         return isinstance(other, Region) and self.__class__.Compare(self, other) < 0
 
-    def __le__(self, other) -> bool:
+    def __le__(self, other: object) -> bool:
         return isinstance(other, Region) and self.__class__.Compare(self, other) <= 0
 
-    def __gt__(self, other) -> bool:
+    def __gt__(self, other: object) -> bool:
         return isinstance(other, Region) and self.__class__.Compare(self, other) > 0
 
-    def __ge__(self, other) -> bool:
+    def __ge__(self, other: object) -> bool:
         return isinstance(other, Region) and self.__class__.Compare(self, other) >= 0
 
     # ----------------------------------------------------------------------
@@ -121,7 +121,7 @@ class Region:
         if isinstance(location_or_region, Location):
             return self.begin <= location_or_region <= self.end
 
-        assert False, location_or_region  # pragma: no cover
+        raise AssertionError(location_or_region)  # pragma: no cover
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------

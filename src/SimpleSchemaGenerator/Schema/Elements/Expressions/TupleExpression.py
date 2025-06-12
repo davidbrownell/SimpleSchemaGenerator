@@ -16,11 +16,11 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .Expression import Expression
-from ..Common.Element import Element
-from .... import Errors
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -34,17 +34,17 @@ class TupleExpression(Expression):
     value: tuple[Expression, ...]
 
     # ----------------------------------------------------------------------
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.value:
-            raise Errors.SimpleSchemaGeneratorException(Errors.TupleExpressionEmpty.Create(self.region))
+            raise Errors.SimpleSchemaGeneratorError(Errors.TupleExpressionEmpty.Create(self.region))
 
-        super(TupleExpression, self).__post_init__()
+        super().__post_init__()
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "value", list(self.value)
         )

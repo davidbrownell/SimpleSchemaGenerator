@@ -14,10 +14,10 @@
 """Contains the GuidTypeDefinition object."""
 
 from dataclasses import dataclass
-from typing import ClassVar, Type as PythonType
+from typing import ClassVar
 from uuid import UUID
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .TypeDefinition import TypeDefinition
 
@@ -29,7 +29,7 @@ class GuidTypeDefinition(TypeDefinition):
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "Guid"
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (UUID,)
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (UUID,)
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------

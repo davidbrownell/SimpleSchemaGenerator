@@ -183,7 +183,7 @@ def test_ErrorNoValues():
 # ----------------------------------------------------------------------
 def test_ErrorNonTupleAfterTuple():
     with pytest.raises(
-        ValueError,
+        TypeError,
         match=re.escape("A tuple was expected (index: 1)."),
     ):
         EnumTypeDefinition(Mock(), [(1, "Value1"), 2])
@@ -210,7 +210,7 @@ def test_ErrorZero():
 # ----------------------------------------------------------------------
 def test_ErrorInvalidValueTuple():
     with pytest.raises(
-        ValueError,
+        TypeError,
         match=re.escape("An Integer or String value was expected."),
     ):
         EnumTypeDefinition(Mock(), [("One", 3.14)])
@@ -219,7 +219,7 @@ def test_ErrorInvalidValueTuple():
 # ----------------------------------------------------------------------
 def test_ErrorInvalidValueNonTuple():
     with pytest.raises(
-        ValueError,
+        TypeError,
         match=re.escape("An Integer or String value was expected."),
     ):
         EnumTypeDefinition(Mock(), [3.14])
@@ -228,7 +228,7 @@ def test_ErrorInvalidValueNonTuple():
 # ----------------------------------------------------------------------
 def test_ErrorTupleAfterNonTuple():
     with pytest.raises(
-        ValueError,
+        TypeError,
         match=re.escape("A tuple was not expected (index: 1)."),
     ):
         EnumTypeDefinition(Mock(), [1, (2, "Value2")])
@@ -237,7 +237,7 @@ def test_ErrorTupleAfterNonTuple():
 # ----------------------------------------------------------------------
 def test_ErrorMixedInt():
     with pytest.raises(
-        ValueError,
+        TypeError,
         match=re.escape("A String was expected (index: 3)."),
     ):
         EnumTypeDefinition(Mock(), ["one", "two", "three", 4])
@@ -246,7 +246,7 @@ def test_ErrorMixedInt():
 # ----------------------------------------------------------------------
 def test_ErrorMixedString():
     with pytest.raises(
-        ValueError,
+        TypeError,
         match=re.escape("An Integer was expected (index: 3)."),
     ):
         EnumTypeDefinition(Mock(), [1, 2, 3, "four"])

@@ -15,16 +15,15 @@
 
 from dataclasses import dataclass, field, InitVar
 from functools import cached_property
-from typing import Any, Optional
 
-from dbrownell_Common.InflectEx import inflect  # type: ignore[import-untyped]
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.InflectEx import inflect
+from dbrownell_Common.Types import override
 
 from .Element import Element
-from ..Expressions.Expression import Expression
-from ..Expressions.IntegerExpression import IntegerExpression
-from ....Common.Error import Error
-from .... import Errors
+from SimpleSchemaGenerator.Schema.Elements.Expressions.Expression import Expression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.IntegerExpression import IntegerExpression
+from SimpleSchemaGenerator.Common.Error import Error
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -32,17 +31,17 @@ from .... import Errors
 class Cardinality(Element):
     """Specifies the minimum and maximum number of times an element can appear within a collection."""
 
-    min_param: InitVar[Optional[IntegerExpression]]
-    max_param: InitVar[Optional[IntegerExpression]]
+    min_param: InitVar[IntegerExpression | None]
+    max_param: InitVar[IntegerExpression | None]
 
     min: IntegerExpression = field(init=False)
-    max: Optional[IntegerExpression] = field(init=False)
+    max: IntegerExpression | None = field(init=False)
 
     # ----------------------------------------------------------------------
     def __post_init__(
         self,
-        min_param: Optional[IntegerExpression],
-        max_param: Optional[IntegerExpression],
+        min_param: IntegerExpression | None,
+        max_param: IntegerExpression | None,
     ) -> None:
         if min_param is None and max_param is None:
             min_param = IntegerExpression(self.region, 1)
@@ -56,7 +55,7 @@ class Cardinality(Element):
         assert min_param is not None
 
         if max_param is not None and max_param.value < min_param.value:
-            raise Errors.SimpleSchemaGeneratorException(
+            raise Errors.SimpleSchemaGeneratorError(
                 Errors.CardinalityInvalidRange.Create(
                     max_param.region,
                     min_param.value,
@@ -88,11 +87,11 @@ class Cardinality(Element):
     # ----------------------------------------------------------------------
     def Validate(
         self,
-        expression_or_value: Expression | Any,
+        expression_or_value: Expression | object,
     ) -> None:
         # ----------------------------------------------------------------------
         def Impl(
-            value: Any,
+            value: object,
         ) -> None:
             if value is None:
                 if self.is_optional:
@@ -128,13 +127,13 @@ class Cardinality(Element):
 
                 return
 
-            elif self.is_optional:
+            if self.is_optional:
                 # We don't have enough context to validate the cardinality, but it will be validated
                 # at a later time.
                 return
 
             if isinstance(value, list):
-                raise Exception(Errors.cardinality_validate_list_not_expected)
+                raise TypeError(Errors.cardinality_validate_list_not_expected)
 
         # ----------------------------------------------------------------------
 
@@ -143,7 +142,7 @@ class Cardinality(Element):
                 Impl(expression_or_value.value)
                 return
             except Exception as ex:
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Error.Create(
                         ex,
                         expression_or_value.region,
@@ -182,7 +181,7 @@ class Cardinality(Element):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield Element._GenerateAcceptDetailsItem("min", self.min)
+        yield Element._GenerateAcceptDetailsItem("min", self.min)  # noqa: SLF001
 
         if self.max is not None:
-            yield Element._GenerateAcceptDetailsItem("max", self.max)
+            yield Element._GenerateAcceptDetailsItem("max", self.max)  # noqa: SLF001

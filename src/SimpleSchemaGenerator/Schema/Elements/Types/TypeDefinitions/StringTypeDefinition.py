@@ -16,13 +16,14 @@
 import re
 
 from dataclasses import dataclass, field
-from typing import ClassVar, Optional, Pattern, Type as PythonType
+from re import Pattern
+from typing import ClassVar
 
-from dbrownell_Common.InflectEx import inflect  # type: ignore[import-untyped]
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.InflectEx import inflect
+from dbrownell_Common.Types import override
 
 from .TypeDefinition import TypeDefinition
-from ..... import Errors
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -32,13 +33,13 @@ class StringTypeDefinition(TypeDefinition):
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "String"
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (str,)
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (str,)
 
     min_length: int = field(default=1)
-    max_length: Optional[int] = field(default=None)
+    max_length: int | None = field(default=None)
 
-    validation_expression: Optional[str] = field(default=None)
-    _validation_regex: Optional[Pattern] = field(init=False, repr=False, hash=False, compare=False)
+    validation_expression: str | None = field(default=None)
+    _validation_regex: Pattern | None = field(init=False, repr=False, hash=False, compare=False)
 
     # ----------------------------------------------------------------------
     def __post_init__(self) -> None:
@@ -74,7 +75,7 @@ class StringTypeDefinition(TypeDefinition):
         if self.validation_expression is not None:
             constraints.append(f"matches '{self.validation_expression}'")
 
-        result = super(StringTypeDefinition, self)._display_type
+        result = super()._display_type
 
         if constraints:
             result += " {{{}}}".format(", ".join(constraints))

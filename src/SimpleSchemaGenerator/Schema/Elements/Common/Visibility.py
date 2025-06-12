@@ -16,7 +16,7 @@
 from dataclasses import dataclass
 from enum import auto, Enum
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .TerminalElement import Element, TerminalElement
 
@@ -42,7 +42,7 @@ class VisibilityTrait(Element):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "visibility",
             self.visibility,
         )

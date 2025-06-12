@@ -15,12 +15,12 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import ClassVar, Optional, Type as PythonType
+from typing import ClassVar
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .TypeDefinition import TypeDefinition
-from ..... import Errors
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -30,7 +30,7 @@ class NumberTypeDefinition(TypeDefinition):
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "Number"
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (float, int)
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (float, int)
 
     # ----------------------------------------------------------------------
     # |
@@ -49,16 +49,16 @@ class NumberTypeDefinition(TypeDefinition):
     # |  Public Data
     # |
     # ----------------------------------------------------------------------
-    min: Optional[float] = field(default=None)
-    max: Optional[float] = field(default=None)
-    bits: Optional[Bits] = field(default=None)
+    min: float | None = field(default=None)
+    max: float | None = field(default=None)
+    bits: Bits | None = field(default=None)
 
     # ----------------------------------------------------------------------
     # |
     # |  Public Methods
     # |
     # ----------------------------------------------------------------------
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.min is not None and self.max is not None and self.min > self.max:
             raise ValueError(Errors.number_typedef_min_max_invalid.format(min=self.min, max=self.max))
 
@@ -73,7 +73,7 @@ class NumberTypeDefinition(TypeDefinition):
         if self.max is not None:
             constraints.append(f"<= {self.max}")
 
-        result = super(NumberTypeDefinition, self)._display_type
+        result = super()._display_type
 
         if constraints:
             result += " {{{}}}".format(", ".join(constraints))

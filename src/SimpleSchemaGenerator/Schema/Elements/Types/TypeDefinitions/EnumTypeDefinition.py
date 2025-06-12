@@ -13,14 +13,15 @@
 # ----------------------------------------------------------------------
 """Contains the EnumTypeDefinition object."""
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum, EnumMeta
-from typing import Callable, cast, ClassVar, Type as PythonType, Union
+from typing import cast, ClassVar
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .TypeDefinition import TypeDefinition
-from ..... import Errors
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -30,24 +31,24 @@ class EnumTypeDefinition(TypeDefinition):
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "Enum"
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (Enum, str, int)
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (Enum, str, int)
 
-    values: Union[
-        list[str],
-        list[int],
-        list[tuple[int, int]],
-        list[tuple[int, str]],
-        list[tuple[str, int]],
-        list[tuple[str, str]],
-        EnumMeta,
-    ]
+    values: (
+        list[str]
+        | list[int]
+        | list[tuple[int, int]]
+        | list[tuple[int, str]]
+        | list[tuple[str, int]]
+        | list[tuple[str, str]]
+        | EnumMeta
+    )
 
     starting_value: int = field(default=1)
 
     EnumClass: EnumMeta = field(init=False)
 
     # ----------------------------------------------------------------------
-    def __post_init__(self) -> None:
+    def __post_init__(self) -> None:  # noqa: C901, PLR0915
         if isinstance(self.values, EnumMeta):
             enum_class = self.values
         else:
@@ -61,15 +62,15 @@ class EnumTypeDefinition(TypeDefinition):
                     v = self.values[index]
 
                     if not isinstance(v, tuple):
-                        raise ValueError(Errors.enum_typedef_tuple_expected.format(index=index))
+                        raise TypeError(Errors.enum_typedef_tuple_expected.format(index=index))
 
                     if not v[1]:
                         if isinstance(v[1], str):
                             raise ValueError(Errors.enum_typedef_string_value_required.format(index=index))
-                        elif isinstance(v[1], int):
+                        if isinstance(v[1], int):
                             raise ValueError(Errors.enum_typedef_non_zero_required.format(index=index))
-                        else:
-                            assert False, v[1]  # pragma: no cover
+
+                        raise AssertionError(v[1])  # pragma: no cover
 
                     return v[0]
 
@@ -93,7 +94,7 @@ class EnumTypeDefinition(TypeDefinition):
 
                     # ----------------------------------------------------------------------
 
-                    create_enum_class_func = CreateTupleStrEnumType  # type: ignore
+                    create_enum_class_func = CreateTupleStrEnumType
 
                 elif isinstance(self.values[0][1], int):
                     # ----------------------------------------------------------------------
@@ -110,10 +111,10 @@ class EnumTypeDefinition(TypeDefinition):
 
                     # ----------------------------------------------------------------------
 
-                    create_enum_class_func = CreateTupleIntEnumType  # type: ignore
+                    create_enum_class_func = CreateTupleIntEnumType
 
                 else:
-                    raise ValueError(Errors.enum_typedef_int_or_string_expected)
+                    raise TypeError(Errors.enum_typedef_int_or_string_expected)
 
             else:
                 # ----------------------------------------------------------------------
@@ -122,7 +123,7 @@ class EnumTypeDefinition(TypeDefinition):
                     v = self.values[index]
 
                     if isinstance(v, tuple):
-                        raise ValueError(Errors.enum_typedef_tuple_not_expected.format(index=index))
+                        raise TypeError(Errors.enum_typedef_tuple_not_expected.format(index=index))
 
                     return v
 
@@ -141,19 +142,25 @@ class EnumTypeDefinition(TypeDefinition):
                 # ----------------------------------------------------------------------
 
                 get_value_func = GetNonTupleValue
-                create_enum_class_func = CreateNonTupleEnumType  # type: ignore
+                create_enum_class_func = CreateNonTupleEnumType
 
-            expected_type: PythonType | None = None
+            expected_type: type | None = None
 
             if isinstance(get_value_func(0), int):
-                value_to_enum_name_func = "Value{}".format
+                # ----------------------------------------------------------------------
+                def ValueFormat(value: str) -> str:
+                    return f"Value{value}"
+
+                # ----------------------------------------------------------------------
+
+                value_to_enum_name_func = ValueFormat
 
                 expected_type = int
                 expected_desc = "An Integer"
 
             elif isinstance(get_value_func(0), str):
                 # ----------------------------------------------------------------------
-                def ValueIdentity(value):
+                def ValueIdentity(value: str) -> str:
                     return value
 
                 # ----------------------------------------------------------------------
@@ -164,15 +171,15 @@ class EnumTypeDefinition(TypeDefinition):
                 expected_desc = "A String"
 
             else:
-                raise ValueError(Errors.enum_typedef_int_or_string_expected)
+                raise TypeError(Errors.enum_typedef_int_or_string_expected)
 
             assert expected_type is not None
 
             for value in range(1, len(self.values)):
                 if not isinstance(get_value_func(value), expected_type):
-                    raise ValueError(f"{expected_desc} was expected (index: {value}).")
+                    raise TypeError(f"{expected_desc} was expected (index: {value}).")  # noqa: EM102, TRY003
 
-            enum_class = create_enum_class_func(value_to_enum_name_func)  # type: ignore
+            enum_class = create_enum_class_func(value_to_enum_name_func)
 
         # Commit
         object.__setattr__(self, "EnumClass", enum_class)
@@ -189,21 +196,21 @@ class EnumTypeDefinition(TypeDefinition):
             return value
 
         if isinstance(value, int):
-            for e in self.EnumClass:  # type: ignore
-                if e.value == value:  # type: ignore
-                    return e  # type: ignore
+            for e in self.EnumClass:
+                if e.value == value:
+                    return e
 
             value = f"Value{value}"
 
         if isinstance(value, str):
             # Check by name
             for e in self.EnumClass:
-                if e.name == value:  # type: ignore
-                    return e  # type: ignore
+                if e.name == value:
+                    return e
 
             # Check by value
             for e in self.EnumClass:
-                if e.value == value:  # type: ignore
-                    return e  # type: ignore
+                if e.value == value:
+                    return e
 
         raise Exception(Errors.enum_typedef_invalid_value.format(value=value))

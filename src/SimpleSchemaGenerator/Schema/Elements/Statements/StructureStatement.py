@@ -17,15 +17,15 @@ from dataclasses import dataclass
 from typing import cast, TYPE_CHECKING
 from weakref import ReferenceType as WeakReferenceType
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .Statement import Statement
-from ..Common.Element import Element
-from ..Common.TerminalElement import TerminalElement
-from ..Common.UniqueNameTrait import UniqueNameTrait
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
+from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import TerminalElement
+from SimpleSchemaGenerator.Schema.Elements.Common.UniqueNameTrait import UniqueNameTrait
 
 if TYPE_CHECKING:
-    from ..Types.ReferenceType import ReferenceType  # pragma: no cover
+    from SimpleSchemaGenerator.Schema.Elements.Types.ReferenceType import ReferenceType  # pragma: no cover
 
 
 # ----------------------------------------------------------------------
@@ -43,13 +43,13 @@ class StructureStatement(UniqueNameTrait, Statement):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "name",
             self.name,
         )
 
         if self.base_types:
-            yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+            yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
                 "base_types",
                 cast(
                     list[WeakReferenceType[Element]],
@@ -60,6 +60,6 @@ class StructureStatement(UniqueNameTrait, Statement):
     # ----------------------------------------------------------------------
     @override
     def _GetAcceptChildren(self) -> Element._GetAcceptChildrenResultType:
-        return Element._GetAcceptChildrenResult(  # pylint: disable=protected-access
+        return Element._GetAcceptChildrenResult(  # noqa: SLF001
             "children", cast(list[Element], self.children)
         )

@@ -14,14 +14,13 @@
 """Contains the ParseType object."""
 
 from dataclasses import dataclass
-from typing import Optional
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
-from ......Elements.Common.Cardinality import Cardinality
-from ......Elements.Common.Element import Element
-from ......Elements.Common.Metadata import Metadata
-from ......Elements.Types.Impl.TypeImpl import TypeImpl
+from SimpleSchemaGenerator.Schema.Elements.Common.Cardinality import Cardinality
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
+from SimpleSchemaGenerator.Schema.Elements.Common.Metadata import Metadata
+from SimpleSchemaGenerator.Schema.Elements.Types.Impl.TypeImpl import TypeImpl
 
 
 # ----------------------------------------------------------------------
@@ -31,25 +30,27 @@ class ParseType(TypeImpl):
 
     # ----------------------------------------------------------------------
     cardinality: Cardinality
-    unresolved_metadata: Optional[Metadata]
+    unresolved_metadata: Metadata | None
 
     # ----------------------------------------------------------------------
     @override
-    def ToPythonInstance(self, *args, **kwargs):
-        raise Exception("This should never be invoked on ParseType instances.")  # pragma: no cover
+    def ToPythonInstance(self, *args, **kwargs) -> object:  # noqa: ARG002
+        raise Exception(  # noqa: TRY003
+            "This should never be invoked on ParseType instances."  # noqa: EM101
+        )  # pragma: no cover
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield from super(ParseType, self)._GenerateAcceptDetails()
+        yield from super()._GenerateAcceptDetails()
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "cardinality", self.cardinality
         )
 
         if self.unresolved_metadata is not None:
-            yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+            yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
                 "unresolved_metadata", self.unresolved_metadata
             )

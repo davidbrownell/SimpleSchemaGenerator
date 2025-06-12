@@ -16,7 +16,7 @@
 from dataclasses import dataclass
 from typing import Any, ClassVar
 
-from ..Common.Element import Element
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
 
 
 # ----------------------------------------------------------------------
@@ -30,6 +30,6 @@ class Expression(Element):
     value: Any
 
     # ----------------------------------------------------------------------
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.NAME == "":
-            raise Exception(f"NAME must be defined for '{self.__class__.__name__}'.")
+            raise Exception(f"NAME must be defined for '{self.__class__.__name__}'.")  # noqa: EM102, TRY003

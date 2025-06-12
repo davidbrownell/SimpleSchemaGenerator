@@ -14,15 +14,15 @@
 """Contains the ParseIdentifierType object."""
 
 from dataclasses import dataclass
-from typing import cast, Optional
+from typing import cast
 
 from dbrownell_Common.Types import override
 
 from .ParseType import ParseType
-from ..Common.ParseIdentifier import ParseIdentifier
-from ......Elements.Common.Element import Element
-from .......Common.Region import Region
-from ....... import Errors
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Common.ParseIdentifier import ParseIdentifier
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
+from SimpleSchemaGenerator.Common.Region import Region
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -32,16 +32,16 @@ class ParseIdentifierType(ParseType):
 
     # ----------------------------------------------------------------------
     identifiers: list[ParseIdentifier]
-    is_global_reference: Optional[Region]
+    is_global_reference: Region | None
 
     # ----------------------------------------------------------------------
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.identifiers:
-            raise Errors.SimpleSchemaGeneratorException(Errors.ParseIdentifierTypeEmpty.Create(self.region))
+            raise Errors.SimpleSchemaGeneratorError(Errors.ParseIdentifierTypeEmpty.Create(self.region))
 
         for identifier in self.identifiers:
             if not identifier.is_type:
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Errors.ParseIdentifierTypeNotType.Create(identifier.region, identifier.value)
                 )
 
@@ -50,9 +50,9 @@ class ParseIdentifierType(ParseType):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield from super(ParseIdentifierType, self)._GenerateAcceptDetails()
+        yield from super()._GenerateAcceptDetails()
 
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "identifiers", cast(list[Element], self.identifiers)
         )
 

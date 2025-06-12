@@ -14,9 +14,9 @@
 """Contains the BooleanTypeDefinition object."""
 
 from dataclasses import dataclass
-from typing import ClassVar, Type as PythonType
+from typing import ClassVar
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .TypeDefinition import TypeDefinition
 
@@ -28,13 +28,13 @@ class BooleanTypeDefinition(TypeDefinition):
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "Boolean"
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (bool,)
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (bool,)
 
     # ----------------------------------------------------------------------
     @override
     def _ToPythonInstanceImpl(
         self,
-        value: bool,
+        value: bool,  # noqa: FBT001
     ) -> bool:
         # No conversion necessary
         return value

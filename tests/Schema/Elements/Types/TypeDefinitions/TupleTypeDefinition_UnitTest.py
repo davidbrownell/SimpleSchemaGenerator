@@ -60,7 +60,7 @@ def test_Create():
 # ----------------------------------------------------------------------
 def test_ErrorCreateWithoutTypes():
     with pytest.raises(
-        Errors.SimpleSchemaGeneratorException,
+        Errors.SimpleSchemaGeneratorError,
         match=re.escape("No types were provided. (filename, Ln 1, Col 2 -> Ln 3, Col 4)"),
     ):
         TupleTypeDefinition(Region.Create(Path("filename"), 1, 2, 3, 4), [])

@@ -14,19 +14,20 @@
 """Contains the TypeDefinition object."""
 
 from abc import abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field, fields, Field, MISSING, _MISSING_TYPE
-from typing import Any, Callable, ClassVar, Optional, Type as PythonType, Union
+from typing import Any, ClassVar
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
-from ..Impl.TypeImpl import TypeImpl
-from ...Common.Metadata import Metadata, MetadataItem
+from SimpleSchemaGenerator.Schema.Elements.Types.Impl.TypeImpl import TypeImpl
+from SimpleSchemaGenerator.Schema.Elements.Common.Metadata import Metadata, MetadataItem
 
-from ...Expressions.Expression import Expression
+from SimpleSchemaGenerator.Schema.Elements.Expressions.Expression import Expression
 
-from .....Common.Error import Error
-from .....Common.Region import Region
-from ..... import Errors
+from SimpleSchemaGenerator.Common.Error import Error
+from SimpleSchemaGenerator.Common.Region import Region
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -36,20 +37,20 @@ class TypeDefinition(TypeImpl):
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = ""
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = ()
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = ()
     FIELDS: ClassVar[dict[str, Field]] = field(init=False)
 
     # ----------------------------------------------------------------------
     @classmethod
-    def __new__(cls, *args, **kwargs):  # pylint: disable=unused-argument
+    def __new__(cls, *args, **kwargs) -> "TypeDefinition":
         if cls.NAME == "":
-            raise Exception(f"NAME must be defined for '{cls.__name__}'.")
+            raise Exception(f"NAME must be defined for '{cls.__name__}'.")  # noqa: EM102, TRY003
 
         if not cls.SUPPORTED_PYTHON_TYPES:
-            raise Exception(f"SUPPORTED_PYTHON_TYPES must be defined for '{cls.__name__}'.")
+            raise Exception(f"SUPPORTED_PYTHON_TYPES must be defined for '{cls.__name__}'.")  # noqa: EM102, TRY003
 
         cls.__initialize_fields__()
-        return super(TypeDefinition, cls).__new__(cls)
+        return super().__new__(cls)
 
     # ----------------------------------------------------------------------
     @classmethod
@@ -57,9 +58,9 @@ class TypeDefinition(TypeImpl):
         if hasattr(cls, "FIELDS"):
             return
 
-        type_definition_fields: set[str] = set(
+        type_definition_fields: set[str] = {
             type_field.name for type_field in fields(TypeDefinition) if type_field.init
-        )
+        }
 
         class_fields: dict[str, Field] = {
             type_field.name: type_field
@@ -74,14 +75,14 @@ class TypeDefinition(TypeImpl):
     def CreateFromMetadata(
         cls,
         region: Region,
-        metadata: Optional[Metadata],
+        metadata: Metadata | None,
     ) -> "TypeDefinition":
         cls.__initialize_fields__()
 
         return cls._Create(
             region,
             metadata,
-            lambda field_name: MISSING,
+            lambda _: MISSING,
         )
 
     # ----------------------------------------------------------------------
@@ -90,7 +91,7 @@ class TypeDefinition(TypeImpl):
         region: Region,
         metadata: Metadata,
     ) -> "TypeDefinition":
-        return self.__class__._Create(  # pylint: disable=protected-access
+        return self.__class__._Create(  # noqa: SLF001
             region,
             metadata,
             lambda field_name: getattr(self, field_name),
@@ -100,14 +101,14 @@ class TypeDefinition(TypeImpl):
     @override
     def ToPythonInstance(
         self,
-        expression_or_value: Expression | Any,
-    ) -> Any:
+        expression_or_value: Expression | object,
+    ) -> object:
         # ----------------------------------------------------------------------
         def Impl(
-            value: Any,
-        ) -> Any:
+            value: object,
+        ) -> object:
             if not isinstance(value, self.SUPPORTED_PYTHON_TYPES):
-                raise Exception(
+                raise TypeError(
                     Errors.basic_type_validate_invalid_python_type.format(
                         python_type=type(value).__name__,
                         type=self.display_type,
@@ -121,11 +122,11 @@ class TypeDefinition(TypeImpl):
         if isinstance(expression_or_value, Expression):
             try:
                 return Impl(expression_or_value.value)
-            except Errors.SimpleSchemaGeneratorException as ex:
+            except Errors.SimpleSchemaGeneratorError as ex:
                 ex.errors[0].regions.append(expression_or_value.region)
                 raise
             except Exception as ex:
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Error.Create(
                         ex,
                         expression_or_value.region,
@@ -148,14 +149,14 @@ class TypeDefinition(TypeImpl):
     def _Create(
         cls,
         region: Region,
-        metadata: Optional[Metadata],
-        on_missing_metadata_func: Callable[[str], Union[_MISSING_TYPE, Any]],
+        metadata: Metadata | None,
+        on_missing_metadata_func: Callable[[str], _MISSING_TYPE | object],
     ) -> "TypeDefinition":
         pop_metadata_item_func: Callable[[str], MetadataItem | _MISSING_TYPE] | None = None
 
         if metadata is None:
             # ----------------------------------------------------------------------
-            def PopMetadataItem(name: str) -> MetadataItem | _MISSING_TYPE:
+            def PopMetadataItem(name: str) -> MetadataItem | _MISSING_TYPE:  # noqa: ARG001
                 return MISSING
 
             # ----------------------------------------------------------------------
@@ -192,7 +193,7 @@ class TypeDefinition(TypeImpl):
                 assert isinstance(metadata_item, MetadataItem), metadata_item
 
                 # Note that this content is imported here to avoid circular dependencies
-                from ..Impl.CreateTypeFromPythonAnnotation import (
+                from SimpleSchemaGenerator.Schema.Elements.Types.Impl.CreateTypeFromPythonAnnotation import (
                     CreateTypeFromPythonAnnotation,
                 )
 
@@ -211,11 +212,11 @@ class TypeDefinition(TypeImpl):
 
         try:
             return cls(**construct_args)
-        except Errors.SimpleSchemaGeneratorException as ex:
+        except Errors.SimpleSchemaGeneratorError as ex:
             ex.errors[0].regions.append(metadata.region if metadata is not None else region)
             raise
         except Exception as ex:
-            raise Errors.SimpleSchemaGeneratorException(
+            raise Errors.SimpleSchemaGeneratorError(
                 Error.Create(
                     ex,
                     metadata.region if metadata is not None else region,
@@ -227,6 +228,6 @@ class TypeDefinition(TypeImpl):
     @abstractmethod
     def _ToPythonInstanceImpl(
         self,
-        value: Any,
-    ) -> Any:
-        raise Exception("Abstract method")  # pragma: no cover
+        value: object,
+    ) -> object:
+        raise Exception("Abstract method")  # pragma: no cover  # noqa: EM101, TRY003

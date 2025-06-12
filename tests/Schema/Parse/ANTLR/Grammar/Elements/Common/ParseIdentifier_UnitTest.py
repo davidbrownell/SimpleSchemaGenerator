@@ -20,7 +20,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from SimpleSchemaGenerator.Common.Error import SimpleSchemaGeneratorException
+from SimpleSchemaGenerator.Common.Error import SimpleSchemaGeneratorError
 from SimpleSchemaGenerator.Common.Region import Region
 from SimpleSchemaGenerator.Schema.Elements.Common.Visibility import Visibility
 from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Common.ParseIdentifier import (
@@ -108,7 +108,7 @@ def test_ErrorNoChars():
     region = Region.Create(Path("bar"), 1, 2, 3, 4)
 
     with pytest.raises(
-        SimpleSchemaGeneratorException,
+        SimpleSchemaGeneratorError,
         match=re.escape("'__' does not have any identifiable characters. (bar, Ln 1, Col 2 -> Ln 3, Col 4)"),
     ) as exec_info:
         ParseIdentifier(region, "__")
@@ -123,7 +123,7 @@ def test_ErrorNotAlpha():
     region = Region.Create(Path("bar"), 1, 2, 3, 4)
 
     with pytest.raises(
-        SimpleSchemaGeneratorException,
+        SimpleSchemaGeneratorError,
         match=re.escape(
             "The first identifiable character in '<<<' must be a letter or emoji. (bar, Ln 1, Col 2 -> Ln 3, Col 4)"
         ),

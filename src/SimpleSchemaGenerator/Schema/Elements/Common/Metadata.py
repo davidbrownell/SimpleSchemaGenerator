@@ -15,12 +15,12 @@
 
 from dataclasses import dataclass, field, InitVar
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .Element import Element
 from .TerminalElement import TerminalElement
-from ..Expressions.Expression import Expression
-from .... import Errors
+from SimpleSchemaGenerator.Schema.Elements.Expressions.Expression import Expression
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -37,8 +37,8 @@ class MetadataItem(Element):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield Element._GenerateAcceptDetailsItem("name", self.name)
-        yield Element._GenerateAcceptDetailsItem("expression", self.expression)
+        yield Element._GenerateAcceptDetailsItem("name", self.name)  # noqa: SLF001
+        yield Element._GenerateAcceptDetailsItem("expression", self.expression)  # noqa: SLF001
 
 
 # ----------------------------------------------------------------------
@@ -60,9 +60,9 @@ class Metadata(Element):
         for item in items_param:
             key = item.name.value
 
-            prev_value = items.get(key, None)
+            prev_value = items.get(key)
             if prev_value is not None:
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Errors.MetadataItemDuplicated.Create(
                         item.name.region,
                         key,
@@ -80,4 +80,4 @@ class Metadata(Element):
     # ----------------------------------------------------------------------
     @override
     def _GetAcceptChildren(self) -> Element._GetAcceptChildrenResultType:
-        return Element._GetAcceptChildrenResult("items", list(self.items.values()))
+        return Element._GetAcceptChildrenResult("items", list(self.items.values()))  # noqa: SLF001

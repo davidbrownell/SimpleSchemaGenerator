@@ -16,10 +16,10 @@
 from dataclasses import dataclass
 from typing import cast, ClassVar
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .Expression import Expression
-from ..Common.Element import Element
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
 
 
 # ----------------------------------------------------------------------
@@ -37,6 +37,6 @@ class ListExpression(Expression):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "value", cast(list[Element], self.value)
         )

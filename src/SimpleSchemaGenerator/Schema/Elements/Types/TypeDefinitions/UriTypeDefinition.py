@@ -17,12 +17,13 @@ import re
 
 from dataclasses import dataclass
 from functools import cached_property
-from typing import ClassVar, Optional, Pattern, Type as PythonType
+from re import Pattern
+from typing import ClassVar
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .TypeDefinition import TypeDefinition
-from ..... import Errors
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -41,9 +42,9 @@ class Uri:
 
         # ----------------------------------------------------------------------
         slashes: str
-        username: Optional[str]
+        username: str | None
         host: str
-        port: Optional[int]
+        port: int | None
 
         # ----------------------------------------------------------------------
         def __str__(self) -> str:
@@ -74,10 +75,10 @@ class Uri:
     # |
     # ----------------------------------------------------------------------
     scheme: str
-    authority: Optional[Authority]
-    path: Optional[str]
-    query: Optional[str]
-    fragment: Optional[str]
+    authority: Authority | None
+    path: str | None
+    query: str | None
+    fragment: str | None
 
     # ----------------------------------------------------------------------
     # |
@@ -118,7 +119,7 @@ class UriTypeDefinition(TypeDefinition):
 
     # ----------------------------------------------------------------------
     NAME: ClassVar[str] = "Uri"
-    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[PythonType, ...]] = (str, Uri)
+    SUPPORTED_PYTHON_TYPES: ClassVar[tuple[type, ...]] = (str, Uri)
 
     _VALIDATION_EXPRESSION: ClassVar[Pattern] = re.compile(
         r"""(?#
@@ -163,20 +164,17 @@ class UriTypeDefinition(TypeDefinition):
         if isinstance(value, Uri):
             return value
 
-        match = self.__class__._VALIDATION_EXPRESSION.match(  # pylint: disable=protected-access
+        match = self.__class__._VALIDATION_EXPRESSION.match(  # noqa: SLF001
             value
         )
         if not match:
             raise Exception(Errors.uri_typedef_invalid_value.format(value=value))
 
-        authority: Optional[Uri.Authority] = None
+        authority: Uri.Authority | None = None
 
         if match.group("slashes"):
             port = match.group("port")
-            if port:
-                port = int(port)
-            else:
-                port = None
+            port = int(port) if port else None
 
             authority = Uri.Authority(
                 match.group("slashes"),

@@ -19,7 +19,7 @@ from typing import cast
 from dbrownell_Common.Types import override
 
 from .Statement import Element, Statement
-from .... import Errors
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -31,10 +31,10 @@ class RootStatement(Statement):
     statements: list[Statement]  # Can be empty
 
     # ----------------------------------------------------------------------
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         for statement in self.statements:
             if isinstance(statement, RootStatement):
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Errors.RootStatementInvalidNested.Create(statement.region)
                 )
 
@@ -43,6 +43,6 @@ class RootStatement(Statement):
     # ----------------------------------------------------------------------
     @override
     def _GetAcceptChildren(self) -> Element._GetAcceptChildrenResultType:
-        return Element._GetAcceptChildrenResult(  # pylint: disable=protected-access
+        return Element._GetAcceptChildrenResult(  # noqa: SLF001
             "statements", cast(list[Element], self.statements)
         )

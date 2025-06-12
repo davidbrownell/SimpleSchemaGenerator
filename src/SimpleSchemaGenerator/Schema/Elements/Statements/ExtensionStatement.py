@@ -16,13 +16,13 @@
 from dataclasses import dataclass, field, InitVar
 from typing import cast
 
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.Types import override
 
 from .Statement import Element, Statement
-from ..Common.TerminalElement import TerminalElement
-from ..Expressions.Expression import Expression
+from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import TerminalElement
+from SimpleSchemaGenerator.Schema.Elements.Expressions.Expression import Expression
 
-from .... import Errors
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -39,8 +39,8 @@ class ExtensionStatementKeywordArg(Element):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield Element._GenerateAcceptDetailsItem("name", self.name)
-        yield Element._GenerateAcceptDetailsItem("expression", self.expression)
+        yield Element._GenerateAcceptDetailsItem("name", self.name)  # noqa: SLF001
+        yield Element._GenerateAcceptDetailsItem("expression", self.expression)  # noqa: SLF001
 
 
 # ----------------------------------------------------------------------
@@ -67,7 +67,7 @@ class ExtensionStatement(Statement):
 
             prev_value = keyword_args.get(key)
             if prev_value is not None:
-                raise Errors.SimpleSchemaGeneratorException(
+                raise Errors.SimpleSchemaGeneratorError(
                     Errors.ExtensionStatementDuplicateKeywordArgError.Create(
                         keyword_arg.name.region,
                         key,
@@ -84,12 +84,12 @@ class ExtensionStatement(Statement):
     # ----------------------------------------------------------------------
     @override
     def _GenerateAcceptDetails(self) -> Element._GenerateAcceptDetailsResultType:
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "name", self.name
         )
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "positional_args", cast(list[Element], self.positional_args)
         )
-        yield Element._GenerateAcceptDetailsItem(  # pylint: disable=protected-access
+        yield Element._GenerateAcceptDetailsItem(  # noqa: SLF001
             "keyword_args", cast(list[Element], list(self.keyword_args.values()))
         )

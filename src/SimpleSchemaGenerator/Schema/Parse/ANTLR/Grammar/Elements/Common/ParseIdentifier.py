@@ -15,16 +15,15 @@
 
 from dataclasses import dataclass, field
 from functools import cached_property
-from typing import Optional
 
 import emoji
 
-from ......Elements.Common.Element import Element
-from ......Elements.Common.Visibility import Visibility
-from ......Elements.Common.TerminalElement import TerminalElement
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
+from SimpleSchemaGenerator.Schema.Elements.Common.Visibility import Visibility
+from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import TerminalElement
 
-from ....... import Errors
-from .......Common.Region import Location, Region
+from SimpleSchemaGenerator import Errors
+from SimpleSchemaGenerator.Common.Region import Location, Region
 
 
 # ----------------------------------------------------------------------
@@ -38,16 +37,16 @@ class ParseIdentifier(Element):
     _first_char: str = field(init=False)
 
     # ----------------------------------------------------------------------
-    def __post_init__(self):
-        first_char = self.__class__._GetFirstChar(self.value)  # pylint: disable=protected-access
+    def __post_init__(self) -> None:
+        first_char = self.__class__._GetFirstChar(self.value)  # noqa: SLF001
 
         if first_char is None:
-            raise Errors.SimpleSchemaGeneratorException(
+            raise Errors.SimpleSchemaGeneratorError(
                 Errors.ParseIdentifierNoChars.Create(self.region, self.value)
             )
 
         if not (("a" <= first_char <= "z") or ("A" <= first_char <= "Z") or emoji.is_emoji(first_char)):
-            raise Errors.SimpleSchemaGeneratorException(
+            raise Errors.SimpleSchemaGeneratorError(
                 Errors.ParseIdentifierNotAlpha.Create(self.region, self.value)
             )
 
@@ -65,7 +64,7 @@ class ParseIdentifier(Element):
 
     @cached_property
     def visibility(self) -> TerminalElement[Visibility]:
-        region_value: Optional[Region] = None
+        region_value: Region | None = None
 
         if self.value[0] == "_":
             visibility = Visibility.Private
@@ -95,7 +94,7 @@ class ParseIdentifier(Element):
     @staticmethod
     def _GetFirstChar(
         value: str,
-    ) -> Optional[str]:
+    ) -> str | None:
         for char in value:
             if char not in ["_", "@", "$", "&"]:
                 return char
