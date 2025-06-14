@@ -164,7 +164,7 @@ class Element(ABC):
     @extension
     def _GenerateAcceptDetails(self) -> _GenerateAcceptDetailsResultType:
         # Nothing by default
-        if False:  # pylint: disable=using-constant-test
+        if False:
             yield
 
     # ----------------------------------------------------------------------

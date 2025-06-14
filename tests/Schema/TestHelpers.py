@@ -246,7 +246,7 @@ class YamlVisitor(TerminalElementVisitor):
     # ----------------------------------------------------------------------
     @cached_property
     def yaml_string(self) -> str:
-        global _global_monkey_patched_dumper  # pylint: disable=global-statement
+        global _global_monkey_patched_dumper
 
         with _global_monkey_patched_dumper_lock:
             if _global_monkey_patched_dumper is None:
@@ -281,9 +281,9 @@ class YamlVisitor(TerminalElementVisitor):
     @override
     def OnElementChildren(
         self,
-        element: Element,  # pylint: disable=unused-argument
+        element: Element,
         children_name: str,
-        children: list[Element],  # pylint: disable=unused-argument
+        children: list[Element],
     ) -> Iterator[VisitResult]:
         prev_num_items = len(self._stack)
 
@@ -527,7 +527,7 @@ _global_monkey_patched_dumper_lock = threading.Lock()
 def ToYamlString(
     content: Any,
 ) -> str:
-    global _global_monkey_patched_dumper  # pylint: disable=global-statement
+    global _global_monkey_patched_dumper
 
     with _global_monkey_patched_dumper_lock:
         if _global_monkey_patched_dumper is None:
@@ -597,7 +597,7 @@ class _MonkeyPatchedDumper(object):
         def CustomDumpFunc(
             data,
             stream=None,
-            Dumper=rtyaml.Dumper,  # pylint: disable=unused-argument
+            Dumper=rtyaml.Dumper,
             **kwargs,
         ):
             return yaml.dump(data, stream, CustomDumper, **kwargs)
@@ -647,7 +647,7 @@ class _SingleElementVisitor(ElementVisitor):
     @contextmanager
     def OnElementDetails(
         self,
-        element: Element,  # pylint: disable=unused-argument
+        element: Element,
     ) -> Iterator[VisitResult]:
         yield VisitResult.Continue
 
@@ -656,9 +656,9 @@ class _SingleElementVisitor(ElementVisitor):
     @contextmanager
     def OnElementChildren(
         self,
-        element: Element,  # pylint: disable=unused-argument
+        element: Element,
         children_name: str,
-        children: Iterable[Element],  # pylint: disable=unused-argument
+        children: Iterable[Element],
     ) -> Iterator[VisitResult]:
         self.queue.append((f"<children>: {children_name}", list(children)))
         yield VisitResult.SkipChildren
@@ -687,7 +687,7 @@ class _SingleElementVisitor(ElementVisitor):
     @contextmanager
     def _DefaultElementMethod(
         *args,
-        **kwargs,  # pylint: disable=unused-argument
+        **kwargs,
     ) -> Iterator[VisitResult]:
         yield VisitResult.Continue
 

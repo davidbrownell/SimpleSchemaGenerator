@@ -13,8 +13,6 @@
 # ----------------------------------------------------------------------
 """Contains information relative to TypeDefinitions that are considered to be fundamental (e.g. built into the language)."""
 
-from typing import Type as PythonType
-
 from .TypeDefinitions.BooleanTypeDefinition import BooleanTypeDefinition
 from .TypeDefinitions.DateTimeTypeDefinition import DateTimeTypeDefinition
 from .TypeDefinitions.DateTypeDefinition import DateTypeDefinition
@@ -32,7 +30,7 @@ from .TypeDefinitions.UriTypeDefinition import UriTypeDefinition
 
 
 # ----------------------------------------------------------------------
-fundamental_types: tuple[PythonType[TypeDefinition], ...] = (
+fundamental_types: tuple[type[TypeDefinition], ...] = (
     BooleanTypeDefinition,
     DateTimeTypeDefinition,
     DateTypeDefinition,

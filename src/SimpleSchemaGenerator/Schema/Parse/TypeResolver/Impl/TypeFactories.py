@@ -16,23 +16,31 @@
 import threading
 
 from abc import ABC, abstractmethod
-from typing import cast, Type as PythonType, TYPE_CHECKING
+from typing import cast, TYPE_CHECKING
 from weakref import ref
 
-from dbrownell_Common.ContextlibEx import ExitStack  # type: ignore[import-untyped]
-from dbrownell_Common.Types import extension, override  # type: ignore[import-untyped]
+from dbrownell_Common.ContextlibEx import ExitStack
+from dbrownell_Common.Types import extension, override
 
-from ...ANTLR.Grammar.Elements.Statements.ParseItemStatement import ParseItemStatement
-from ...ANTLR.Grammar.Elements.Statements.ParseStructureStatement import ParseStructureStatement
-from ....Elements.Common.TerminalElement import TerminalElement
-from ....Elements.Common.Visibility import Visibility
-from ....Elements.Statements.Statement import Statement
-from ....Elements.Statements.StructureStatement import StructureStatement
-from ....Elements.Types.FundamentalTypes import fundamental_types as all_fundamental_types
-from ....Elements.Types.Type import Type
-from ....Elements.Types.TypeDefinitions.StructureTypeDefinition import StructureTypeDefinition
-from ....Elements.Types.TypeDefinitions.TypeDefinition import TypeDefinition
-from ..... import Errors
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Statements.ParseItemStatement import (
+    ParseItemStatement,
+)
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Statements.ParseStructureStatement import (
+    ParseStructureStatement,
+)
+from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import TerminalElement
+from SimpleSchemaGenerator.Schema.Elements.Common.Visibility import Visibility
+from SimpleSchemaGenerator.Schema.Elements.Statements.Statement import Statement
+from SimpleSchemaGenerator.Schema.Elements.Statements.StructureStatement import StructureStatement
+from SimpleSchemaGenerator.Schema.Elements.Types.FundamentalTypes import (
+    fundamental_types as all_fundamental_types,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.Type import Type
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.StructureTypeDefinition import (
+    StructureTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.TypeDefinition import TypeDefinition
+from SimpleSchemaGenerator import Errors
 
 if TYPE_CHECKING:  # pragma: no cover
     from .Namespace import Namespace
@@ -73,7 +81,7 @@ class _TypeFactory(ABC):
     def GetOrCreate(
         self,
         ancestor_identities: list[TerminalElement[str]],
-        fundamental_types: dict[str, PythonType[TypeDefinition]],
+        fundamental_types: dict[str, type[TypeDefinition]],
     ) -> Type:
         with self._created_type_lock:
             if self._created_type is None:
@@ -96,13 +104,13 @@ class _TypeFactory(ABC):
         if isinstance(self._created_type, Type):
             return self._created_type
 
-        assert False, self._created_type  # pragma: no cover
+        raise AssertionError(self._created_type)  # pragma: no cover
 
     # ----------------------------------------------------------------------
     @abstractmethod
     def Finalize(self) -> None:
-        """Finalizes the created element."""
-        raise Exception("Abstract method")  # pragma: no cover
+        """Finalize the created element."""
+        raise Exception("Abstract method")  # pragma: no cover  # noqa: EM101, TRY003
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
@@ -111,9 +119,9 @@ class _TypeFactory(ABC):
     def _CreateImpl(
         self,
         ancestor_identities: list[TerminalElement[str]],
-        fundamental_types: dict[str, PythonType[TypeDefinition]],
+        fundamental_types: dict[str, type[TypeDefinition]],
     ) -> Type:
-        raise Exception("Abstract method")  # pragma: no cover
+        raise Exception("Abstract method")  # pragma: no cover  # noqa: EM101, TRY003
 
 
 # ----------------------------------------------------------------------
@@ -124,7 +132,7 @@ class FundamentalTypeFactory(_TypeFactory):
     @property
     @override
     def statement(self) -> ParseItemStatement:
-        return cast(ParseItemStatement, super(FundamentalTypeFactory, self).statement)
+        return cast(ParseItemStatement, super().statement)
 
     # ----------------------------------------------------------------------
     @override
@@ -139,7 +147,7 @@ class FundamentalTypeFactory(_TypeFactory):
     def _CreateImpl(
         self,
         ancestor_identities: list[TerminalElement[str]],
-        fundamental_types: dict[str, PythonType[TypeDefinition]],
+        fundamental_types: dict[str, type[TypeDefinition]],
     ) -> Type:
         statement = self.statement
 
@@ -164,7 +172,7 @@ class StructureTypeFactory(_TypeFactory):
     @property
     @override
     def statement(self) -> ParseStructureStatement:
-        return cast(ParseStructureStatement, super(StructureTypeFactory, self).statement)
+        return cast(ParseStructureStatement, super().statement)
 
     # ----------------------------------------------------------------------
     @override
@@ -193,7 +201,7 @@ class StructureTypeFactory(_TypeFactory):
     def _CreateImpl(
         self,
         ancestor_identities: list[TerminalElement[str]],
-        fundamental_types: dict[str, PythonType[TypeDefinition]],
+        fundamental_types: dict[str, type[TypeDefinition]],
     ) -> Type:
         statement = self.statement
         active_namespace = self.active_namespace

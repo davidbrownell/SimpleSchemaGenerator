@@ -20,7 +20,7 @@ from .Element import Element
 
 
 # ----------------------------------------------------------------------
-TerminalElementType = TypeVar("TerminalElementType")  # pylint: disable=invalid-name
+TerminalElementType = TypeVar("TerminalElementType")
 
 
 @dataclass(frozen=True)

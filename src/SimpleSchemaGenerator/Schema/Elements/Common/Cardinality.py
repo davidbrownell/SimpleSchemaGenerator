@@ -157,7 +157,6 @@ class Cardinality(Element):
     # ----------------------------------------------------------------------
     @cached_property
     def _string(self) -> str:
-        # pylint: disable=too-many-return-statements
         if self.is_single:
             return ""
 
