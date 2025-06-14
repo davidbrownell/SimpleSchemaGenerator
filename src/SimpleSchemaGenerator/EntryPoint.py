@@ -17,7 +17,6 @@ from SimpleSchemaGenerator import __version__
 
 # ----------------------------------------------------------------------
 class NaturalOrderGrouper(TyperGroup):
-    # pylint: disable=missing-class-docstring
     # ----------------------------------------------------------------------
     def list_commands(self, *args, **kwargs) -> list[str]:  # noqa: ARG002
         return list(self.commands.keys())

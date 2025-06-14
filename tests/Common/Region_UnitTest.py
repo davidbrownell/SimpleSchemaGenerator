@@ -13,7 +13,7 @@
 # ----------------------------------------------------------------------
 """Unit tests for Region.py"""
 
-from SimpleSchemaGenerator.Common.Region import *  # type: ignore[import-untyped]
+from SimpleSchemaGenerator.Common.Region import *
 
 
 # ----------------------------------------------------------------------

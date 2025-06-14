@@ -17,7 +17,7 @@ import textwrap
 
 from enum import auto, Enum
 
-from SimpleSchemaGenerator.Common.Error import *  # type: ignore[import-untyped]
+from SimpleSchemaGenerator.Common.Error import *
 
 
 # ----------------------------------------------------------------------

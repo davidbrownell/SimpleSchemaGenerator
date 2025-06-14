@@ -13,30 +13,39 @@
 # ----------------------------------------------------------------------
 """Contains functionality to resolve types."""
 
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Callable, cast, Iterator, Type as PythonType, TypeVar
+from typing import cast, TypeVar
 
-from dbrownell_Common.ContextlibEx import ExitStack  # type: ignore[import-untyped]
-from dbrownell_Common.Streams.DoneManager import DoneManager  # type: ignore[import-untyped]
-from dbrownell_Common.Types import override  # type: ignore[import-untyped]
+from dbrownell_Common.ContextlibEx import ExitStack
+from dbrownell_Common.Streams.DoneManager import DoneManager
+from dbrownell_Common.Types import override
 
 from .Common import PSEUDO_TYPE_NAME_PREFIX
 from .Impl.Namespace import Namespace
 from .Impl.TypeFactories import FundamentalTypeFactory, StructureTypeFactory
-from ..ANTLR.Grammar.Elements.Common.ParseIdentifier import ParseIdentifier
-from ..ANTLR.Grammar.Elements.Statements.ParseIncludeStatement import ParseIncludeStatement
-from ..ANTLR.Grammar.Elements.Statements.ParseItemStatement import ParseItemStatement
-from ..ANTLR.Grammar.Elements.Statements.ParseStructureStatement import ParseStructureStatement
-from ..ANTLR.Grammar.Elements.Types.ParseIdentifierType import ParseIdentifierType
-from ...Elements.Common.Cardinality import Cardinality
-from ...Elements.Common.Visibility import Visibility
-from ...Elements.Statements.RootStatement import RootStatement
-from ...Elements.Types.FundamentalTypes import fundamental_types
-from ...Elements.Types.TypeDefinitions.TypeDefinition import TypeDefinition
-from ....Common.ExecuteInParallel import ExecuteInParallel as ExecuteInParallelImpl
-from ...Visitors.ElementVisitor import VisitResult, ElementVisitorHelper
-from .... import Errors
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Common.ParseIdentifier import ParseIdentifier
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Statements.ParseIncludeStatement import (
+    ParseIncludeStatement,
+)
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Statements.ParseItemStatement import (
+    ParseItemStatement,
+)
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Statements.ParseStructureStatement import (
+    ParseStructureStatement,
+)
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Types.ParseIdentifierType import (
+    ParseIdentifierType,
+)
+from SimpleSchemaGenerator.Schema.Elements.Common.Cardinality import Cardinality
+from SimpleSchemaGenerator.Schema.Elements.Common.Visibility import Visibility
+from SimpleSchemaGenerator.Schema.Elements.Statements.RootStatement import RootStatement
+from SimpleSchemaGenerator.Schema.Elements.Types.FundamentalTypes import fundamental_types
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.TypeDefinition import TypeDefinition
+from SimpleSchemaGenerator.Common.ExecuteInParallel import ExecuteInParallel as ExecuteInParallelImpl
+from SimpleSchemaGenerator.Schema.Visitors.ElementVisitor import VisitResult, ElementVisitorHelper
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -90,7 +99,7 @@ def Resolve(
         results = _ExecuteInParallel(
             verbose_dm,
             namespaces,
-            lambda root_namespace: root_namespace.ResolveIncludes(namespaces),  # type: ignore
+            lambda root_namespace: root_namespace.ResolveIncludes(namespaces),
             quiet=quiet,
             max_num_threads=max_num_threads,
             raise_if_single_exception=raise_if_single_exception,
@@ -163,7 +172,7 @@ class _CreateNamespacesVisitor(ElementVisitorHelper):
         root: RootStatement,
         root_namespace: Namespace,
     ) -> None:
-        super(_CreateNamespacesVisitor, self).__init__()
+        super().__init__()
 
         self._root = root
         self._namespace_stack: list[Namespace] = [root_namespace]
@@ -198,7 +207,7 @@ class _CreateNamespacesVisitor(ElementVisitorHelper):
         elif element.name.is_expression:
             self._namespace_stack[-1].AddItemStatement(element)
         else:
-            assert False, element.name
+            raise AssertionError(element.name)
 
     # ----------------------------------------------------------------------
     @override
@@ -297,7 +306,7 @@ def _ExecuteInParallel(
         dm,
         "Processing",
         items,
-        lambda context, status: func(context),
+        lambda context, _: func(context),
         quiet=quiet,
         max_num_threads=max_num_threads,
         raise_if_single_exception=raise_if_single_exception,
@@ -305,8 +314,8 @@ def _ExecuteInParallel(
 
 
 # ----------------------------------------------------------------------
-def _LoadFundamentalTypes() -> dict[str, PythonType[TypeDefinition]]:
-    results: dict[str, PythonType[TypeDefinition]] = {}
+def _LoadFundamentalTypes() -> dict[str, type[TypeDefinition]]:
+    results: dict[str, type[TypeDefinition]] = {}
 
     for typedef in fundamental_types:
         assert typedef.NAME not in results, typedef.NAME

@@ -176,7 +176,7 @@ def CreateErrorType(
     @dataclass(frozen=True)
     class NewError(
         dynamic_fields_class  # type: ignore[valid-type]
-    ):  # pylint: disable=missing-class-docstring
+    ):
         # ----------------------------------------------------------------------
         message: str = field(init=False)
 

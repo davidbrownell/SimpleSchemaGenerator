@@ -13,11 +13,12 @@
 # ----------------------------------------------------------------------
 """Contains the ExecuteInParallel function."""
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, cast, TypeVar
+from typing import cast, TypeVar
 
-from dbrownell_Common import ExecuteTasks  # type: ignore[import-untyped]
-from dbrownell_Common.Streams.DoneManager import DoneManager  # type: ignore[import-untyped]
+from dbrownell_Common import ExecuteTasks
+from dbrownell_Common.Streams.DoneManager import DoneManager
 
 
 # ----------------------------------------------------------------------
@@ -39,7 +40,7 @@ def ExecuteInParallel(
     # ----------------------------------------------------------------------
     def Prepare(
         context: ExecuteInParallelInputT,
-        on_simple_status_func: Callable[[str], None],  # pylint: disable=unused-argument
+        _: Callable[[str], None],
     ) -> (
         tuple[int, ExecuteTasks.TransformTasksExTypes.TransformFuncType]
         | ExecuteTasks.TransformTasksExTypes.TransformFuncType
@@ -73,6 +74,7 @@ def ExecuteInParallel(
             max_num_threads=max_num_threads,
             return_exceptions=True,
         ),
+        strict=True,
     ):
         if isinstance(result, Exception):
             exceptions[filename] = result

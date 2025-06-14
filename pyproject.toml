@@ -86,6 +86,7 @@ ignore = [
     "D400", # First line should end with a period
     "D415", # First line should end with a period, question mark, or exclamation point
     "E501", # Line too long
+    "ERA001", # Found commented-out code
     "FIX002", # Line contains TODO, consider resolving the issue
     "I001", # Import block is un-sorted or un-formatted
     "N802", # Function name `xxx` should be lowercase

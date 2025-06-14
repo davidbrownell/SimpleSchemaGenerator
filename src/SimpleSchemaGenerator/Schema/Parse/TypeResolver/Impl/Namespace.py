@@ -17,36 +17,49 @@ import bisect
 
 from enum import auto, Enum
 from pathlib import Path
-from typing import Optional, Type as PythonType, Union
+from typing import Optional, Union
 from weakref import ref, ReferenceType as WeakReferenceType
 
-from dbrownell_Common.ContextlibEx import ExitStack  # type: ignore[import-untyped]
+from dbrownell_Common.ContextlibEx import ExitStack
 
 from .TypeFactories import FundamentalTypeFactory, StructureTypeFactory
-from ...ANTLR.Grammar.Elements.Statements.ParseIncludeStatement import (
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Statements.ParseIncludeStatement import (
     ParseIncludeStatement,
     ParseIncludeStatementType,
 )
-from ...ANTLR.Grammar.Elements.Statements.ParseItemStatement import ParseItemStatement
-from ...ANTLR.Grammar.Elements.Statements.ParseStructureStatement import ParseStructureStatement
-from ...ANTLR.Grammar.Elements.Types.ParseIdentifierType import ParseIdentifier, ParseIdentifierType
-from ...ANTLR.Grammar.Elements.Types.ParseTupleType import ParseTupleType
-from ...ANTLR.Grammar.Elements.Types.ParseType import ParseType
-from ...ANTLR.Grammar.Elements.Types.ParseVariantType import ParseVariantType
-from ....Elements.Common.Element import Element
-from ....Elements.Common.Metadata import Metadata, MetadataItem
-from ....Elements.Common.TerminalElement import TerminalElement
-from ....Elements.Common.Visibility import Visibility
-from ....Elements.Statements.ItemStatement import ItemStatement
-from ....Elements.Statements.RootStatement import RootStatement
-from ....Elements.Statements.Statement import Statement
-from ....Elements.Types.Type import Type
-from ....Elements.Types.TypeDefinitions.StructureTypeDefinition import StructureTypeDefinition
-from ....Elements.Types.TypeDefinitions.TupleTypeDefinition import TupleTypeDefinition
-from ....Elements.Types.TypeDefinitions.TypeDefinition import TypeDefinition
-from ....Elements.Types.TypeDefinitions.VariantTypeDefinition import VariantTypeDefinition
-from .....Common.Region import Region
-from ..... import Errors
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Statements.ParseItemStatement import (
+    ParseItemStatement,
+)
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Statements.ParseStructureStatement import (
+    ParseStructureStatement,
+)
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Types.ParseIdentifierType import (
+    ParseIdentifier,
+    ParseIdentifierType,
+)
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Types.ParseTupleType import ParseTupleType
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Types.ParseType import ParseType
+from SimpleSchemaGenerator.Schema.Parse.ANTLR.Grammar.Elements.Types.ParseVariantType import ParseVariantType
+from SimpleSchemaGenerator.Schema.Elements.Common.Element import Element
+from SimpleSchemaGenerator.Schema.Elements.Common.Metadata import Metadata, MetadataItem
+from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import TerminalElement
+from SimpleSchemaGenerator.Schema.Elements.Common.Visibility import Visibility
+from SimpleSchemaGenerator.Schema.Elements.Statements.ItemStatement import ItemStatement
+from SimpleSchemaGenerator.Schema.Elements.Statements.RootStatement import RootStatement
+from SimpleSchemaGenerator.Schema.Elements.Statements.Statement import Statement
+from SimpleSchemaGenerator.Schema.Elements.Types.Type import Type
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.StructureTypeDefinition import (
+    StructureTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.TupleTypeDefinition import (
+    TupleTypeDefinition,
+)
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.TypeDefinition import TypeDefinition
+from SimpleSchemaGenerator.Schema.Elements.Types.TypeDefinitions.VariantTypeDefinition import (
+    VariantTypeDefinition,
+)
+from SimpleSchemaGenerator.Common.Region import Region
+from SimpleSchemaGenerator import Errors
 
 
 # ----------------------------------------------------------------------
@@ -55,10 +68,7 @@ from ..... import Errors
 # |
 # ----------------------------------------------------------------------
 class Namespace:
-    """\
-    Object associated with a RootStatement, ParseStructureStatement, or generated dynamically by
-    a ParseIncludeStatement that manages a collection of types.
-    """
+    """Object associated with a RootStatement, ParseStructureStatement, or generated dynamically by a ParseIncludeStatement that manages a collection of types."""
 
     # ----------------------------------------------------------------------
     def __init__(
@@ -108,7 +118,7 @@ class Namespace:
         parse_type: ParseType,
         identity: TerminalElement[str],
         ancestor_identities: list[TerminalElement[str]],
-        fundamental_types: dict[str, PythonType[TypeDefinition]],
+        fundamental_types: dict[str, type[TypeDefinition]],
         *,
         region: Region | None = None,
     ) -> Type:
@@ -136,14 +146,14 @@ class Namespace:
                     region=region,
                 )
 
-            type_definition_class: PythonType[TupleTypeDefinition | VariantTypeDefinition]
+            type_definition_class: type[TupleTypeDefinition | VariantTypeDefinition]
 
             if isinstance(parse_type, ParseTupleType):
                 type_definition_class = TupleTypeDefinition
             elif isinstance(parse_type, ParseVariantType):
                 type_definition_class = VariantTypeDefinition
             else:
-                assert False, parse_type  # pragma: no cover
+                raise TypeError(parse_type)  # pragma: no cover
 
             type_definition = type_definition_class(
                 parse_type.region,
@@ -159,7 +169,7 @@ class Namespace:
                         ancestor_identities,
                         fundamental_types,
                     )
-                    for child_type_index, child_type in enumerate(parse_type.types)  # type: ignore
+                    for child_type_index, child_type in enumerate(parse_type.types)
                 ],
             )
 
@@ -200,7 +210,7 @@ class Namespace:
         name: TerminalElement[str],
         item: Union["Namespace", FundamentalTypeFactory],
     ) -> None:
-        self._ValidateVisibility(self.__class__._GetVisibility(item))
+        self._ValidateVisibility(self.__class__._GetVisibility(item))  # noqa: SLF001
 
         # Insert in sorted order
         bisect.insort(
@@ -214,11 +224,11 @@ class Namespace:
         self,
         element: Element,
     ) -> tuple[list[Element], int]:
-        """Returns information on where the provided element can be found relative to its siblings."""
+        """Return information on where the provided element can be found relative to its siblings."""
         parent_statement = self.statement
 
         accept_children_result = (
-            parent_statement._GetAcceptChildren()  # pylint: disable=protected-access
+            parent_statement._GetAcceptChildren()  # noqa: SLF001
         )
         assert accept_children_result is not None
 
@@ -228,7 +238,7 @@ class Namespace:
             if child is element:
                 return children, child_index
 
-        assert False, (children, element)  # pragma: no cover
+        raise AssertionError(children, element)  # pragma: no cover
 
     # ----------------------------------------------------------------------
     def ResolveIncludes(
@@ -247,17 +257,17 @@ class Namespace:
                 # Don't worry if there are multiple values (which indicates an error) right now, as
                 # that scenario will be handled later. However, we need this information in order to
                 # calculate errors.
-                nested_include_item = nested_include_item[0][1]
+                this_nested_include_item = nested_include_item[0][1]
 
-                if self.__class__._GetVisibility(nested_include_item).value != Visibility.Public:  # pylint: disable=protected-access
+                if self.__class__._GetVisibility(this_nested_include_item).value != Visibility.Public:  # noqa: SLF001
                     continue
 
                 parent_namespace.AddNestedItem(
                     TerminalElement[str](include_statement_region, key),
-                    nested_include_item,
+                    this_nested_include_item,
                 )
 
-                parent_namespace._included_items.add(id(nested_include_item))
+                parent_namespace._included_items.add(id(this_nested_include_item))
 
         # ----------------------------------------------------------------------
 
@@ -283,7 +293,7 @@ class Namespace:
 
             elif statement.include_type == ParseIncludeStatementType.Package:
                 for include_item in statement.items:
-                    nested_include_item = included_namespace._data.working_nested.get(
+                    nested_include_item = included_namespace._data.working_nested.get(  # noqa: SLF001
                         include_item.element_name.value, None
                     )
                     if nested_include_item is None:
@@ -299,7 +309,7 @@ class Namespace:
                     # calculate errors.
                     nested_include_item = nested_include_item[0][1]
 
-                    if self.__class__._GetVisibility(nested_include_item).value != Visibility.Public:
+                    if self.__class__._GetVisibility(nested_include_item).value != Visibility.Public:  # noqa: SLF001
                         raise Errors.SimpleSchemaGeneratorException(
                             Errors.NamespaceInvalidIncludeItemVisibility.Create(
                                 include_item.element_name.region,
@@ -318,7 +328,7 @@ class Namespace:
                 ApplyIncludedItems(self, included_namespace, statement.region)
 
             else:
-                assert False, statement.include_type  # pragma: no cover
+                raise AssertionError(statement.include_type)  # pragma: no cover
 
         for nested_values in self._data.working_nested.values():
             nested_value = nested_values[0][1]
@@ -361,7 +371,7 @@ class Namespace:
     # ----------------------------------------------------------------------
     def ResolveTypes(
         self,
-        fundamental_types: dict[str, PythonType[TypeDefinition]],
+        fundamental_types: dict[str, type[TypeDefinition]],
     ) -> None:
         self._data.state = _State.ResolvingTypes
 
@@ -390,17 +400,17 @@ class Namespace:
                     # If here, we are looking at a namespace that was created for a
                     # module import. No need to generate an element based on this
                     # namespace, as there isn't an element that actually exists.
-                    assert (  # pylint: disable=protected-access
-                        nested_value._structure_type_factory is None
+                    assert (
+                        nested_value._structure_type_factory is None  # noqa: SLF001
                     )
 
                     continue
 
-                assert (  # pylint: disable=protected-access
-                    nested_value._structure_type_factory is not None
+                assert (
+                    nested_value._structure_type_factory is not None  # noqa: SLF001
                 )
                 type_factory = (
-                    nested_value._structure_type_factory  # pylint: disable=protected-access
+                    nested_value._structure_type_factory  # noqa: SLF001
                 )
 
             else:
@@ -439,8 +449,8 @@ class Namespace:
     def Finalize(self) -> None:
         self._data.state = _State.Finalizing
 
-        if self._structure_type_factory:  # pylint: disable=protected-access
-            self._structure_type_factory.Finalize()  # pylint: disable=protected-access
+        if self._structure_type_factory:
+            self._structure_type_factory.Finalize()
 
         for nested_value in self._data.final_nested.values():
             if id(nested_value) not in self._included_items:
@@ -456,7 +466,7 @@ class Namespace:
         identifiers: list[ParseIdentifier],
         namespace: "Namespace",
         ancestor_identities: list[TerminalElement[str]],
-        fundamental_types: dict[str, PythonType[TypeDefinition]],
+        fundamental_types: dict[str, type[TypeDefinition]],
     ) -> Type | None:
         current_namespace = namespace
 
@@ -475,12 +485,11 @@ class Namespace:
             is_last_identifier = identifier_index == len(identifiers) - 1
 
             if isinstance(potential_namespace_or_factory, Namespace):
-                if potential_namespace_or_factory._structure_type_factory is not None:
-                    if is_last_identifier:
-                        return potential_namespace_or_factory._structure_type_factory.GetOrCreate(
-                            ancestor_identities,
-                            fundamental_types,
-                        )
+                if potential_namespace_or_factory._structure_type_factory is not None and is_last_identifier:  # noqa: SLF001
+                    return potential_namespace_or_factory._structure_type_factory.GetOrCreate(  # noqa: SLF001
+                        ancestor_identities,
+                        fundamental_types,
+                    )
 
                 current_namespace = potential_namespace_or_factory
 
@@ -497,7 +506,7 @@ class Namespace:
                     ),
                 )
             else:
-                assert False, potential_namespace_or_factory  # pragma: no cover
+                raise TypeError(potential_namespace_or_factory)  # pragma: no cover
 
         return None
 
@@ -508,9 +517,9 @@ class Namespace:
         name: TerminalElement[str],
         parse_type: ParseIdentifierType,
         ancestor_identities: list[TerminalElement[str]],
-        fundamental_types: dict[str, PythonType[TypeDefinition]],
+        fundamental_types: dict[str, type[TypeDefinition]],
         *,
-        region: Optional[Region],
+        region: Region | None,
     ) -> Type:
         namespace_type: Type | TypeDefinition | None = None
 
@@ -526,7 +535,7 @@ class Namespace:
             namespaces.reverse()
 
             for search_namespace in namespaces:
-                namespace_type = self.__class__._GetNamespaceType(
+                namespace_type = self.__class__._GetNamespaceType(  # noqa: SLF001
                     parse_type.identifiers,
                     search_namespace,
                     ancestor_identities,
@@ -541,7 +550,7 @@ class Namespace:
             search_namespace: Namespace | None = self
 
             while search_namespace is not None:
-                namespace_type = self.__class__._GetNamespaceType(
+                namespace_type = self.__class__._GetNamespaceType(  # noqa: SLF001
                     parse_type.identifiers,
                     search_namespace,
                     ancestor_identities,
@@ -564,13 +573,11 @@ class Namespace:
                     ):
                         type_definition = resolved_type.type
 
-                        type_metadata_items: list[MetadataItem] = []
-
-                        for metadata_item in list(parse_type.unresolved_metadata.items.values()):
-                            if metadata_item.name.value in type_definition.FIELDS:
-                                type_metadata_items.append(
-                                    parse_type.unresolved_metadata.items.pop(metadata_item.name.value)
-                                )
+                        type_metadata_items: list[MetadataItem] = [
+                            parse_type.unresolved_metadata.items.pop(metadata_item.name.value)
+                            for metadata_item in list(parse_type.unresolved_metadata.items.values())
+                            if metadata_item.name.value in type_definition.FIELDS
+                        ]
 
                         if type_metadata_items:
                             namespace_type = type_definition.DeriveNewType(
@@ -746,12 +753,14 @@ class Namespace:
                 # This line will never be invoked, but it just seems wrong not to include it.
                 # Disabling coverage on this line.
                 return TerminalElement[Visibility](item.statement.region, item.visibility)
-            elif isinstance(item.statement, ParseIncludeStatement):
+
+            if isinstance(item.statement, ParseIncludeStatement):
                 return TerminalElement[Visibility](item.statement.region, item.visibility)
-            elif isinstance(item.statement, ParseStructureStatement):
+
+            if isinstance(item.statement, ParseStructureStatement):
                 return item.statement.name.visibility
-            else:
-                assert False, item.statement  # pragma: no cover
+
+            raise TypeError(item.statement)  # pragma: no cover
 
         return item.statement.name.visibility
 
@@ -801,7 +810,7 @@ class Namespace:
 
         parent = self.parent
         if parent is not None and not isinstance(parent.statement, RootStatement):
-            parent._ValidateTypeName(  # pylint: disable=protected-access
+            parent._ValidateTypeName(  # noqa: SLF001
                 name, region, is_initial_validation=False
             )
 

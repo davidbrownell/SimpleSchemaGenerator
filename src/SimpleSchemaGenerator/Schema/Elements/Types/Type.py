@@ -23,7 +23,7 @@ from weakref import ref, ReferenceType as WeakReferenceType
 
 from dbrownell_Common.Types import extension, override
 
-from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import Element  # type: ignore[import-untyped]
+from SimpleSchemaGenerator.Schema.Elements.Common.TerminalElement import Element
 
 from .Impl.TypeImpl import TypeImpl
 from .TypeDefinitions.TypeDefinition import TypeDefinition
