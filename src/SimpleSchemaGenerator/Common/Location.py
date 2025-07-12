@@ -54,6 +54,9 @@ class Location:
         return 0
 
     # ----------------------------------------------------------------------
+    def __hash__(self) -> int:
+        return hash((self.line, self.column))
+
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Location) and self.__class__.Compare(self, other) == 0
 

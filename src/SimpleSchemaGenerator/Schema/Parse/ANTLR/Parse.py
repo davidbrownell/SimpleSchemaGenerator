@@ -1175,7 +1175,7 @@ def _CreateIncludeStatementFuncFactory(  # noqa: C901, PLR0915
         path: Path,
         *,
         allow_directory: bool,
-    ) -> Optional[Path]:  # noqa: UP007
+    ) -> Optional[Path]:  # noqa: UP045
         path = path.resolve()
 
         if path.is_file() or (allow_directory and path.is_dir()):

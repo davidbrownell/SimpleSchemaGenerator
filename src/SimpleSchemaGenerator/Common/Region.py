@@ -89,6 +89,9 @@ class Region:
         return 0
 
     # ----------------------------------------------------------------------
+    def __hash__(self) -> int:
+        return hash((self.filename, self.begin, self.end))
+
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Region) and self.__class__.Compare(self, other) == 0
 

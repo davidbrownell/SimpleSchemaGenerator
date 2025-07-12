@@ -24,7 +24,7 @@ TerminalElementType = TypeVar("TerminalElementType")
 
 
 @dataclass(frozen=True)
-class TerminalElement(Generic[TerminalElementType], Element):
+class TerminalElement(Generic[TerminalElementType], Element):  # noqa: UP046
     """Element with a single value member"""
 
     # ----------------------------------------------------------------------

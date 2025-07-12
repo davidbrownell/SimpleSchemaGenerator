@@ -193,7 +193,7 @@ class TypeDefinition(TypeImpl):
                 assert isinstance(metadata_item, MetadataItem), metadata_item
 
                 # Note that this content is imported here to avoid circular dependencies
-                from SimpleSchemaGenerator.Schema.Elements.Types.Impl.CreateTypeFromPythonAnnotation import (
+                from SimpleSchemaGenerator.Schema.Elements.Types.Impl.CreateTypeFromPythonAnnotation import (  # noqa: PLC0415
                     CreateTypeFromPythonAnnotation,
                 )
 
