@@ -61,6 +61,16 @@ def test_Comparison():
 
 
 # ----------------------------------------------------------------------
+def test_Hash():
+    assert hash(Region.Create(Path("foo"), 1, 2, 3, 4)) == hash((Path("foo"), Location(1, 2), Location(3, 4)))
+    assert hash(Region.Create(Path("foo"), 1, 2, 3, 4)) != hash(Region.Create(Path("bar"), 1, 2, 3, 4))
+    assert hash(Region.Create(Path("foo"), 1, 2, 3, 4)) != hash(Region.Create(Path("foo"), 1, 2, 3, 40))
+    assert hash(Region.Create(Path("foo"), 1, 2, 3, 4)) != hash(Region.Create(Path("foo"), 1, 2, 30, 4))
+    assert hash(Region.Create(Path("foo"), 1, 2, 3, 4)) != hash(Region.Create(Path("foo"), 1, 20, 3, 4))
+    assert hash(Region.Create(Path("foo"), 1, 2, 3, 4)) != hash(Region.Create(Path("foo"), 10, 2, 30, 40))
+
+
+# ----------------------------------------------------------------------
 def test_Contains():
     r = Region.Create(Path("foo"), 1, 2, 3, 4)
 

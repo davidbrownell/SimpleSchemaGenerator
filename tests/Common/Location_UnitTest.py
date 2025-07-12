@@ -60,3 +60,9 @@ def test_Comparison():
     assert Location(3, 4) >= Location(1, 4)
     assert Location(3, 4) >= Location(3, 1)
     assert Location(1, 2) >= Location(1, 2)
+
+
+# ----------------------------------------------------------------------
+def test_Hash():
+    assert hash(Location(1, 2)) == hash((1, 2))
+    assert hash(Location(1, 2) != hash(Location(3, 4)))

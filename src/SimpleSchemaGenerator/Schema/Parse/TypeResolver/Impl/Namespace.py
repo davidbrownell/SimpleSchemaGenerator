@@ -752,7 +752,7 @@ class Namespace:
             if isinstance(item.statement, RootStatement):
                 # This line will never be invoked, but it just seems wrong not to include it.
                 # Disabling coverage on this line.
-                return TerminalElement[Visibility](item.statement.region, item.visibility)
+                return TerminalElement[Visibility](item.statement.region, item.visibility)  # pragma: no cover
 
             if isinstance(item.statement, ParseIncludeStatement):
                 return TerminalElement[Visibility](item.statement.region, item.visibility)
